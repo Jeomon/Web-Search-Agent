@@ -2,8 +2,9 @@
 
 **Web Search Agent** is an intelligent system built with **Playwright** to automate web browsing tasks. This agent interacts with web pages by identifying and acting on interactive elements, such as buttons, links, and input fields, using annotated screenshots. It efficiently performs complex web interactions through precise actions and context-based decision-making, offering a robust solution for web automation, testing, and intelligent browsing.
 
-## Video Demonstration
-[Demo of the project](https://github.com/Jeomon/Web-Search-Agent/blob/main/assets/demo.mp4)
+<video width="500" height="300" controls>
+  <source src="https://github.com/Jeomon/Web-Search-Agent/blob/main/assets/demo.mov" type="video/mp4">
+</video>
 
 ## Key Features
 
@@ -77,3 +78,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Playwright Documentation:** [https://playwright.dev/docs/intro](https://playwright.dev/docs/intro)
 - **WebVoyager:** [https://github.com/MinorJerry/WebVoyager](https://github.com/MinorJerry/WebVoyager)
 - **Langgraph Examples:** [https://github.com/langchain-ai/langgraph/blob/main/examples/web-navigation/web_voyager.ipynb](https://github.com/langchain-ai/langgraph/blob/main/examples/web-navigation/web_voyager.ipynb)
+- **vimGPT:** [https://github.com/ishan0102/vimGPT](https://github.com/ishan0102/vimGPT)
