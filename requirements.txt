@@ -1,0 +1,6 @@
+langgraph
+tenacity
+requests
+playwright
+termcolor
+python-dotenv
