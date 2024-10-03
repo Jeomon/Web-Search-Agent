@@ -4,7 +4,7 @@
 
 ## Video Demonstration
 <video width="500" height="300" controls>
-  <source src="/assets/demo.mp4" type="video/mp4">
+  <source src="https://github.com/Jeomon/Web-Search-Agent/blob/main/assets/demo.mp4" type="video/mp4">
 </video>
 
 ## Key Features
