@@ -2,9 +2,7 @@
 
 **Web Search Agent** is an intelligent system built with **Playwright** to automate web browsing tasks. This agent interacts with web pages by identifying and acting on interactive elements, such as buttons, links, and input fields, using annotated screenshots. It efficiently performs complex web interactions through precise actions and context-based decision-making, offering a robust solution for web automation, testing, and intelligent browsing.
 
-<video width="500" height="300" controls>
-  <source src="https://github.com/Jeomon/Web-Search-Agent/blob/main/assets/demo.mov" type="video/mp4">
-</video>
+[Demo of the Project](https://github.com/Jeomon/Web-Search-Agent/blob/main/assets/demo.mov)
 
 ## Key Features
 
