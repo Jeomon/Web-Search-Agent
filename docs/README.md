@@ -34,13 +34,25 @@
 
 4. **Result Evaluation:** After executing the action, the agent evaluates the result and adjusts its next steps, if necessary.
 
-## Example Workflow
+### Example Queries
 
-1. The agent loads a webpage and takes a screenshot.
-2. It highlights all buttons, input fields, and links, marking them with numbered bounding boxes.
-3. The LLM reviews the screenshot and instructions, then determines the appropriate action (e.g., click a button or fill out a form).
-4. The agent performs the required actions step-by-step, using tools like **Click**, **Type**, **Scroll**, and **GoTo** to achieve the task.
-5. If the action fails or produces unexpected results, the agent recovers by adjusting the coordinates or waiting for additional content to load before retrying.
+#### Example: Find the distance between two places using Google Maps
+
+```plaintext
+Enter your query: Can you tell me the distance from kochi to singapore.
+Thought: I will navigate to Google Maps to find the distance between Kochi and Singapore.
+Observation: Typed Singapore.
+Thought: I will click on the "Directions" button to get the distance between Kochi and Singapore.
+Action Name: Click Tool
+Action Input: {'label_number': 17}
+Observation: Clicked the Button.
+Thought: I will type "Kochi" in the "Choose starting point, or click on the map" field to find the distance between Kochi and Singapore.
+Action Name: Type Tool
+Action Input: {'label_number': 9, 'content': 'Kochi'}
+Observation: Typed Kochi.
+Thought: The screenshot shows the distance between Kochi and Singapore is 4 hours and 40 minutes by flight.
+Final Answer: The distance from Kochi to Singapore is 4 hours and 40 minutes by flight.
+```
 
 ## Installation
 
