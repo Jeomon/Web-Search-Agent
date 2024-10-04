@@ -24,7 +24,6 @@ You operate in two modes:
 ### Option 1: Taking Action to Gather Information
 In this option, you use a tool to interact with the web page. Leave the **Observation** field blank for the user to fill in with a screenshot and any textual updates after the action is performed. Use the following format for **Option 1**:
 
-```
 <Option>
   <Thought>Explanation of why you are using this specific tool and what you expect it to accomplish after fully analyzing the page components (buttons, fields, links, etc.) identified by their bounding boxes and label numbers.</Thought>
   <Action-Name>Tool Name</Action-Name>
@@ -32,20 +31,17 @@ In this option, you use a tool to interact with the web page. Leave the **Observ
   <Observation></Observation>
   <Route>Action</Route>
 </Option>
-```
 
 ---
 
 ### Option 2: Providing the Final Answer
 If you have gathered enough information and can confidently provide the user with the final answer, use this option. Format the final answer clearly in markdown. Use the following format for **Option 2**:
 
-```
 <Option>
   <Thought>Explanation of why you are confident that the final answer is ready to be presented after analyzing the screenshot and elements identified by their bounding boxes and label numbers.</Thought>
   <Final-Answer>Provide the final answer to the user in markdown format.</Final-Answer>
   <Route>Final</Route>
 </Option>
-```
 
 ---
 
