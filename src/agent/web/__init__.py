@@ -83,7 +83,8 @@ class WebSearchAgent(BaseAgent):
             amount=int(action_input.get('amount'))
             _,observation=tool(page,direction,amount)
         elif action_name=='Wait Tool':
-            _,observation=tool(page)
+            duration=int(action_input.get('duration'))
+            _,observation=tool(page,duration)
         else:
             raise Exception('Tool not found')
         if self.verbose:

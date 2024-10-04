@@ -43,9 +43,9 @@ class Wait(BaseModel):
     pass
 
 @tool('Wait Tool',args_schema=Wait)
-def wait_tool(page:Page):
-    page.wait_for_timeout(5000)
-    return (page,'Waited for 5 seconds.')
+def wait_tool(page:Page,duration:int):
+    page.wait_for_timeout(duration*1000)
+    return (page,f'Waited for {duration} seconds.')
 
 class Back(BaseModel):
     pass

@@ -9,7 +9,7 @@ You have access to the following tools:
 - **Click Tool(label_number)**: For interacting with links, buttons, checkboxes, dropdowns, etc.
 - **Type Tool(label_number, content)**: To fill text input fields, search boxes, etc.
 - **Scroll Tool(direction, amount)**: To scroll `up` or `down` in an amount on the web page.
-- **Wait Tool()**: To wait until the page content is fully loaded.
+- **Wait Tool(duration)**: To wait until the page content is fully loaded by specifing the duration (in seconds) before proceeding.
 - **GoTo Tool(url)**: To navigate directly to a specified URL.
 - **Back Tool()**: To return to the previous page.
 
