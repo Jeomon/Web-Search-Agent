@@ -33,6 +33,7 @@ class WebSearchAgent(BaseAgent):
         self.verbose=verbose
         self.graph=self.create_graph()
         self.cordinates=None
+        self.wait_time=5000
         with open('./src/agent/web/bounding_box.js','r') as js:
             self.js_script=js.read()
 
@@ -70,26 +71,32 @@ class WebSearchAgent(BaseAgent):
             print(colored(f'Action Input: {action_input}',color='blue',attrs=['bold']))
         tool=self.tools[action_name]
         if action_name=='GoTo Tool':
-            _,observation=await tool(page,**action_input)
+            page,observation=await tool(page,**action_input)
+            await page.wait_for_timeout(self.wait_time)
         elif action_name=='Click Tool':
             label=action_input.get('label_number')
-            _,observation=await tool(page,*self.element_finder(state,label))
+            page,observation=await tool(page,*self.element_finder(state,label))
+            await page.wait_for_timeout(self.wait_time)
         elif action_name=='Type Tool':
             label=action_input.get('label_number')
             text=action_input.get('content')
-            _,observation=await tool(page,*self.element_finder(state,label),text=text)
+            page,observation=await tool(page,*self.element_finder(state,label),text=text)
+            await page.wait_for_timeout(self.wait_time)
         elif action_name=='Scroll Tool':
             direction=action_input.get('direction')
             amount=int(action_input.get('amount'))
-            _,observation=await tool(page,direction,amount)
+            page,observation=await tool(page,direction,amount)
+            await page.wait_for_timeout(self.wait_time)
         elif action_name=='Wait Tool':
             duration=int(action_input.get('duration'))
-            _,observation=await tool(page,duration)
+            page,observation=await tool(page,duration)
+            await page.wait_for_timeout(self.wait_time)
         else:
             raise Exception('Tool not found')
         if self.verbose:
             print(colored(f'Observation: {observation}',color='green',attrs=['bold']))
-        await asyncio.sleep(10) #Wait for 10 seconds
+        # await asyncio.sleep(10) #Wait for 10 seconds
+        await page.wait_for_load_state('domcontentloaded')
         await page.evaluate(self.js_script)
         cordinates=await page.evaluate('mark_page()')
         if self.screenshot:
