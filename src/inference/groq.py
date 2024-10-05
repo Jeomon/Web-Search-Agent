@@ -1,9 +1,11 @@
 from src.message import AIMessage,BaseMessage,SystemMessage,ImageMessage,HumanMessage
-from requests import post,get,RequestException,HTTPError,ConnectionError
+from requests import RequestException,HTTPError,ConnectionError
 from tenacity import retry,stop_after_attempt,retry_if_exception_type
 from src.inference import BaseInference
+from httpx import Client,AsyncClient
 from typing import Generator
 from json import loads
+import requests
 
 class ChatGroq(BaseInference):
     @retry(stop=stop_after_attempt(3),retry=retry_if_exception_type(RequestException))
@@ -23,15 +25,15 @@ class ChatGroq(BaseInference):
                         'role':'user',
                         'content':{
                             {
-                        'type':'text',
-                        'text':text
-                        },
-                        {
-                            'type':'image_url',
-                            'image_url':{
-                                'url':image
+                                'type':'text',
+                                'text':text
+                            },
+                            {
+                                'type':'image_url',
+                                'image_url':{
+                                    'url':image
+                                }
                             }
-                        }
                         }
                     }
                 ])
@@ -47,8 +49,8 @@ class ChatGroq(BaseInference):
                 "type": "json_object"
             }
         try:
-            response=post(url=url,json=payload,headers=headers)
-            response.raise_for_status()
+            with Client() as client:
+                response=client.post(url=url,json=payload,headers=headers)
             json_object=response.json()
             # print(json_object)
             if json_object.get('error'):
@@ -83,7 +85,7 @@ class ChatGroq(BaseInference):
                 "type": "json_object"
             }
         try:
-            response=post(url=url,json=payload,headers=headers)
+            response=requests.post(url=url,json=payload,headers=headers)
             response.raise_for_status()
             chunks=response.iter_lines(decode_unicode=True)
             for chunk in chunks:
@@ -102,7 +104,7 @@ class ChatGroq(BaseInference):
         url='https://api.groq.com/openai/v1/models'
         self.headers.update({'Authorization': f'Bearer {self.api_key}'})
         headers=self.headers
-        response=get(url=url,headers=headers)
+        response=requests.get(url=url,headers=headers)
         response.raise_for_status()
         models=response.json()
         return [model['id'] for model in models['data'] if model['active']]
@@ -130,7 +132,8 @@ class AudioGroq(BaseInference):
                 "type":"text"
             }
         try:
-            response=post(url=url,json=payload,files=files,headers=headers)
+            with Client() as client:
+                response=client.post(url=url,json=payload,files=files,headers=headers)
             response.raise_for_status()
             if json:
                 content=loads(response.text)['text']
@@ -153,7 +156,7 @@ class AudioGroq(BaseInference):
         url='https://api.groq.com/openai/v1/models'
         self.headers.update({'Authorization': f'Bearer {self.api_key}'})
         headers=self.headers
-        response=get(url=url,headers=headers)
+        response=requests.get(url=url,headers=headers)
         response.raise_for_status()
         models=response.json()
         return [model['id'] for model in models['data'] if model['active']]
