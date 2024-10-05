@@ -1,6 +1,7 @@
 from requests import RequestException,HTTPError,ConnectionError
 from tenacity import retry,stop_after_attempt,retry_if_exception_type
 from src.message import AIMessage,BaseMessage,HumanMessage,ImageMessage
+from typing import Generator,AsyncGenerator
 from src.inference import BaseInference
 from httpx import Client,AsyncClient
 from json import loads
@@ -150,7 +151,7 @@ class ChatGemini(BaseInference):
         exit()
 
     @retry(stop=stop_after_attempt(3),retry=retry_if_exception_type(RequestException))
-    def stream(self, messages: list[BaseMessage],json=False):
+    def stream(self, messages: list[BaseMessage],json=False)->Generator[str,None,None]:
         '''Work in progress'''
         headers=self.headers
         temperature=self.temperature
