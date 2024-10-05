@@ -11,7 +11,6 @@ from termcolor import colored
 from base64 import b64encode
 from typing import Literal
 from pathlib import Path
-from time import sleep
 import asyncio
 import json
 
@@ -90,6 +89,7 @@ class WebSearchAgent(BaseAgent):
             raise Exception('Tool not found')
         if self.verbose:
             print(colored(f'Observation: {observation}',color='green',attrs=['bold']))
+        await asyncio.sleep(10) #Wait for 10 seconds
         await page.evaluate(self.js_script)
         cordinates=await page.evaluate('mark_page()')
         if self.screenshot:
@@ -134,7 +134,7 @@ class WebSearchAgent(BaseAgent):
 
         return graph.compile(debug=False)
 
-    async def invoke(self, input: str):
+    async def async_invoke(self, input: str):
         playwright=await async_playwright().start()
         width,height=self.viewport
         args=["--window-position=0,0",f"--window-size={width},{height}"]
@@ -159,6 +159,9 @@ class WebSearchAgent(BaseAgent):
         await browser.close()
         await playwright.stop()
         return response['output']
+    
+    def invoke(self, input: str):
+        return asyncio.run(self.async_invoke(input))
 
     def stream(self, input:str):
         pass
