@@ -1,9 +1,10 @@
-from requests import post,get,RequestException,HTTPError,ConnectionError
+from requests import RequestException,HTTPError,ConnectionError
 from tenacity import retry,stop_after_attempt,retry_if_exception_type
 from src.message import AIMessage,BaseMessage,HumanMessage,ImageMessage
 from src.inference import BaseInference
 from httpx import Client,AsyncClient
 from json import loads
+import requests
 
 class ChatGemini(BaseInference):
     @retry(stop=stop_after_attempt(3),retry=retry_if_exception_type(RequestException))
@@ -149,11 +150,74 @@ class ChatGemini(BaseInference):
         exit()
 
     @retry(stop=stop_after_attempt(3),retry=retry_if_exception_type(RequestException))
-    def stream(self, query:str):
+    def stream(self, messages: list[BaseMessage],json=False):
         '''Work in progress'''
         headers=self.headers
         temperature=self.temperature
-        url=self.base_url or f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
+        url=self.base_url or f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:streamGenerateContent"
+        params={'alt':'sse','key':self.api_key}
+        contents=[]
+        system_instruction=None
+        for message in messages:
+            if isinstance(message,HumanMessage):
+                contents.append({
+                    'role':'user',
+                    'parts':[{
+                        'text':message.content
+                    }]
+                })
+            elif isinstance(message,AIMessage):
+                contents.append({
+                    'role':'model',
+                    'parts':[{
+                        'text':message.content
+                    }]
+                })
+            elif isinstance(message,ImageMessage):
+                text,image=message.content
+                contents.append({
+                        'role':'user',
+                        'parts':[{
+                            'text':text
+                    },
+                    {
+                        'inline_data':{
+                            'mime_type':'image/jpeg',
+                            'data': image
+                        }
+                    }]
+                })
+            else:
+                system_instruction={
+                    'parts':{
+                        'text': message.content
+                    }
+                }
+
+        payload={
+            'contents': contents,
+            'generationConfig':{
+                'temperature': temperature,
+                'responseMimeType':'application/json' if json else 'text/plain'
+            }
+        }
+        if system_instruction:
+            payload['system_instruction']=system_instruction
+        
+        try:
+            response=requests.post(url=url,headers=headers,json=payload,params=params,stream=True)
+            response.raise_for_status()
+            chunks=response.iter_lines(decode_unicode=True)
+            for chunk in chunks:
+                if chunk:
+                    chunk=loads(chunk.replace('data: ',''))
+                    yield chunk['candidates'][0]['content']['parts'][0]['text']
+        except HTTPError as err:
+            print(f'Error: {err.response.text}, Status Code: {err.response.status_code}')
+            exit()
+        except ConnectionError as err:
+            print(err)
+            exit()
     
     def available_models(self):
         url='https://generativelanguage.googleapis.com/v1beta/models'
