@@ -167,5 +167,8 @@ class WebSearchAgent(BaseAgent):
         await playwright.stop()
         return response['output']
 
+    def invoke(self, input: str)->str:
+        return asyncio.run(self.async_invoke(input))
+
     def stream(self, input:str):
         pass

@@ -61,7 +61,7 @@ class ChatGemini(BaseInference):
             payload['system_instruction']=system_instruction
         try:
             with Client() as client:
-                response=client.post(url=url,headers=headers,json=payload,params=params)
+                response=client.post(url=url,headers=headers,json=payload,params=params,timeout=None)
             json_obj=response.json()
             # print(json_obj)
             if json_obj.get('error'):
@@ -132,7 +132,7 @@ class ChatGemini(BaseInference):
             payload['system_instruction']=system_instruction
         try:
             async with AsyncClient() as client:
-                response=await client.post(url=url,headers=headers,json=payload,params=params)
+                response=await client.post(url=url,headers=headers,json=payload,params=params,timeout=None)
             json_obj=response.json()
             # print(json_obj)
             if json_obj.get('error'):
