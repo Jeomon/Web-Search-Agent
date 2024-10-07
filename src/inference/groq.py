@@ -4,8 +4,10 @@ from tenacity import retry,stop_after_attempt,retry_if_exception_type
 from src.inference import BaseInference
 from httpx import Client,AsyncClient
 from typing import Generator
+from typing import Literal
 from json import loads
 import requests
+import base64
 
 class ChatGroq(BaseInference):
     @retry(stop=stop_after_attempt(3),retry=retry_if_exception_type(RequestException))
@@ -110,11 +112,13 @@ class ChatGroq(BaseInference):
         return [model['id'] for model in models['data'] if model['active']]
 
 class AudioGroq(BaseInference):
+    def __init__(self,mode:Literal['transcriptions','translations']='transcriptions', model: str = '', api_key: str = '', base_url: str = '', temperature: float = 0.5):
+        self.mode=mode
+        super().__init__(model, api_key, base_url, temperature)
     def invoke(self,file:str='', language:str='en', json:bool=False)->AIMessage:
-        self.headers.update({'Authorization': f'Bearer {self.api_key}'})
-        headers=self.headers
+        headers={'Authorization': f'Bearer {self.api_key}'}
         temperature=self.temperature
-        url=self.base_url or "https://api.groq.com/openai/v1/audio/transcriptions"
+        url=self.base_url or f"https://api.groq.com/openai/v1/audio/{self.mode}"
         payload={
             "model": self.model,
             "temperature": temperature,
@@ -150,7 +154,7 @@ class AudioGroq(BaseInference):
     def __read_audio(file_name:str):
         with open(file_name,'rb') as f:
             audio_data=f.read()
-        return audio_data
+        return base64.b64encode(audio_data).decode('utf-8')
     
     def available_models(self):
         url='https://api.groq.com/openai/v1/models'

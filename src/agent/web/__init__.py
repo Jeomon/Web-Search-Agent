@@ -152,7 +152,7 @@ class WebSearchAgent(BaseAgent):
         elif self.browser=='edge':
             browser=await playwright.chromium.launch(channel='msedge',headless=self.headless,slow_mo=500,args=args)
         else:
-            raise Exception('Browser not found')
+            raise ValueError('Browser not found')
         page=await browser.new_page()
         state={
             'input':input,
