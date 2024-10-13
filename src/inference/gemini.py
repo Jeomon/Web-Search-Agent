@@ -86,7 +86,7 @@ class ChatGemini(BaseInference):
         url=self.base_url or f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
         params={'key':self.api_key}
         contents=[]
-        system_instruct=None
+        system_instruction=None
         for message in messages:
             if isinstance(message,HumanMessage):
                 contents.append({
