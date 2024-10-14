@@ -95,7 +95,7 @@ class WebSearchAgent(BaseAgent):
             raise Exception('Tool not found')
         if self.verbose:
             print(colored(f'Observation: {observation}',color='green',attrs=['bold']))
-        # await asyncio.sleep(10) #Wait for 10 seconds
+        await asyncio.sleep(10) #Wait for 10 seconds
         await page.wait_for_load_state('domcontentloaded')
         await page.evaluate(self.js_script)
         cordinates=await page.evaluate('mark_page()')
@@ -109,7 +109,12 @@ class WebSearchAgent(BaseAgent):
         else:
             bytes=await page.screenshot(type='jpeg',full_page=False)
             await page.evaluate('unmark_page()')
-        state['messages'].pop()
+        state['messages'].pop() # Remove the last message for modification
+        # Replace the old image message with human message to reduce resource usage.
+        for index,message in enumerate(state.get('messages')):
+            if isinstance(message,ImageMessage):
+                text,_=message.content
+                state['messages'][index]=HumanMessage(text)
         image_obj=b64encode(bytes).decode('utf-8')
         bboxes=[{'element_type':bbox.get('elementType'),'label_number':bbox.get('label'),'x':bbox.get('x'),'y':bbox.get('y')} for bbox in cordinates]
         ai_prompt=f'<Thought>{thought}</Thought>\n<Action-Name>{action_name}</Action-Name>\n<Action-Input>{json.dumps(action_input,indent=2)}</Action-Input>\n<Route>{route}</Route>'
