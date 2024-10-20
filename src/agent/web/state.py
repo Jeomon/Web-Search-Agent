@@ -1,5 +1,5 @@
 from typing import TypedDict,Annotated
-from playwright.sync_api import Page
+from playwright.async_api import Page
 from src.message import BaseMessage
 from operator import add
 
