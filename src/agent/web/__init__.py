@@ -169,8 +169,6 @@ class WebSearchAgent(BaseAgent):
             user_prompt=f'<Observation>{observation}\nNow analyze the A11y Tree for gathering information and decide whether to act or answer.\nAlly tree:\n{ally_tree}</Observation>'
             messages=[AIMessage(ai_prompt),HumanMessage(user_prompt)]
         return {**state,'agent_data':agent_data,'messages':messages,'bboxes':bboxes,'page':page}
-                
-
 
     def final(self,state:AgentState):
         agent_data=state.get('agent_data')
@@ -195,7 +193,6 @@ class WebSearchAgent(BaseAgent):
         graph.add_edge('final',END)
 
         return graph.compile(debug=False)
-
     async def async_invoke(self, input: str):
         playwright=await async_playwright().start()
         width,height=self.viewport
@@ -221,7 +218,6 @@ class WebSearchAgent(BaseAgent):
         await browser.close()
         await playwright.stop()
         return response['output']
-
     def invoke(self, input: str)->str:
         return asyncio.run(self.async_invoke(input))
 
