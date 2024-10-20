@@ -1,12 +1,12 @@
 # Web Search Agent
 
-**Web Search Agent** is an intelligent system built with **Playwright** to automate web browsing tasks. This agent interacts with web pages by identifying and acting on interactive elements, such as buttons, links, and input fields, using annotated screenshots. It efficiently performs complex web interactions through precise actions and context-based decision-making, offering a robust solution for web automation, testing, and intelligent browsing.
+**Web Search Agent** is an intelligent system built with **Playwright** to automate web browsing tasks. This agent interacts with web pages by identifying and acting on interactive elements, such as buttons, links, and input fields. It now supports two modes of operation: using annotated screenshots with bounding boxes and utilizing the accessibility (a11y) tree, allowing for a more efficient web search experience without the need for visual processing. 
 
 [Demo of the Project](https://github.com/Jeomon/Web-Search-Agent/blob/main/assets/)
 
 ## Key Features
 
-- **Interactive Element Detection:** The agent automatically detects and highlights interactive components like buttons, input fields, and links on a webpage. Each element is uniquely labeled with **bounding boxes** for clear reference, enabling the agent to perform the correct actions with precision.
+- **Interactive Element Detection:** The agent automatically detects and highlights interactive components like buttons, input fields, and links on a webpage, regardless of the method used (screenshot or a11y tree).
 
 - **Dynamic Action Execution:** The agent executes a wide range of actions, including:
   - **Clicking** on buttons or links.
@@ -16,9 +16,11 @@
   - **Navigating** between web pages.
   It adapts its actions based on instructions and can execute the right task on the corresponding interactive element.
 
-- **LLM-Based Decision Making:** Powered by a **Large Language Model (LLM)**, the agent analyzes the context of the web page and makes intelligent decisions on which actions to take. This makes it highly adaptive, allowing it to handle complex interactions that depend on the web page’s content.
+- **Accessibility Tree Integration:** With the newly added capability to utilize the accessibility tree, the agent can perform web searches without taking a screenshot. This allows for enhanced performance and reduced resource usage, making it suitable for a wider range of environments.
 
-- **Error Handling and Recovery:** The agent is capable of recovering from incorrect actions, such as clicking on the wrong element or missing interactions. By using coordinate-based labeling and dynamic screenshots, the agent ensures precise actions, even on pages with frequent layout changes.
+- **LLM-Based Decision Making:** Powered by a **Large Language Model (LLM)**, the agent analyzes the context of the web page and makes intelligent decisions on which actions to take, whether using the screenshot or a11y tree method.
+
+- **Error Handling and Recovery:** The agent is capable of recovering from incorrect actions, such as clicking on the wrong element or missing interactions. It ensures precise actions even on pages with frequent layout changes.
 
 - **Cross-Browser Compatibility:** The system works with multiple browser engines, including **Chromium**, **Firefox**, and **WebKit (Safari)**, thanks to Playwright’s cross-browser support. This ensures the agent can operate across a wide variety of platforms and environments.
 
@@ -26,9 +28,9 @@
 
 ## How It Works
 
-1. **Screenshot & Annotation:** The agent takes a screenshot of the web page and labels interactive elements with **bounding boxes** and unique numbers.
-   
-2. **Action Assignment:** The LLM processes the annotated screenshot, identifying which action (e.g., click, type, scroll) to perform based on the task.
+1. **Screenshot & Annotation or A11y Tree Analysis:** The agent can either take a screenshot of the web page and label interactive elements with **bounding boxes** or analyze the accessibility tree to identify interactive components.
+
+2. **Action Assignment:** The LLM processes the data (from either method) to identify which action (e.g., click, type, scroll) to perform based on the task.
 
 3. **Interaction Execution:** The agent performs the instructed action on the correct interactive element.
 
@@ -39,7 +41,7 @@
 #### Example: Find the distance between two places using Google Maps
 
 ```plaintext
-Enter your query: Can you tell me the distance from kochi to singapore.
+Enter your query: Can you tell me the distance from Kochi to Singapore?
 Thought: I will navigate to Google Maps to find the distance between Kochi and Singapore.
 Observation: Typed Singapore.
 Thought: I will click on the "Directions" button to get the distance between Kochi and Singapore.
@@ -73,7 +75,7 @@ To set up the Web Search Agent, follow these steps:
 
 ## Usage
 
-Once installed, the agent can be executed with the following command:
+Once installed, you can choose between using the screenshot method or the accessibility tree method. The agent can be executed with the following command:
 
 ```bash
 python app.py
@@ -89,3 +91,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **WebVoyager:** [https://github.com/MinorJerry/WebVoyager](https://github.com/MinorJerry/WebVoyager)
 - **Langgraph Examples:** [https://github.com/langchain-ai/langgraph/blob/main/examples/web-navigation/web_voyager.ipynb](https://github.com/langchain-ai/langgraph/blob/main/examples/web-navigation/web_voyager.ipynb)
 - **vimGPT:** [https://github.com/ishan0102/vimGPT](https://github.com/ishan0102/vimGPT)
+
+---
