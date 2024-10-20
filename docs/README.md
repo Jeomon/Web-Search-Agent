@@ -38,7 +38,7 @@
 
 ### Example Queries
 
-#### Example: Find the distance between two places using Google Maps
+#### Example: Find the distance between two places from Google Maps using screenshot
 
 ```plaintext
 Enter your query: Can you tell me the distance from Kochi to Singapore?
@@ -54,6 +54,23 @@ Action Input: {'label_number': 9, 'content': 'Kochi'}
 Observation: Typed Kochi.
 Thought: The screenshot shows the distance between Kochi and Singapore is 4 hours and 40 minutes by flight.
 Final Answer: The distance from Kochi to Singapore is 4 hours and 40 minutes by flight.
+```
+
+#### Example: Weather of a place using a11y tree
+
+```plaintext
+Enter your query: What is the weather in singapore
+Thought: I need to navigate to a search engine to find the answer to the user's query about the weather in Singapore.
+Action Name: GoTo Tool
+Action Input: {'url': 'https://www.google.com'}
+Observation: Gone to https://www.google.com.
+Thought: I should use the Type Tool to enter the user's query, "weather in singapore", into the search bar, which has the role 'combobox' and name 'Search'.
+Action Name: Type Tool
+Action Input: {'role': 'combobox', 'name': 'Search', 'content': 'weather in singapore'}
+Observation: Typed weather in singapore.
+Thought: The A11y Tree contains the answer to the user's query. I can see the weather information for Singapore, including temperature, precipitation, humidity, and wind.
+Final Answer: The weather in Singapore is mostly cloudy with a temperature of 30°Celsius. There is a 2% chance of precipitation, 67% humidity, and a wind speed of 10 km/h.
+The weather in Singapore is mostly cloudy with a temperature of 30°Celsius. There is a 2% chance of precipitation, 67% humidity, and a wind speed of 10 km/h.
 ```
 
 ## Installation
