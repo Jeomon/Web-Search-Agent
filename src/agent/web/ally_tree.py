@@ -1,5 +1,7 @@
+from playwright.async_api import Page
+
 # Recursive function to build the A11y tree in text format and map names to coordinates
-async def build_a11y_tree(node: dict, page, level: int = 0, coordinates: list = None):
+async def build_a11y_tree(node: dict, page:Page, level: int = 0, coordinates: list = None):
     if coordinates is None:
         coordinates = []
 

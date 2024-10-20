@@ -18,7 +18,7 @@ import json
 class WebSearchAgent(BaseAgent):
     def __init__(self,browser:Literal['chromium','firefox','edge']='chromium',instructions:list=[],llm:BaseInference=None,screenshot:bool=False,strategy:Literal['ally_tree','screenshot']='ally_tree',viewport:tuple[int,int]=(1920,1080),max_iteration:int=10,headless:bool=True,verbose:bool=False) -> None:
         self.name='Web Search Agent'
-        self.description=''
+        self.description='This agent is designed to automate the process of gathering information from the internet, such as to navigate websites, perform searches, and retrieve data.'
         self.headless=headless
         self.instructions=self.get_instructions(instructions)
         self.system_prompt=read_markdown_file(f'./src/agent/web/prompt/{strategy}.md')
@@ -34,7 +34,6 @@ class WebSearchAgent(BaseAgent):
         self.iteration=0
         self.llm=llm
         self.graph=self.create_graph()
-        self.cordinates=None
         self.wait_time=5000
         with open('./src/agent/web/bounding_box.js','r') as js:
             self.js_script=js.read()
@@ -132,10 +131,11 @@ class WebSearchAgent(BaseAgent):
                 await page.wait_for_timeout(self.wait_time)
             else:
                 raise Exception('Tool not found')
-            
+        
         if self.verbose:
             print(colored(f'Observation: {observation}',color='green',attrs=['bold']))
         await asyncio.sleep(10) #Wait for 10 seconds
+
         if self.strategy=='screenshot':
             await page.wait_for_load_state('domcontentloaded')
             await page.evaluate(self.js_script)
