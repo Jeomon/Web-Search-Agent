@@ -6,7 +6,7 @@ import os
 
 load_dotenv()
 # api_key=os.getenv('GOOGLE_API_KEY')
-# llm=ChatGemini(model='gemini-1.5-pro',api_key=api_key,temperature=0)
+# llm=ChatGemini(model='gemini-1.5-flash',api_key=api_key,temperature=0)
 
 api_key=os.getenv('GROQ_API_KEY')
 llm=ChatGroq(model='llama-3.1-70b-versatile',api_key=api_key,temperature=0)
