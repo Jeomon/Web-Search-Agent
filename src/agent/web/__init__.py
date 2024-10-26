@@ -1,5 +1,5 @@
 from src.agent.web.tools import click_tool,goto_tool,type_tool,scroll_tool,wait_tool,back_tool
-from src.agent.web.utils import read_markdown_file,extract_llm_response
+from src.agent.web.utils import read_markdown_file,extract_llm_response,extract_observation
 from src.message import SystemMessage,HumanMessage,ImageMessage,AIMessage
 from playwright.async_api import async_playwright,Page
 from src.agent.web.ally_tree import build_a11y_tree
@@ -14,6 +14,7 @@ from typing import Literal
 from pathlib import Path
 import asyncio
 import json
+import re
 
 class WebSearchAgent(BaseAgent):
     def __init__(self,browser:Literal['chromium','firefox','edge']='chromium',instructions:list=[],llm:BaseInference=None,screenshot:bool=False,strategy:Literal['ally_tree','screenshot']='ally_tree',viewport:tuple[int,int]=(1920,1080),max_iteration:int=10,headless:bool=True,verbose:bool=False) -> None:
@@ -42,13 +43,13 @@ class WebSearchAgent(BaseAgent):
         return '\n'.join([f'{i+1}. {instruction}' for (i,instruction) in enumerate(instructions)])
 
     async def reason(self,state:AgentState):
-        llm_response=await self.llm.async_invoke(state.get('messages'))
+        message=await self.llm.async_invoke(state.get('messages'))
         # print(llm_response.content)
-        agent_data=extract_llm_response(llm_response.content)
+        agent_data=extract_llm_response(message.content)
         if self.verbose:
             thought=agent_data.get('Thought')
             print(colored(f'Thought: {thought}',color='light_magenta',attrs=['bold']))
-        return {**state,'agent_data': agent_data}
+        return {**state,'agent_data': agent_data,'messages':[message]}
 
     def find_element_by_label(self,state:AgentState,label:str):
         x,y=None,None
@@ -83,52 +84,66 @@ class WebSearchAgent(BaseAgent):
         tool=self.tools[action_name]
         if self.strategy=='screenshot':
             if action_name=='GoTo Tool':
-                page,observation=await tool(page,**action_input)
+                observation=await tool(page,**action_input)
                 await page.wait_for_timeout(self.wait_time)
             elif action_name=='Click Tool':
                 label=action_input.get('label_number')
-                page,observation=await tool(page,*self.find_element_by_label(state,label))
+                observation=await tool(page,*self.find_element_by_label(state,label))
+                await page.wait_for_timeout(self.wait_time)
+            elif action_name=='Right Click Tool':
+                role=action_input.get('role')
+                name=action_input.get('name')
+                observation=await tool(page,*self.find_element_by_role_and_name(state,role,name))
                 await page.wait_for_timeout(self.wait_time)
             elif action_name=='Type Tool':
                 label=action_input.get('label_number')
                 text=action_input.get('content')
-                page,observation=await tool(page,*self.find_element_by_label(state,label),text=text)
+                observation=await tool(page,*self.find_element_by_label(state,label),text=text)
                 await page.wait_for_timeout(self.wait_time)
             elif action_name=='Scroll Tool':
                 direction=action_input.get('direction')
                 amount=int(action_input.get('amount'))
-                page,observation=await tool(page,direction,amount)
+                observation=await tool(page,direction,amount)
                 await page.wait_for_timeout(self.wait_time)
             elif action_name=='Wait Tool':
                 duration=int(action_input.get('duration'))
-                page,observation=await tool(page,duration)
+                observation=await tool(page,duration)
                 await page.wait_for_timeout(self.wait_time)
+            elif action_name=='Back Tool':
+                observation=await tool()
             else:
                 raise Exception('Tool not found')
         else:
             if action_name=='GoTo Tool':
-                page,observation=await tool(page,**action_input)
+                observation=await tool(page,**action_input)
                 await page.wait_for_timeout(self.wait_time)
             elif action_name=='Click Tool':
                 role=action_input.get('role')
                 name=action_input.get('name')
-                page,observation=await tool(page,*self.find_element_by_role_and_name(state,role,name))
+                observation=await tool(page,*self.find_element_by_role_and_name(state,role,name))
+                await page.wait_for_timeout(self.wait_time)
+            elif action_name=='Right Click Tool':
+                role=action_input.get('role')
+                name=action_input.get('name')
+                observation=await tool(page,*self.find_element_by_role_and_name(state,role,name))
                 await page.wait_for_timeout(self.wait_time)
             elif action_name=='Type Tool':
                 role=action_input.get('role')
                 name=action_input.get('name')
                 text=action_input.get('content')
-                page,observation=await tool(page,*self.find_element_by_role_and_name(state,role,name),text=text)
+                observation=await tool(page,*self.find_element_by_role_and_name(state,role,name),text=text)
                 await page.wait_for_timeout(self.wait_time)
             elif action_name=='Scroll Tool':
                 direction=action_input.get('direction')
                 amount=int(action_input.get('amount'))
-                page,observation=await tool(page,direction,amount)
+                observation=await tool(page,direction,amount)
                 await page.wait_for_timeout(self.wait_time)
             elif action_name=='Wait Tool':
                 duration=int(action_input.get('duration'))
-                page,observation=await tool(page,duration)
+                observation=await tool(page,duration)
                 await page.wait_for_timeout(self.wait_time)
+            elif action_name=='Back Tool':
+                observation=await tool()
             else:
                 raise Exception('Tool not found')
         
@@ -151,22 +166,26 @@ class WebSearchAgent(BaseAgent):
                 bytes=await page.screenshot(type='jpeg',full_page=False)
                 await page.evaluate('unmark_page()')
             state['messages'].pop() # Remove the last message for modification
-            for index,message in enumerate(state.get('messages')):
-                if isinstance(message,ImageMessage):
-                    text,_=message.content
-                    state['messages'][index]=HumanMessage(text)
+            last_message=state['messages'][-1]
+            if isinstance(last_message,ImageMessage):
+                text,_=last_message.content
+                state['messages'][-1]=HumanMessage(text)
             image_obj=b64encode(bytes).decode('utf-8')
             bboxes=[{'element_type':bbox.get('elementType'),'label_number':bbox.get('label'),'x':bbox.get('x'),'y':bbox.get('y')} for bbox in cordinates]
             ai_prompt=f'<Thought>{thought}</Thought>\n<Action-Name>{action_name}</Action-Name>\n<Action-Input>{json.dumps(action_input,indent=2)}</Action-Input>\n<Route>{route}</Route>'
             user_prompt=f'<Observation>{observation} Now analyze the given screenshot for gathering information and decide whether to act or answer.</Observation>'
             messages=[AIMessage(ai_prompt),ImageMessage(text=user_prompt,image_base_64=image_obj)]
         else:
+            state['messages'].pop() # Remove the last message for modification
+            last_message=state['messages'][-1]
+            if isinstance(last_message,HumanMessage):
+                text=extract_observation(last_message.content).split('\n\n')[0]
+                state['messages'][-1]=HumanMessage(text)
             snapshot=await page.accessibility.snapshot(interesting_only=True)
             ally_tree, bboxes =await build_a11y_tree(snapshot, page)
-            state['messages'].pop() # Remove the last message for modification
             # Replace the old image message with human message to reduce resource usage.
             ai_prompt=f'<Thought>{thought}</Thought>\n<Action-Name>{action_name}</Action-Name>\n<Action-Input>{json.dumps(action_input,indent=2)}</Action-Input>\n<Route>{route}</Route>'
-            user_prompt=f'<Observation>{observation}\nNow analyze the A11y Tree for gathering information and decide whether to act or answer.\nAlly tree:\n{ally_tree}</Observation>'
+            user_prompt=f'<Observation>{observation}\n\nNow analyze the A11y Tree for gathering information and decide whether to act or answer.\nAlly tree:\n{ally_tree}</Observation>'
             messages=[AIMessage(ai_prompt),HumanMessage(user_prompt)]
         return {**state,'agent_data':agent_data,'messages':messages,'bboxes':bboxes,'page':page}
 
@@ -193,6 +212,7 @@ class WebSearchAgent(BaseAgent):
         graph.add_edge('final',END)
 
         return graph.compile(debug=False)
+    
     async def async_invoke(self, input: str):
         playwright=await async_playwright().start()
         width,height=self.viewport
@@ -218,6 +238,7 @@ class WebSearchAgent(BaseAgent):
         await browser.close()
         await playwright.stop()
         return response['output']
+        
     def invoke(self, input: str)->str:
         return asyncio.run(self.async_invoke(input))
 

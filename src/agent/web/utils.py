@@ -48,3 +48,11 @@ def extract_llm_response(text):
         if route_match:
             result['Route'] = route_match.group(1).strip()
     return result
+
+def extract_observation(text:str):
+    pattern = r"<Observation>(.*?)</Observation>"
+    match = re.search(pattern, text, re.DOTALL)
+    if match:
+        return match.group(1)
+    else:
+        return text

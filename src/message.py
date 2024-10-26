@@ -16,17 +16,17 @@ class BaseMessage(ABC):
         return f"{class_name}({attributes})"
 
 class HumanMessage(BaseMessage):
-    def __init__(self,content):
+    def __init__(self,content:str):
         self.role='user'
         self.content=content
 
 class AIMessage(BaseMessage):
-    def __init__(self,content):
+    def __init__(self,content:str):
         self.role='assistant'
         self.content=content
         
 class SystemMessage(BaseMessage):
-    def __init__(self,content):
+    def __init__(self,content:str):
         self.role='system'
         self.content=content
 

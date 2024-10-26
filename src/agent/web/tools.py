@@ -8,7 +8,7 @@ class Click(BaseModel):
 @tool('Click Tool',args_schema=Click)
 async def click_tool(page:Page,x:float,y:float):
     await page.mouse.click(x,y,button='left')
-    return (page,'Clicked the Button.')
+    return 'Clicked the Button.'
 
 class GoTo(BaseModel):
     pass
@@ -16,7 +16,7 @@ class GoTo(BaseModel):
 @tool('GoTo Tool',args_schema=GoTo)
 async def goto_tool(page:Page,url:str):
     await page.goto(url=url)
-    return (page,f'Gone to {url}.')
+    return f'Gone to {url}.'
 
 class Type(BaseModel):
     pass
@@ -26,7 +26,7 @@ async def type_tool(page:Page,x:float,y:float,text:str):
     await page.mouse.click(x,y,button='left')
     await page.keyboard.type(text)
     await page.keyboard.press('Enter')
-    return (page,f'Typed {text}.')
+    return f'Typed {text}.'
 
 class Scroll(BaseModel):
     pass
@@ -37,7 +37,7 @@ async def scroll_tool(page:Page,direction:str,amount:int):
         await page.mouse.wheel(0,amount)
     else:
         await page.mouse.wheel(0,amount)
-    return (page,f'Scrolled {direction} by {amount}.')
+    return f'Scrolled {direction} by {amount}.'
 
 class Wait(BaseModel):
     pass
@@ -45,7 +45,7 @@ class Wait(BaseModel):
 @tool('Wait Tool',args_schema=Wait)
 async def wait_tool(page:Page,duration:int):
     await page.wait_for_timeout(duration*1000)
-    return (page,f'Waited for {duration} seconds.')
+    return f'Waited for {duration} seconds.'
 
 class Back(BaseModel):
     pass
@@ -53,4 +53,12 @@ class Back(BaseModel):
 @tool('Back Tool',args_schema=Back)
 async def back_tool(page:Page):
     await page.go_back()
-    return (page,'Gone back.')
+    return 'Gone back.'
+
+class RightClick(BaseModel):
+    pass
+
+@tool('Right Click Tool',args_schema=RightClick)
+async def right_click_tool(page:Page,x:float,y:float):
+    await page.mouse.click(x,y,button='right')
+    return 'Clicked the Button.'

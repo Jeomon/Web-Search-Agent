@@ -68,6 +68,65 @@ class ChatGroq(BaseInference):
         except ConnectionError as err:
             print(err)
         exit()
+
+    @retry(stop=stop_after_attempt(3),retry=retry_if_exception_type(RequestException))
+    async def async_invoke(self, messages: list[BaseMessage],json:bool=False)->AIMessage:
+        self.headers.update({'Authorization': f'Bearer {self.api_key}'})
+        headers=self.headers
+        temperature=self.temperature
+        url=self.base_url or "https://api.groq.com/openai/v1/chat/completions"
+        contents=[]
+        for message in messages:
+            if isinstance(message,(SystemMessage,HumanMessage,AIMessage)):
+                contents.append(message.to_dict())
+            if isinstance(message,ImageMessage):
+                text,image=message.content
+                contents.append([
+                    {
+                        'role':'user',
+                        'content':{
+                            {
+                                'type':'text',
+                                'text':text
+                            },
+                            {
+                                'type':'image_url',
+                                'image_url':{
+                                    'url':image
+                                }
+                            }
+                        }
+                    }
+                ])
+
+        payload={
+            "model": self.model,
+            "messages": contents,
+            "temperature": temperature,
+            "stream":False,
+        }
+        if json:
+            payload["response_format"]={
+                "type": "json_object"
+            }
+        try:
+            async with AsyncClient() as client:
+                response=await client.post(url=url,json=payload,headers=headers,timeout=None)
+            json_object=response.json()
+            # print(json_object)
+            if json_object.get('error'):
+                raise Exception(json_object['error']['message'])
+            if json:
+                content=loads(json_object['choices'][0]['message']['content'])
+            else:
+                content=json_object['choices'][0]['message']['content']
+            return AIMessage(content)
+        except HTTPError as err:
+            err_object=loads(err.response.text)
+            print(f'\nError: {err_object["error"]["message"]}\nStatus Code: {err.response.status_code}')
+        except ConnectionError as err:
+            print(err)
+        exit()
     
     @retry(stop=stop_after_attempt(3),retry=retry_if_exception_type(RequestException))
     def stream(self, messages: list[BaseMessage],json=False)->Generator[str,None,None]:
