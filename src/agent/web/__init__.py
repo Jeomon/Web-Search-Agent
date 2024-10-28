@@ -17,7 +17,7 @@ import json
 import re
 
 class WebSearchAgent(BaseAgent):
-    def __init__(self,browser:Literal['chromium','firefox','edge']='chromium',instructions:list=[],llm:BaseInference=None,screenshot:bool=False,strategy:Literal['ally_tree','screenshot']='ally_tree',viewport:tuple[int,int]=(1920,1080),max_iteration:int=10,headless:bool=True,verbose:bool=False) -> None:
+    def __init__(self,browser:Literal['chromium','firefox','edge']='chromium',instructions:list=[],llm:BaseInference=None,screenshot:bool=False,strategy:Literal['ally_tree','screenshot','combined']='ally_tree',viewport:tuple[int,int]=(1920,1080),max_iteration:int=10,headless:bool=True,verbose:bool=False) -> None:
         self.name='Web Search Agent'
         self.description='This agent is designed to automate the process of gathering information from the internet, such as to navigate websites, perform searches, and retrieve data.'
         self.headless=headless
@@ -111,6 +111,7 @@ class WebSearchAgent(BaseAgent):
                 await page.wait_for_timeout(self.wait_time)
             elif action_name=='Back Tool':
                 observation=await tool()
+                await page.wait_for_timeout(self.wait_time)
             else:
                 raise Exception('Tool not found')
         else:
@@ -144,6 +145,7 @@ class WebSearchAgent(BaseAgent):
                 await page.wait_for_timeout(self.wait_time)
             elif action_name=='Back Tool':
                 observation=await tool()
+                await page.wait_for_timeout(self.wait_time)
             else:
                 raise Exception('Tool not found')
         
@@ -152,6 +154,11 @@ class WebSearchAgent(BaseAgent):
         await asyncio.sleep(10) #Wait for 10 seconds
 
         if self.strategy=='screenshot':
+            state['messages'].pop() # Remove the last message for modification
+            last_message=state['messages'][-1]
+            if isinstance(last_message,ImageMessage):
+                text,_=last_message.content
+                state['messages'][-1]=HumanMessage(text)
             await page.wait_for_load_state('domcontentloaded')
             await page.evaluate(self.js_script)
             cordinates=await page.evaluate('mark_page()')
@@ -164,18 +171,13 @@ class WebSearchAgent(BaseAgent):
                 bytes=await page.screenshot(path=path,type='jpeg',full_page=False)
             else:
                 bytes=await page.screenshot(type='jpeg',full_page=False)
-                await page.evaluate('unmark_page()')
-            state['messages'].pop() # Remove the last message for modification
-            last_message=state['messages'][-1]
-            if isinstance(last_message,ImageMessage):
-                text,_=last_message.content
-                state['messages'][-1]=HumanMessage(text)
+            await page.evaluate('unmark_page()')
             image_obj=b64encode(bytes).decode('utf-8')
             bboxes=[{'element_type':bbox.get('elementType'),'label_number':bbox.get('label'),'x':bbox.get('x'),'y':bbox.get('y')} for bbox in cordinates]
             ai_prompt=f'<Thought>{thought}</Thought>\n<Action-Name>{action_name}</Action-Name>\n<Action-Input>{json.dumps(action_input,indent=2)}</Action-Input>\n<Route>{route}</Route>'
             user_prompt=f'<Observation>{observation} Now analyze the given screenshot for gathering information and decide whether to act or answer.</Observation>'
             messages=[AIMessage(ai_prompt),ImageMessage(text=user_prompt,image_base_64=image_obj)]
-        else:
+        elif self.strategy=='ally_tree':
             state['messages'].pop() # Remove the last message for modification
             last_message=state['messages'][-1]
             if isinstance(last_message,HumanMessage):
@@ -187,6 +189,29 @@ class WebSearchAgent(BaseAgent):
             ai_prompt=f'<Thought>{thought}</Thought>\n<Action-Name>{action_name}</Action-Name>\n<Action-Input>{json.dumps(action_input,indent=2)}</Action-Input>\n<Route>{route}</Route>'
             user_prompt=f'<Observation>{observation}\n\nNow analyze the A11y Tree for gathering information and decide whether to act or answer.\nAlly tree:\n{ally_tree}</Observation>'
             messages=[AIMessage(ai_prompt),HumanMessage(user_prompt)]
+        else:
+            if self.screenshot:
+                date_time=datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
+                path=Path('./screenshots')
+                if not path.exists():
+                    path.mkdir(parents=True,exist_ok=True)
+                path=path.joinpath(f'screenshot_{date_time}.jpeg').as_posix()
+                bytes=await page.screenshot(path=path,type='jpeg',full_page=False)
+            else:
+                bytes=await page.screenshot(type='jpeg',full_page=False)
+            image_obj=b64encode(bytes).decode('utf-8')
+            state['messages'].pop() # Remove the last message for modification
+            last_message=state['messages'][-1]
+            if isinstance(last_message,ImageMessage):
+                text,_=last_message.content
+                text=extract_observation(text).split('\n\n')[0]
+                state['messages'][-1]=HumanMessage(text)
+            snapshot=await page.accessibility.snapshot(interesting_only=True)
+            ally_tree, bboxes =await build_a11y_tree(snapshot, page)
+            # Replace the old image message with human message to reduce resource usage.
+            ai_prompt=f'<Thought>{thought}</Thought>\n<Action-Name>{action_name}</Action-Name>\n<Action-Input>{json.dumps(action_input,indent=2)}</Action-Input>\n<Route>{route}</Route>'
+            user_prompt=f'<Observation>{observation}\n\nNow analyze the provided screenshot and A11y Tree ressembling the new state of the system and decide whether to act or answer.\nAlly tree:\n{ally_tree}</Observation>'
+            messages=[AIMessage(ai_prompt),ImageMessage(user_prompt,image_base_64=image_obj)]
         return {**state,'agent_data':agent_data,'messages':messages,'bboxes':bboxes,'page':page}
 
     def final(self,state:AgentState):

@@ -27,7 +27,7 @@ In this option, you use a tool to interact with the web page. Leave the **Observ
 
 <Option>
   <Thought>Explanation of why you are using this specific tool and what you expect it to accomplish after fully analyzing the page components (buttons, fields, links, etc.) identified by their bounding boxes and label numbers.</Thought>
-  <Action-Name>Tool Name</Action-Name>
+  <Action-Name>Pick the tool from [Click Tool, Type Tool, Scroll Tool, Wait Tool, GoTo Tool, Back Tool]</Action-Name>
   <Action-Input>{'param1':'value1','param2':'value2',...}</Action-Input>
   <Observation></Observation>
   <Route>Action</Route>
