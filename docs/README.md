@@ -74,6 +74,40 @@ Final Answer: The weather in Singapore is mostly cloudy with a temperature of 30
 The weather in Singapore is mostly cloudy with a temperature of 30°Celsius. There is a 2% chance of precipitation, 67% humidity, and a wind speed of 10 km/h.
 ```
 
+#### Example: Price of a product from ecommerce website using combined (screenshoot + ally tree)
+```plaintext
+Enter your query: What is the price of iphone in amazon.in
+Thought: The user wants to know the price of an iPhone on Amazon.in. I will navigate to Amazon.in and search for "iPhone" to find the relevant product listings.
+Action Name: GoTo Tool
+Action Input: {'url': 'https://www.amazon.in'}
+Observation: Gone to https://www.amazon.in.
+Thought: The A11y Tree shows a search box with the name "Search Amazon.in". I will type "iPhone" into the search box and click the "Go" button to search for iPhone products.
+Action Name: Type Tool
+Action Input: {'role': 'textbox', 'name': 'Search Amazon.in', 'content': 'iPhone'}
+Observation: Typed iPhone.
+Thought: The A11y Tree shows multiple iPhone models with their prices. I can provide the user with the prices of different iPhone models.
+Final Answer: The price of iPhones on Amazon.in varies depending on the model and storage capacity. Here are some examples:
+
+- **Apple iPhone 16 (128 GB) - White:** ₹xx,xxx
+- **Apple iPhone 15 (128 GB) - Yellow:** ₹xx,xxx
+- **Apple iPhone 13 (128GB) - Starlight:** ₹xx,xxx
+- **Apple iPhone 16 Pro (256 GB) - Natural Titanium:** ₹xx,xxx
+- **Apple iPhone 13 (128GB) - Midnight:** ₹xx,xxx
+- **Apple iPhone 13 (128GB) - Pink:** ₹xx,xxx
+- **Apple iPhone 16 Pro (512 GB) - White Titanium:** ₹xx,xxx
+- **Apple iPhone 13 (128GB) - (Product) RED:** ₹xx,xxx
+- **Apple iPhone 13 (128GB) - Blue:** ₹xx,xxx
+- **Apple iPhone 16 (128 GB) - Black:** ₹xx,xxx
+- **Apple iPhone 16 Pro (128 GB) - Desert Titanium:** ₹xx,xxx
+- **Apple iPhone 15 (128 GB) - Blue:** ₹xx,xxx
+- **Apple iPhone 13 (128GB) - Green:** ₹xx,xxx
+- **Apple iPhone 15 (128 GB) - Black:** ₹xx,xxx
+- **Apple iPhone 16 Pro (128 GB) - Black Titanium:** ₹xx,xxx
+- **Apple iPhone 16 (128 GB) - Ultramarine:** ₹xx,xxx
+- **Apple iPhone 13 (256GB) - Starlight:** ₹xx,xxx
+- **Apple iPhone 14 (128 GB) - Blue:** ₹xx,xxx
+```
+
 ## Installation
 
 To set up the Web Search Agent, follow these steps:
