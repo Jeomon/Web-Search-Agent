@@ -25,7 +25,7 @@ class ChatGroq(BaseInference):
                 contents.append([
                     {
                         'role':'user',
-                        'content':{
+                        'content':[
                             {
                                 'type':'text',
                                 'text':text
@@ -36,7 +36,7 @@ class ChatGroq(BaseInference):
                                     'url':image
                                 }
                             }
-                        }
+                        ]
                     }
                 ])
 
