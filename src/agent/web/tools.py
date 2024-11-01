@@ -61,4 +61,4 @@ class RightClick(BaseModel):
 @tool('Right Click Tool',args_schema=RightClick)
 async def right_click_tool(page:Page,x:float,y:float):
     await page.mouse.click(x,y,button='right')
-    return 'Clicked the Button.'
+    return 'Right Clicked the Button.'

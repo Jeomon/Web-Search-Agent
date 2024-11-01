@@ -184,7 +184,9 @@ class WebSearchAgent(BaseAgent):
                 text=extract_observation(last_message.content).split('\n\n')[0]
                 state['messages'][-1]=HumanMessage(text)
             snapshot=await page.accessibility.snapshot(interesting_only=True)
+            # print(snapshot)
             ally_tree, bboxes =await build_a11y_tree(snapshot, page)
+            # print(ally_tree)
             # Replace the old image message with human message to reduce resource usage.
             ai_prompt=f'<Thought>{thought}</Thought>\n<Action-Name>{action_name}</Action-Name>\n<Action-Input>{json.dumps(action_input,indent=2)}</Action-Input>\n<Route>{route}</Route>'
             user_prompt=f'<Observation>{observation}\n\nNow analyze the A11y Tree for gathering information and decide whether to act or answer.\nAlly tree:\n{ally_tree}</Observation>'

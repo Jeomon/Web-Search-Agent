@@ -6,7 +6,7 @@ async def build_a11y_tree(node: dict, page:Page, level: int = 0, coordinates: li
         coordinates = []
 
     # Skip nodes with no name
-    if not node.get('name'):
+    if not node.get('name') and not node.get('children'):
         return "", coordinates
 
     # Indentation based on depth level in the tree
