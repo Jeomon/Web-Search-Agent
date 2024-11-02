@@ -111,7 +111,7 @@ class WebSearchAgent(BaseAgent):
                     observation=await tool(page,duration)
                     await page.wait_for_timeout(self.wait_time)
                 elif action_name=='Back Tool':
-                    observation=await tool()
+                    observation=await tool(page)
                     await page.wait_for_timeout(self.wait_time)
                 else:
                     raise Exception('Tool not found')
@@ -148,7 +148,7 @@ class WebSearchAgent(BaseAgent):
                     observation=await tool(page,duration)
                     await page.wait_for_timeout(self.wait_time)
                 elif action_name=='Back Tool':
-                    observation=await tool()
+                    observation=await tool(page)
                     await page.wait_for_timeout(self.wait_time)
                 else:
                     raise Exception('Tool not found')
