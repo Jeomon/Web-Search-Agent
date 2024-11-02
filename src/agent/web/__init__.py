@@ -58,7 +58,7 @@ class WebSearchAgent(BaseAgent):
                 x,y=bbox.get('x'),bbox.get('y')
                 break
         if x is None or y is None:
-            raise Exception('Bounding Box not found')
+            raise Exception('Label is invalid')
         return x,y
     
     def find_element_by_role_and_name(self,state:AgentState,role:str,name:str):
@@ -68,7 +68,7 @@ class WebSearchAgent(BaseAgent):
                 x,y=bbox.get('x'),bbox.get('y')
                 break
         if x is None or y is None:
-            raise Exception('Bounding Box not found')
+            raise Exception('Role and Name is invalid')
         return x,y
 
     async def action(self,state:AgentState):
@@ -83,72 +83,77 @@ class WebSearchAgent(BaseAgent):
             print(colored(f'Action Input: {action_input}',color='blue',attrs=['bold']))
         tool=self.tools[action_name]
         if self.strategy=='screenshot':
-            if action_name=='GoTo Tool':
-                observation=await tool(page,**action_input)
-                await page.wait_for_timeout(self.wait_time)
-            elif action_name=='Click Tool':
-                label=action_input.get('label_number')
-                observation=await tool(page,*self.find_element_by_label(state,label))
-                await page.wait_for_timeout(self.wait_time)
-            elif action_name=='Right Click Tool':
-                role=action_input.get('role')
-                name=action_input.get('name')
-                observation=await tool(page,*self.find_element_by_role_and_name(state,role,name))
-                await page.wait_for_timeout(self.wait_time)
-            elif action_name=='Type Tool':
-                label=action_input.get('label_number')
-                text=action_input.get('content')
-                observation=await tool(page,*self.find_element_by_label(state,label),text=text)
-                await page.wait_for_timeout(self.wait_time)
-            elif action_name=='Scroll Tool':
-                direction=action_input.get('direction')
-                amount=int(action_input.get('amount'))
-                observation=await tool(page,direction,amount)
-                await page.wait_for_timeout(self.wait_time)
-            elif action_name=='Wait Tool':
-                duration=int(action_input.get('duration'))
-                observation=await tool(page,duration)
-                await page.wait_for_timeout(self.wait_time)
-            elif action_name=='Back Tool':
-                observation=await tool()
-                await page.wait_for_timeout(self.wait_time)
-            else:
-                raise Exception('Tool not found')
+            try:
+                if action_name=='GoTo Tool':
+                    observation=await tool(page,**action_input)
+                    await page.wait_for_timeout(self.wait_time)
+                elif action_name=='Click Tool':
+                    label=action_input.get('label_number')
+                    observation=await tool(page,*self.find_element_by_label(state,label))
+                    await page.wait_for_timeout(self.wait_time)
+                elif action_name=='Right Click Tool':
+                    role=action_input.get('role')
+                    name=action_input.get('name')
+                    observation=await tool(page,*self.find_element_by_role_and_name(state,role,name))
+                    await page.wait_for_timeout(self.wait_time)
+                elif action_name=='Type Tool':
+                    label=action_input.get('label_number')
+                    text=action_input.get('content')
+                    observation=await tool(page,*self.find_element_by_label(state,label),text=text)
+                    await page.wait_for_timeout(self.wait_time)
+                elif action_name=='Scroll Tool':
+                    direction=action_input.get('direction')
+                    amount=int(action_input.get('amount'))
+                    observation=await tool(page,direction,amount)
+                    await page.wait_for_timeout(self.wait_time)
+                elif action_name=='Wait Tool':
+                    duration=int(action_input.get('duration'))
+                    observation=await tool(page,duration)
+                    await page.wait_for_timeout(self.wait_time)
+                elif action_name=='Back Tool':
+                    observation=await tool()
+                    await page.wait_for_timeout(self.wait_time)
+                else:
+                    raise Exception('Tool not found')
+            except Exception as e:
+                observation=str(e)
         else:
-            if action_name=='GoTo Tool':
-                observation=await tool(page,**action_input)
-                await page.wait_for_timeout(self.wait_time)
-            elif action_name=='Click Tool':
-                role=action_input.get('role')
-                name=action_input.get('name')
-                observation=await tool(page,*self.find_element_by_role_and_name(state,role,name))
-                await page.wait_for_timeout(self.wait_time)
-            elif action_name=='Right Click Tool':
-                role=action_input.get('role')
-                name=action_input.get('name')
-                observation=await tool(page,*self.find_element_by_role_and_name(state,role,name))
-                await page.wait_for_timeout(self.wait_time)
-            elif action_name=='Type Tool':
-                role=action_input.get('role')
-                name=action_input.get('name')
-                text=action_input.get('content')
-                observation=await tool(page,*self.find_element_by_role_and_name(state,role,name),text=text)
-                await page.wait_for_timeout(self.wait_time)
-            elif action_name=='Scroll Tool':
-                direction=action_input.get('direction')
-                amount=int(action_input.get('amount'))
-                observation=await tool(page,direction,amount)
-                await page.wait_for_timeout(self.wait_time)
-            elif action_name=='Wait Tool':
-                duration=int(action_input.get('duration'))
-                observation=await tool(page,duration)
-                await page.wait_for_timeout(self.wait_time)
-            elif action_name=='Back Tool':
-                observation=await tool()
-                await page.wait_for_timeout(self.wait_time)
-            else:
-                raise Exception('Tool not found')
-        
+            try:
+                if action_name=='GoTo Tool':
+                    observation=await tool(page,**action_input)
+                    await page.wait_for_timeout(self.wait_time)
+                elif action_name=='Click Tool':
+                    role=action_input.get('role')
+                    name=action_input.get('name')
+                    observation=await tool(page,*self.find_element_by_role_and_name(state,role,name))
+                    await page.wait_for_timeout(self.wait_time)
+                elif action_name=='Right Click Tool':
+                    role=action_input.get('role')
+                    name=action_input.get('name')
+                    observation=await tool(page,*self.find_element_by_role_and_name(state,role,name))
+                    await page.wait_for_timeout(self.wait_time)
+                elif action_name=='Type Tool':
+                    role=action_input.get('role')
+                    name=action_input.get('name')
+                    text=action_input.get('content')
+                    observation=await tool(page,*self.find_element_by_role_and_name(state,role,name),text=text)
+                    await page.wait_for_timeout(self.wait_time)
+                elif action_name=='Scroll Tool':
+                    direction=action_input.get('direction')
+                    amount=int(action_input.get('amount'))
+                    observation=await tool(page,direction,amount)
+                    await page.wait_for_timeout(self.wait_time)
+                elif action_name=='Wait Tool':
+                    duration=int(action_input.get('duration'))
+                    observation=await tool(page,duration)
+                    await page.wait_for_timeout(self.wait_time)
+                elif action_name=='Back Tool':
+                    observation=await tool()
+                    await page.wait_for_timeout(self.wait_time)
+                else:
+                    raise Exception('Tool not found')
+            except Exception as e:
+                observation=str(e)
         if self.verbose:
             print(colored(f'Observation: {observation}',color='green',attrs=['bold']))
         await asyncio.sleep(10) #Wait for 10 seconds
@@ -209,7 +214,9 @@ class WebSearchAgent(BaseAgent):
                 text=extract_observation(text).split('\n\n')[0]
                 state['messages'][-1]=HumanMessage(text)
             snapshot=await page.accessibility.snapshot(interesting_only=True)
+            # print(snapshot)
             ally_tree, bboxes =await build_a11y_tree(snapshot, page)
+            # print(ally_tree)
             # Replace the old image message with human message to reduce resource usage.
             ai_prompt=f'<Thought>{thought}</Thought>\n<Action-Name>{action_name}</Action-Name>\n<Action-Input>{json.dumps(action_input,indent=2)}</Action-Input>\n<Route>{route}</Route>'
             user_prompt=f'<Observation>{observation}\n\nNow analyze the provided screenshot and A11y Tree ressembling the new state of the system and decide whether to act or answer.\nAlly tree:\n{ally_tree}</Observation>'

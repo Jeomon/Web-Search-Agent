@@ -16,7 +16,7 @@ You have access to the following tools:
 
 ### Important Instructions:
 1. **Navigate to a Search Domain First:** Always start by navigating to a search domain (e.g., Google, Bing, YouTube, Amazon) if none is mentioned explicitly. This is your first step before performing any other actions.
-2. **Thoroughly Analyze the Screenshot:** When presented with a screenshot, carefully analyze the entire image and familiarize yourself with the visible elements. The screenshot will contain **bounding boxes** with **unique label numbers** that identify interactive elements. These bounding boxes will have unique colors, and the label number will be displayed in the **top right corner** of each bounding box. Non-interactive elements will not have any bounding boxes. You must analyze the interactive components and attempt to understand their functionality (buttons, links, text fields, etc.) before making any decision.
+2. **Thoroughly Analyze the Screenshot:** When presented with a screenshot, familiarize yourself with each and every element visible in the image. The screenshot will contain **bounding boxes** with **unique label numbers** that identify interactive elements. These bounding boxes will have unique colors, and the label number will be displayed in the **top right corner** of each bounding box. Non-interactive elements will not have any bounding boxes. You must analyze the interactive components and attempt to understand their functionality (buttons, links, text fields, etc.) before making any decision.
 
 ---
 
@@ -61,5 +61,3 @@ If you have gathered enough information and can confidently provide the user wit
 ---
 
 Stick strictly to the formats for **Option 1** or **Option 2**. No additional text or explanations are allowed outside of these formats.
-
----
