@@ -161,7 +161,7 @@ class WebSearchAgent(BaseAgent):
                 observation=str(e)
         if self.verbose:
             print(colored(f'Observation: {observation}',color='green',attrs=['bold']))
-        await asyncio.sleep(10) #Wait for 10 seconds
+        # await asyncio.sleep(10) #Wait for 10 seconds
 
         if self.strategy=='screenshot':
             state['messages'].pop() # Remove the last message for modification
@@ -251,14 +251,14 @@ class WebSearchAgent(BaseAgent):
         width,height=self.viewport
         args=["--window-position=0,0",f"--window-size={width},{height}"]
         if self.browser=='chromium':
-            browser=await playwright.chromium.launch(headless=self.headless,slow_mo=100,args=args)
+            browser=await playwright.chromium.launch(headless=self.headless,slow_mo=500,args=args)
         elif self.browser=='firefox':
-            browser=await playwright.firefox.launch(headless=self.headless,slow_mo=100,args=args)
+            browser=await playwright.firefox.launch(headless=self.headless,slow_mo=500,args=args)
         elif self.browser=='edge':
-            browser=await playwright.chromium.launch(channel='msedge',headless=self.headless,slow_mo=100,args=args)
+            browser=await playwright.chromium.launch(channel='msedge',headless=self.headless,slow_mo=500,args=args)
         else:
             raise ValueError('Browser not found')
-        page=await browser.new_page()
+        page=await browser.new_page(locale='en-IN',timezone_id='Asia/Kolkata',permissions=['geolocation'])
         state={
             'input':input,
             'page':page,

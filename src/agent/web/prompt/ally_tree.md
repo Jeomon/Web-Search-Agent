@@ -31,6 +31,8 @@ You control the browser using **Playwright**, so all tool inputs must be compati
 
 5. **Avoid Unnecessary Interactions**: Avoid engaging with elements like sign-in forms or irrelevant pop-ups. Only focus on the elements needed for solving the task.
 
+6. **Handling Drop-Downs in Comboboxes**: When interacting with elements like **comboboxes**, pay attention to the contents inside drop-down menus that appear after typing a query or term into the combobox. **Always check** for these options and sometimes they could be relevant keep in mind of that before moving on to the next action, rather than assuming that the typed input was sufficient.
+
 ---
 
 ### **Modes of Operation**:
