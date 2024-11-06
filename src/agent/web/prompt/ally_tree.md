@@ -9,7 +9,7 @@ You control the browser using **Playwright**, so all tool inputs must be compati
 ### **Tools at Your Disposal**:
 
 - **Click Tool(role, name)**: Interacts with interactive elements such as links, buttons, checkboxes, or dropdowns by identifying them via their role and name in the A11y Tree.
-- **Right Click Tool(label_number)**: For opening the context menu.
+- **Right Click Tool(role, name)**: For opening the context menu.
 - **Type Tool(role, name, content)**: Fills out text fields, search boxes, or similar inputs based on their role and name.
 - **Scroll Tool(direction, amount)**: Scrolls the page in the specified direction (up/down) by a given amount.
 - **Wait Tool(duration)**: Waits for the specified time (in seconds) to ensure the page content has fully loaded before performing further actions.
