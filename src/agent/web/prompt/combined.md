@@ -20,7 +20,7 @@ You have access to the following tools for interacting with the web page:
 - **Wait Tool(duration)**: To wait until the page content is fully loaded before proceeding.
 - **GoTo Tool(url)**: To navigate directly to a specified URL.
 - **Back Tool()**: To return to the previous page.
-- **Key Tool(key)**: Simulate keyboard input, such as pressing keys or combinations.
+- **Key Tool(key)**: Simulate keyboard input, such as pressing keys or combinations. (ex: Enter, Backspace,..etc)
 
 ### Key Instructions:
 1. **Break Down the Problem Statement**: Upon receiving the problem statement, analyze it and break it down into smaller, manageable sub-problems. Plan the sequence of actions required to solve each sub-problem step-by-step.

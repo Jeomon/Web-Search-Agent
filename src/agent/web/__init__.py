@@ -91,7 +91,6 @@ class WebSearchAgent(BaseAgent):
                     observation=await tool(page,*self.find_element_by_label(state,label))
                     await page.wait_for_timeout(self.wait_time)
                 elif action_name=='Right Click Tool':
-                    label=action_input.get('label_number')
                     observation=await tool(page,*self.find_element_by_label(state,label))
                     await page.wait_for_timeout(self.wait_time)
                 elif action_name=='Type Tool':
