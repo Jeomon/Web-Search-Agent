@@ -186,7 +186,7 @@ class WebSearchAgent(BaseAgent):
             image_obj=b64encode(bytes).decode('utf-8')
             bboxes=[{'element_type':bbox.get('elementType'),'label_number':bbox.get('label'),'x':bbox.get('x'),'y':bbox.get('y')} for bbox in cordinates]
             ai_prompt=f'<Thought>{thought}</Thought>\n<Action-Name>{action_name}</Action-Name>\n<Action-Input>{json.dumps(action_input,indent=2)}</Action-Input>\n<Route>{route}</Route>'
-            user_prompt=f'<Observation>{observation}\nNow analyze the new labelled screenshot got from the previous action, think whether to act or answer.</Observation>'
+            user_prompt=f'<Observation>{observation}\nNow analyze and evaluate the new labelled screenshot got from the previous action, think whether to act or answer.</Observation>'
             messages=[AIMessage(ai_prompt),ImageMessage(text=user_prompt,image_bytes=image_obj)]
         elif self.strategy=='ally_tree':
             state['messages'].pop() # Remove the last message for modification
@@ -198,7 +198,7 @@ class WebSearchAgent(BaseAgent):
             ally_tree, bboxes =await build_a11y_tree(snapshot, page)
             # print(ally_tree)
             ai_prompt=f'<Thought>{thought}</Thought>\n<Action-Name>{action_name}</Action-Name>\n<Action-Input>{json.dumps(action_input,indent=2)}</Action-Input>\n<Route>{route}</Route>'
-            user_prompt=f'<Observation>{observation}\nAlly tree:\n{ally_tree}\nNow analyze the new ally tree got from the previous action, think whether to act or answer.</Observation>'
+            user_prompt=f'<Observation>{observation}\nAlly tree:\n{ally_tree}\nNow analyze and evaluate the new ally tree got from the previous action, think whether to act or answer.</Observation>'
             messages=[AIMessage(ai_prompt),HumanMessage(user_prompt)]
         else:
             if self.screenshot:
@@ -220,7 +220,7 @@ class WebSearchAgent(BaseAgent):
             ally_tree, bboxes =await build_a11y_tree(snapshot, page)
             # print(ally_tree,bboxes)
             ai_prompt=f'<Thought>{thought}</Thought>\n<Action-Name>{action_name}</Action-Name>\n<Action-Input>{json.dumps(action_input,indent=2)}</Action-Input>\n<Route>{route}</Route>'
-            user_prompt=f'<Observation>{observation}\nAlly tree:\n{ally_tree}\nNow analyze the new ally tree and screenshot got from the previous action, think whether to act or answer.</Observation>'
+            user_prompt=f'<Observation>{observation}\nAlly tree:\n{ally_tree}\nNow analyze and evaluate the new ally tree and screenshot got from the previous action, think whether to act or answer.</Observation>'
             messages=[AIMessage(ai_prompt),ImageMessage(user_prompt,image_bytes=image_obj)]
         return {**state,'agent_data':agent_data,'messages':messages,'bboxes':bboxes,'page':page,'previous_observation':observation}
 
