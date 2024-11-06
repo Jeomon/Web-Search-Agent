@@ -50,10 +50,10 @@ class WebSearchAgent(BaseAgent):
             print(colored(f'Thought: {thought}',color='light_magenta',attrs=['bold']))
         return {**state,'agent_data': agent_data,'messages':[ai_message]}
 
-    def find_element_by_label(self,state:AgentState,label:str):
+    def find_element_by_label(self,state:AgentState,label_number:str):
         x,y=None,None
         for bbox in state.get('bboxes'):
-            if bbox.get('label_number')==label:
+            if bbox.get('label_number')==label_number:
                 x,y=bbox.get('x'),bbox.get('y')
                 break
         if x is None or y is None:
@@ -63,7 +63,7 @@ class WebSearchAgent(BaseAgent):
     def find_element_by_role_and_name(self,state:AgentState,role:str,name:str):
         x,y=None,None
         for bbox in state.get('bboxes'):
-            if bbox.get('role')==role and bbox.get('name')==name:
+            if bbox.get('role').strip()==role.strip() and bbox.get('name').strip()==name.strip():
                 x,y=bbox.get('x'),bbox.get('y')
                 break
         if x is None or y is None:
@@ -91,9 +91,8 @@ class WebSearchAgent(BaseAgent):
                     observation=await tool(page,*self.find_element_by_label(state,label))
                     await page.wait_for_timeout(self.wait_time)
                 elif action_name=='Right Click Tool':
-                    role=action_input.get('role')
-                    name=action_input.get('name')
-                    observation=await tool(page,*self.find_element_by_role_and_name(state,role,name))
+                    label=action_input.get('label_number')
+                    observation=await tool(page,*self.find_element_by_label(state,label))
                     await page.wait_for_timeout(self.wait_time)
                 elif action_name=='Type Tool':
                     label=action_input.get('label_number')
@@ -253,11 +252,11 @@ class WebSearchAgent(BaseAgent):
         width,height=self.viewport
         args=["--window-position=0,0",f"--window-size={width},{height}"]
         if self.browser=='chromium':
-            browser=await playwright.chromium.launch(headless=self.headless,slow_mo=500,args=args)
+            browser=await playwright.chromium.launch(headless=self.headless,slow_mo=100,args=args)
         elif self.browser=='firefox':
-            browser=await playwright.firefox.launch(headless=self.headless,slow_mo=500,args=args)
+            browser=await playwright.firefox.launch(headless=self.headless,slow_mo=100,args=args)
         elif self.browser=='edge':
-            browser=await playwright.chromium.launch(channel='msedge',headless=self.headless,slow_mo=500,args=args)
+            browser=await playwright.chromium.launch(channel='msedge',headless=self.headless,slow_mo=100,args=args)
         else:
             raise ValueError('Browser not found')
         page=await browser.new_page()
