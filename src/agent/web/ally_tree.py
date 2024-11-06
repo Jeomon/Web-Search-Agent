@@ -49,7 +49,7 @@ async def build_a11y_tree(node: dict, page: Page, level: int = 0, coordinates: l
                         x, y, width, height = bounding_box.values()
                         x_center, y_center = x + width / 2, y + height / 2
                         if node.get('role') == 'combobox' and node.get('expanded') == True:
-                            option_name = await element.text_content()
+                            option_name = ' '.join((await element.inner_text()).split())
                             coordinate = dict(role='option', name=option_name, x=x_center, y=y_center)
                             # Add the option name to the tree string as a child node
                             tree_string += f"\n{indent}  Role: option, Name: {option_name}"
@@ -64,7 +64,7 @@ async def build_a11y_tree(node: dict, page: Page, level: int = 0, coordinates: l
     if extra_info:
         tree_string += " (" + ", ".join(extra_info) + ")"
     
-    print(tree_string)
+    # print(tree_string)
     tree_string += "\n"  # Add newline for formatting
 
     # If the node has children, recursively build the tree for them

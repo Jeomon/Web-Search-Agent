@@ -63,7 +63,7 @@ class WebSearchAgent(BaseAgent):
     def find_element_by_role_and_name(self,state:AgentState,role:str,name:str):
         x,y=None,None
         for bbox in state.get('bboxes'):
-            if bbox.get('role').strip()==role.strip() and bbox.get('name').strip()==name.strip():
+            if bbox.get('role').strip()==role.strip() and bbox.get('name').strip().lower()==name.strip().lower():
                 x,y=bbox.get('x'),bbox.get('y')
                 break
         if x is None or y is None:
