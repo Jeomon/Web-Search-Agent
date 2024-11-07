@@ -10,9 +10,9 @@ from src.agent import BaseAgent
 from datetime import datetime
 from termcolor import colored
 from base64 import b64encode
-from getpass import getuser
 from typing import Literal
 from pathlib import Path
+from os import getcwd
 import asyncio
 import json
 
@@ -218,7 +218,7 @@ class WebSearchAgent(BaseAgent):
             snapshot=await page.accessibility.snapshot(interesting_only=True)
             # print(snapshot)
             ally_tree, bboxes =await build_a11y_tree(snapshot, page)
-            # print(ally_tree,bboxes)
+            # print(ally_tree)
             ai_prompt=f'<Thought>{thought}</Thought>\n<Action-Name>{action_name}</Action-Name>\n<Action-Input>{json.dumps(action_input,indent=2)}</Action-Input>\n<Route>{route}</Route>'
             user_prompt=f'<Observation>{observation}\nAlly tree:\n{ally_tree}\nNow analyze and evaluate the new ally tree and screenshot got from the previous action, think whether to act or answer.</Observation>'
             messages=[AIMessage(ai_prompt),ImageMessage(user_prompt,image_bytes=image_obj)]
@@ -253,22 +253,37 @@ class WebSearchAgent(BaseAgent):
         width,height=self.viewport
         args=["--window-position=0,0",f"--window-size={width},{height}","--disable-blink-features=AutomationControlled"]
         if self.incognito:
+            parameters={
+                'headless':self.headless,
+                'slow_mo':500,
+                'args':args
+            }
             if self.browser=='chromium':
-                browser=await playwright.chromium.launch(headless=self.headless,slow_mo=500,args=args)
+                browser=await playwright.chromium.launch(**parameters)
             elif self.browser=='firefox':
-                browser=await playwright.firefox.launch(headless=self.headless,slow_mo=500,args=args)
+                browser=await playwright.firefox.launch(**parameters)
             elif self.browser=='edge':
-                browser=await playwright.chromium.launch(channel='msedge',headless=self.headless,slow_mo=500,args=args)
+                browser=await playwright.chromium.launch(channel='msedge',**parameters)
             else:
                 raise ValueError('Browser not found')
             page=await browser.new_page(locale='en-IN',timezone_id='Asia/Kolkata',permissions=['geolocation'])
         else:
+            userdata=Path(getcwd()).joinpath('userdata',self.browser).as_posix()
+            parameters={
+                'user_data_dir':userdata,
+                'headless':self.headless,
+                'slow_mo':500,
+                'args':args,
+                'locale':'en-IN',
+                'timezone_id':'Asia/Kolkata',
+                'permissions':['geolocation']
+            }
             if self.browser=='chromium':
-                browser=await playwright.chromium.launch_persistent_context(headless=self.headless,slow_mo=500,args=args)
+                browser=await playwright.chromium.launch_persistent_context(**parameters)
             elif self.browser=='firefox':
-                browser=await playwright.firefox.launch_persistent_context(headless=self.headless,slow_mo=500,args=args)
+                browser=await playwright.firefox.launch_persistent_context(**parameters)
             elif self.browser=='edge':
-                browser=await playwright.chromium.launch_persistent_context(user_data_dir=f'C:/Users/{getuser()}/AppData/Local/Temp/test',channel='msedge',headless=self.headless,slow_mo=500,args=args)
+                browser=await playwright.chromium.launch_persistent_context(channel='msedge',**parameters)
             else:
                 raise ValueError('Browser not found')
             page=await browser.new_page()

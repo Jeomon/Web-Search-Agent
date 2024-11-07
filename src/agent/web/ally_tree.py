@@ -25,11 +25,14 @@ async def build_a11y_tree(node: dict, page: Page, level: int = 0, coordinates: l
     
     # Try to locate the bounding box if it's an interactive element
     try:
-        if node.get('role') == 'text':  # Handle text elements separately
-            locator = page.get_by_text(node['name'], exact=True)
-        elif node.get('role') == 'combobox' and node.get('expanded') == True:
+        # if node.get('role') == 'text':  # Handle text elements separately
+        #     locator = page.get_by_text(node['name'], exact=True)
+        if node.get('role') == 'combobox' and node.get('expanded') == True:
             # Handle combo box suggestions
-            locator = page.get_by_role('listbox').get_by_role('option')
+            if page.get_by_role('listbox').get_by_role('option').count():
+                locator = page.get_by_role('listbox').get_by_role('option')
+            else:
+                locator = page.get_by_role('listbox').get_by_role('presentation')
         else:
             locator = page.get_by_role(node['role'], name=node.get('name'))
 
