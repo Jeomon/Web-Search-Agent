@@ -10,13 +10,14 @@ from src.agent import BaseAgent
 from datetime import datetime
 from termcolor import colored
 from base64 import b64encode
+from getpass import getuser
 from typing import Literal
 from pathlib import Path
 import asyncio
 import json
 
 class WebSearchAgent(BaseAgent):
-    def __init__(self,browser:Literal['chromium','firefox','edge']='chromium',instructions:list=[],llm:BaseInference=None,screenshot:bool=False,strategy:Literal['ally_tree','screenshot','combined']='ally_tree',viewport:tuple[int,int]=(1920,1080),max_iteration:int=10,headless:bool=True,verbose:bool=False) -> None:
+    def __init__(self,browser:Literal['chromium','firefox','edge']='chromium',instructions:list=[],llm:BaseInference=None,incognito=True,screenshot:bool=False,strategy:Literal['ally_tree','screenshot','combined']='ally_tree',viewport:tuple[int,int]=(1920,1080),max_iteration:int=10,headless:bool=True,verbose:bool=False) -> None:
         self.name='Web Search Agent'
         self.description='This agent is designed to automate the process of gathering information from the internet, such as to navigate websites, perform searches, and retrieve data.'
         self.headless=headless
@@ -27,6 +28,7 @@ class WebSearchAgent(BaseAgent):
         self.tools={tool.name:tool for tool in tools}
         self.max_iteration=max_iteration
         self.screenshot=screenshot
+        self.incognito=incognito
         self.strategy=strategy
         self.viewport=viewport
         self.browser=browser
@@ -249,16 +251,27 @@ class WebSearchAgent(BaseAgent):
     async def async_invoke(self, input: str):
         playwright=await async_playwright().start()
         width,height=self.viewport
-        args=["--window-position=0,0",f"--window-size={width},{height}"]
-        if self.browser=='chromium':
-            browser=await playwright.chromium.launch(headless=self.headless,slow_mo=500,args=args)
-        elif self.browser=='firefox':
-            browser=await playwright.firefox.launch(headless=self.headless,slow_mo=500,args=args)
-        elif self.browser=='edge':
-            browser=await playwright.chromium.launch(channel='msedge',headless=self.headless,slow_mo=500,args=args)
+        args=["--window-position=0,0",f"--window-size={width},{height}","--disable-blink-features=AutomationControlled"]
+        if self.incognito:
+            if self.browser=='chromium':
+                browser=await playwright.chromium.launch(headless=self.headless,slow_mo=500,args=args)
+            elif self.browser=='firefox':
+                browser=await playwright.firefox.launch(headless=self.headless,slow_mo=500,args=args)
+            elif self.browser=='edge':
+                browser=await playwright.chromium.launch(channel='msedge',headless=self.headless,slow_mo=500,args=args)
+            else:
+                raise ValueError('Browser not found')
+            page=await browser.new_page(locale='en-IN',timezone_id='Asia/Kolkata',permissions=['geolocation'])
         else:
-            raise ValueError('Browser not found')
-        page=await browser.new_page(locale='en-IN',timezone_id='Asia/Kolkata',permissions=['geolocation'])
+            if self.browser=='chromium':
+                browser=await playwright.chromium.launch_persistent_context(headless=self.headless,slow_mo=500,args=args)
+            elif self.browser=='firefox':
+                browser=await playwright.firefox.launch_persistent_context(headless=self.headless,slow_mo=500,args=args)
+            elif self.browser=='edge':
+                browser=await playwright.chromium.launch_persistent_context(user_data_dir=f'C:/Users/{getuser()}/AppData/Local/Temp/test',channel='msedge',headless=self.headless,slow_mo=500,args=args)
+            else:
+                raise ValueError('Browser not found')
+            page=await browser.new_page()
         state={
             'input':input,
             'page':page,
