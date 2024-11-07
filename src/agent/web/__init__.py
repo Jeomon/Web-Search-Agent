@@ -218,7 +218,7 @@ class WebSearchAgent(BaseAgent):
             snapshot=await page.accessibility.snapshot(interesting_only=True)
             # print(snapshot)
             ally_tree, bboxes =await build_a11y_tree(snapshot, page)
-            # print(ally_tree)
+            print(ally_tree)
             ai_prompt=f'<Thought>{thought}</Thought>\n<Action-Name>{action_name}</Action-Name>\n<Action-Input>{json.dumps(action_input,indent=2)}</Action-Input>\n<Route>{route}</Route>'
             user_prompt=f'<Observation>{observation}\nAlly tree:\n{ally_tree}\nNow analyze and evaluate the new ally tree and screenshot got from the previous action, think whether to act or answer.</Observation>'
             messages=[AIMessage(ai_prompt),ImageMessage(user_prompt,image_bytes=image_obj)]

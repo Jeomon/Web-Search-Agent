@@ -25,14 +25,11 @@ async def build_a11y_tree(node: dict, page: Page, level: int = 0, coordinates: l
     
     # Try to locate the bounding box if it's an interactive element
     try:
-        # if node.get('role') == 'text':  # Handle text elements separately
-        #     locator = page.get_by_text(node['name'], exact=True)
-        if node.get('role') == 'combobox' and node.get('expanded') == True:
+        if node.get('role') == 'text':  # Handle text elements separately
+            locator = page.get_by_text(node['name'], exact=True)
+        elif node.get('role') == 'combobox' and node.get('expanded') == True:
             # Handle combo box suggestions
-            if page.get_by_role('listbox').get_by_role('option').count():
-                locator = page.get_by_role('listbox').get_by_role('option')
-            else:
-                locator = page.get_by_role('listbox').get_by_role('presentation')
+            locator = page.get_by_role('listbox').get_by_role('option')
         else:
             locator = page.get_by_role(node['role'], name=node.get('name'))
 
@@ -52,7 +49,7 @@ async def build_a11y_tree(node: dict, page: Page, level: int = 0, coordinates: l
                         x, y, width, height = bounding_box.values()
                         x_center, y_center = x + width / 2, y + height / 2
                         if node.get('role') == 'combobox' and node.get('expanded') == True:
-                            option_name = ' '.join((await element.inner_text()).split())
+                            option_name = ' '.join((await element.text_content()).split())
                             coordinate = dict(role='option', name=option_name, x=x_center, y=y_center)
                             # Add the option name to the tree string as a child node
                             tree_string += f"\n{indent}  Role: option, Name: {option_name}"
