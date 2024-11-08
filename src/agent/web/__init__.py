@@ -1,11 +1,12 @@
 from src.agent.web.tools import click_tool,goto_tool,type_tool,scroll_tool,wait_tool,back_tool,key_tool
+from src.agent.web.utils import read_markdown_file,extract_llm_response,compute_levenshtein_similarity
 from src.message import SystemMessage,HumanMessage,ImageMessage,AIMessage
-from src.agent.web.utils import read_markdown_file,extract_llm_response
 from src.agent.web.ally_tree import build_a11y_tree
 from playwright.async_api import async_playwright
 from langgraph.graph import StateGraph,END,START
 from src.agent.web.state import AgentState
 from src.inference import BaseInference
+from src.embedding import BaseEmbedding
 from src.agent import BaseAgent
 from datetime import datetime
 from termcolor import colored
@@ -17,7 +18,7 @@ import asyncio
 import json
 
 class WebSearchAgent(BaseAgent):
-    def __init__(self,browser:Literal['chromium','firefox','edge']='chromium',instructions:list=[],llm:BaseInference=None,incognito=True,screenshot:bool=False,strategy:Literal['ally_tree','screenshot','combined']='ally_tree',viewport:tuple[int,int]=(1920,1080),max_iteration:int=10,headless:bool=True,verbose:bool=False) -> None:
+    def __init__(self,browser:Literal['chromium','firefox','edge']='chromium',instructions:list=[],llm:BaseInference=None,embedding:BaseEmbedding=None,incognito=True,screenshot:bool=False,strategy:Literal['ally_tree','screenshot','combined']='ally_tree',viewport:tuple[int,int]=(1920,1080),max_iteration:int=10,headless:bool=True,verbose:bool=False) -> None:
         self.name='Web Search Agent'
         self.description='This agent is designed to automate the process of gathering information from the internet, such as to navigate websites, perform searches, and retrieve data.'
         self.headless=headless
@@ -35,6 +36,7 @@ class WebSearchAgent(BaseAgent):
         self.verbose=verbose
         self.iteration=0
         self.llm=llm
+        self.embedding=embedding
         self.graph=self.create_graph()
         self.wait_time=5000
         with open('./src/agent/web/bounding_box.js','r') as js:
@@ -63,11 +65,15 @@ class WebSearchAgent(BaseAgent):
         return x,y
     
     def find_element_by_role_and_name(self,state:AgentState,role:str,name:str):
-        x,y=None,None
+        x, y = None, None
+        similarity_threshold = 0.85
         for bbox in state.get('bboxes'):
-            if bbox.get('role').strip()==role.strip() and bbox.get('name').strip().lower()==name.strip().lower():
-                x,y=bbox.get('x'),bbox.get('y')
-                break
+            if bbox.get('role').strip() == role.strip():
+                bbox_name = bbox.get('name').strip().lower()
+                similarity = compute_levenshtein_similarity(bbox_name, name.strip().lower())
+                if similarity >= similarity_threshold:
+                    x, y = bbox.get('x'), bbox.get('y')
+                    break
         if x is None or y is None:
             raise Exception('Role or Name is invalid. Either change the role or name.')
         return x,y

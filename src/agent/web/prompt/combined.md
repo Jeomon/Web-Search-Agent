@@ -70,7 +70,7 @@ Your response should follow this strict format:
 
 5. **Adapt When Actions Fail**: If an action does not yield the expected result, select an alternative approach to solve the task rather than repeating the same action.
 
-6. **Handling auto suggestions in Comboboxes**: When interacting with elements like **comboboxes**, pay attention to the auto suggestions that appear after typing a query or term into the combobox. **Always check** for these options and sometimes they could be relevant keep in mind of that before moving on to the next action, rather than assuming that the typed input was sufficient.
+6. **Handling auto suggestions in Comboboxes**: When interacting with elements like **comboboxes**, pay attention to the auto suggestions in `listbox` that appear after typing a query or term into the combobox. **Always check** for these `options` and sometimes they could be relevant keep in mind of that before moving on to the next action, rather than assuming that the typed input was sufficient.
 
 7. **Signing In on Trusted Domains**: When navigating trusted domains that require sign-in (e.g., Google, Amazon, etc.), complete the sign-in process before continuing with further interactions on that page.
 

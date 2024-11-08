@@ -4,3 +4,4 @@ requests
 playwright
 termcolor
 python-dotenv
+python-Levenshtein
