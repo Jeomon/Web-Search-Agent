@@ -10,6 +10,7 @@ from src.embedding import BaseEmbedding
 from src.agent.web.memory import Memory
 from src.agent import BaseAgent
 from datetime import datetime
+from datetime import datetime
 from termcolor import colored
 from base64 import b64encode
 from typing import Literal
@@ -19,7 +20,8 @@ import asyncio
 import json
 
 class WebSearchAgent(BaseAgent):
-    def __init__(self,browser:Literal['chromium','firefox','edge']='chromium',instructions:list=[],llm:BaseInference=None,embedding:BaseEmbedding=None,incognito=True,screenshot:bool=False,strategy:Literal['ally_tree','screenshot','combined']='ally_tree',viewport:tuple[int,int]=(1920,1080),max_iteration:int=10,headless:bool=True,verbose:bool=False) -> None:
+    def __init__(self,browser:Literal['chromium','firefox','edge']='chromium',instructions:list=[],llm:BaseInference=None,embedding:BaseEmbedding=None,incognito=True,memory:bool=False,
+    screenshot:bool=False,strategy:Literal['ally_tree','screenshot','combined']='ally_tree',viewport:tuple[int,int]=(1920,1080),max_iteration:int=10,headless:bool=True,verbose:bool=False) -> None:
         self.name='Web Search Agent'
         self.description='This agent is designed to automate the process of gathering information from the internet, such as to navigate websites, perform searches, and retrieve data.'
         self.headless=headless
@@ -37,7 +39,8 @@ class WebSearchAgent(BaseAgent):
         self.verbose=verbose
         self.iteration=0
         self.llm=llm
-        self.memory=Memory('./db',embedding)
+        self.memory=memory
+        self.knowledge_base=Memory('./db',embedding)
         self.graph=self.create_graph()
         self.wait_time=5000
         with open('./src/agent/web/bounding_box.js','r') as js:
@@ -240,7 +243,11 @@ class WebSearchAgent(BaseAgent):
         final_answer=agent_data.get('Final Answer')
         if self.verbose:
             print(colored(f'Final Answer: {final_answer}',color='cyan',attrs=['bold']))
-        self.memory.add_memory(f'Query: {state.get('input')}\nAnswer: {final_answer}')
+        if self.memory:
+            date_time=datetime.now().strftime()
+            self.knowledge_base.add_memory(f'Query: {state.get('input')}\nAnswer: {final_answer}\nDateTime:{date_time}')
+            if self.verbose:
+                print(colored(f'Added to knowledge base.',color='green',attrs=['bold']))
         return {**state,'output':final_answer}
 
     def controller(self,state:AgentState):
