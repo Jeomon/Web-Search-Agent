@@ -15,5 +15,6 @@ class Memory:
         self.collection.add(documents=[memory],ids=[str(uuid4())])
 
     def get_memory(self,query:str,k:int=10):
-        return self.collection.query(query_texts=[query],n_results=k)
+        results=self.collection.query(query_texts=[query],n_results=k)
+        return results['documents']
     
