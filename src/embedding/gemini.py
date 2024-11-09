@@ -11,20 +11,40 @@ class GeminiEmbedding(BaseEmbedding):
         self.output_dimensionality=output_dimensionality
         self.task_type=task_type
         self.headers={'Content-Type': 'application/json'}
-    def embed(self,text:str='',title:str=''):
-        url=self.base_url or f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:embedContent"
+    def embed(self,text:list[str]|str='',title:str=''):
         headers=self.headers
+        if isinstance(text,list):
+            mode='batchEmbedContents'
+        else:
+            mode='embedContent'
+        url=self.base_url or f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:{mode}"
         params={'key':self.api_key}
-        payload={
-            'model':f'models/{self.model}',
-            'content':{
-                'parts':[
+        if isinstance(text,list):
+            payload={
+                'requests':[
                     {
-                        'text':text
+                        'model':f'models/{self.model}',
+                        'content':{
+                            'parts':[
+                                {
+                                    'text':_text
+                                }
+                            ]
+                        }
                     }
-                ]
+                for _text in text]
             }
-        }
+        else:
+            payload={
+                'model':f'models/{self.model}',
+                'content':{
+                    'parts':[
+                        {
+                            'text':text
+                        }
+                    ]
+                }
+            }
         if self.task_type:
             payload['task_type']=self.task_type
         if self.output_dimensionality:
@@ -35,7 +55,12 @@ class GeminiEmbedding(BaseEmbedding):
             with Client() as client:
                 response=client.post(url=url,json=payload,headers=headers,params=params)
             response.raise_for_status()
-            return response.json()['embedding']['values']
+            if isinstance(text,list):
+                data=response.json()
+                return [e['values'] for e in data['embeddings']]
+            else:
+                data=response.json()
+                return data['embedding']['values']
         except HTTPError as err:
             print(f'Error: {err.response.text}, Status Code: {err.response.status_code}')
         except ConnectionError as err:

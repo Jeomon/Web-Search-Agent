@@ -32,7 +32,7 @@ function getRandomColor() {
 // Helper function to check if an element is interactive
 function isInteractiveElement(el) {
     const tagName = el.tagName.toLowerCase();
-    const interactiveTags = ['button', 'a', 'input', 'textarea', 'select', 'iframe', 'video'];
+    const interactiveTags = ['button', 'a', 'input', 'textarea', 'select', 'iframe', 'video','li'];
     const role = el.getAttribute('role');
     const hasClickEvent = el.hasAttribute('onclick') || typeof el.onclick === 'function';
     const cursorStyle = window.getComputedStyle(el).cursor;

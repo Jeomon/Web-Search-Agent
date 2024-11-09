@@ -70,6 +70,6 @@ If you’ve gathered enough information from the A11y Tree and can confidently p
 
 5. **Avoid Unnecessary Interactions**: Avoid engaging with elements like sign-in forms or irrelevant pop-ups. Only focus on the elements needed for solving the task.
 
-6. **Handling auto suggestions in Comboboxes**: When interacting with elements like **comboboxes**, pay attention to the auto suggestions that appear after typing a query or term into the combobox. **Always check** for these options and sometimes they could be relevant keep in mind of that before moving on to the next action, rather than assuming that the typed input was sufficient.
+6. **Handling auto suggestions in Comboboxes**: When interacting with elements like **comboboxes**, pay attention to the auto suggestions in `listbox` that appear after typing a query or term into the combobox. **Always check** for these `options` and sometimes they could be relevant keep in mind of that before moving on to the next action, rather than assuming that the typed input was sufficient.
 
 Always stick to the formats for **Option 1** or **Option 2** and ensure that tool inputs are compatible with Playwright.

@@ -7,6 +7,7 @@ from langgraph.graph import StateGraph,END,START
 from src.agent.web.state import AgentState
 from src.inference import BaseInference
 from src.embedding import BaseEmbedding
+from src.agent.web.memory import Memory
 from src.agent import BaseAgent
 from datetime import datetime
 from termcolor import colored
@@ -36,7 +37,7 @@ class WebSearchAgent(BaseAgent):
         self.verbose=verbose
         self.iteration=0
         self.llm=llm
-        self.embedding=embedding
+        self.memory=Memory('./db',embedding)
         self.graph=self.create_graph()
         self.wait_time=5000
         with open('./src/agent/web/bounding_box.js','r') as js:
@@ -66,14 +67,18 @@ class WebSearchAgent(BaseAgent):
     
     def find_element_by_role_and_name(self,state:AgentState,role:str,name:str):
         x, y = None, None
-        similarity_threshold = 0.85
+        similarity_threshold = 0.75
+        name=name.strip().lower()
         for bbox in state.get('bboxes'):
             if bbox.get('role').strip() == role.strip():
                 bbox_name = bbox.get('name').strip().lower()
-                similarity = compute_levenshtein_similarity(bbox_name, name.strip().lower())
+                similarity = compute_levenshtein_similarity(bbox_name,name)
+                print(bbox_name,similarity)
                 if similarity >= similarity_threshold:
                     x, y = bbox.get('x'), bbox.get('y')
                     break
+                # if bbox_name==name:
+                #     x, y = bbox.get('x'), bbox.get('y')
         if x is None or y is None:
             raise Exception('Role or Name is invalid. Either change the role or name.')
         return x,y
@@ -235,6 +240,7 @@ class WebSearchAgent(BaseAgent):
         final_answer=agent_data.get('Final Answer')
         if self.verbose:
             print(colored(f'Final Answer: {final_answer}',color='cyan',attrs=['bold']))
+        self.memory.add_memory(f'Query: {state.get('input')}\nAnswer: {final_answer}')
         return {**state,'output':final_answer}
 
     def controller(self,state:AgentState):
