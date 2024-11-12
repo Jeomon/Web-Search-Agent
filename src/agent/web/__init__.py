@@ -75,15 +75,16 @@ class WebSearchAgent(BaseAgent):
         for bbox in state.get('bboxes'):
             if bbox.get('role').strip() == role.strip():
                 bbox_name = bbox.get('name').strip().lower()
-                similarity = compute_levenshtein_similarity(bbox_name,name)
-                if similarity >= similarity_threshold:
-                    print(bbox_name,similarity)
+                # similarity = compute_levenshtein_similarity(bbox_name,name)
+                # if similarity >= similarity_threshold:
+                #     print(bbox_name,similarity)
+                #     x, y = bbox.get('x'), bbox.get('y')
+                #     break
+                if bbox_name==name:
                     x, y = bbox.get('x'), bbox.get('y')
                     break
-                # if bbox_name==name:
-                #     x, y = bbox.get('x'), bbox.get('y')
         if x is None or y is None:
-            raise Exception('Role or Name is invalid. Either change the role or name.')
+            raise Exception(f'Role: {role}, Name: {name} is invalid. Make alternate action.')
         return x,y
 
     async def action(self,state:AgentState):
@@ -230,9 +231,9 @@ class WebSearchAgent(BaseAgent):
             if isinstance(last_message,ImageMessage):
                 state['messages'][-1]=HumanMessage(f'<Observation>{state.get('previous_observation')}</Observation>')
             snapshot=await page.accessibility.snapshot(interesting_only=True)
-            # print(snapshot)
+            # print(json.dumps(snapshot,indent=2))
             ally_tree, bboxes =await build_a11y_tree(snapshot, page)
-            print(ally_tree,bboxes)
+            # print(ally_tree)
             ai_prompt=f'<Thought>{thought}</Thought>\n<Action-Name>{action_name}</Action-Name>\n<Action-Input>{json.dumps(action_input,indent=2)}</Action-Input>\n<Route>{route}</Route>'
             user_prompt=f'<Observation>{observation}\nAlly tree:\n{ally_tree}\nNow analyze and evaluate the new ally tree and screenshot got from the previous action, think whether to act or answer.</Observation>'
             messages=[AIMessage(ai_prompt),ImageMessage(user_prompt,image_bytes=image_obj)]

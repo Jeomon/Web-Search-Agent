@@ -25,6 +25,7 @@ class Type(BaseModel):
 async def type_tool(page:Page,x:float,y:float,text:str):
     await page.mouse.click(x,y,button='left')
     await page.keyboard.type(text)
+    # await page.keyboard.press(key='Enter')
     return f'Typed {text}.'
 
 class Scroll(BaseModel):

@@ -5,3 +5,5 @@ playwright
 termcolor
 python-dotenv
 python-Levenshtein
+httpx
+chromadb
