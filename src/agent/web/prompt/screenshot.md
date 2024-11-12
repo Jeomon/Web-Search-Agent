@@ -7,7 +7,7 @@ Your primary task is to interact with web pages using Playwright. If the user do
 You have access to the following tools:
 
 - **Click Tool(label_number)**: For interacting with links, buttons, checkboxes, dropdowns, etc.
-- **Right Click Tool(label_number)**: For opening the context menu.
+- **Right Click Tool(role, name)**: For opening the context menu.
 - **Type Tool(label_number, content)**: To fill text input fields, search boxes, etc.
 - **Scroll Tool(direction, amount)**: To scroll `up` or `down` in an amount on the web page.
 - **Wait Tool(duration)**: To wait until the page content is fully loaded by specifying the duration (in seconds) before proceeding.
