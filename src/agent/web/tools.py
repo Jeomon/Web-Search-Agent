@@ -15,7 +15,7 @@ class GoTo(BaseModel):
 
 @tool('GoTo Tool',args_schema=GoTo)
 async def goto_tool(page:Page,url:str):
-    await page.goto(url=url)
+    await page.goto(url=url,wait_until='domcontentloaded')
     return f'Gone to {url}.'
 
 class Type(BaseModel):
