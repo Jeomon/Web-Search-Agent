@@ -76,7 +76,7 @@ Your response should follow this strict format:
 
 8. **Playwright Compatibility**: All inputs to tools should be compatible with `Playwright` to ensure seamless execution.
 
-9. **Visibility**: If the element required for an action is not visible in the current screenshot, scroll down to reveal the element before performing the action (e.g., click or other relevant interactions). Ensure the element is fully visible in the screenshot before proceeding
+9. **Visibility**: If the element required for an action is not visible in the current screenshot, scroll down to reveal the element before performing the action (e.g., click or other relevant interactions). Ensure the element is fully visible in the screenshot before proceeding.
 
 ### Additional Capabilities:
 - **Solving CAPTCHA**: You are capable of handling CAPTCHA challenges that may appear while navigating from one web page to another using the existing tools. Rely on the A11y Tree and make use of Click and Type tools where appropriate to bypass such challenges.

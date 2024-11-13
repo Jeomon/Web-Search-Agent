@@ -1,7 +1,7 @@
 from src.agent.web.tools import click_tool,goto_tool,type_tool,scroll_tool,wait_tool,back_tool,key_tool
 from src.agent.web.utils import read_markdown_file,extract_llm_response,compute_levenshtein_similarity
 from src.message import SystemMessage,HumanMessage,ImageMessage,AIMessage
-from src.agent.web.ally_tree import build_a11y_tree
+from src.agent.web.ally_tree import ally_tree_with_cordinates
 from playwright.async_api import async_playwright
 from langgraph.graph import StateGraph,END,START
 from src.agent.web.state import AgentState
@@ -75,14 +75,13 @@ class WebSearchAgent(BaseAgent):
         for bbox in state.get('bboxes'):
             if bbox.get('role').strip() == role.strip():
                 bbox_name = bbox.get('name').strip().lower()
-                # similarity = compute_levenshtein_similarity(bbox_name,name)
-                # if similarity >= similarity_threshold:
-                #     print(bbox_name,similarity)
-                #     x, y = bbox.get('x'), bbox.get('y')
-                #     break
-                if bbox_name==name:
+                similarity = compute_levenshtein_similarity(bbox_name,name)
+                if similarity >= similarity_threshold:
                     x, y = bbox.get('x'), bbox.get('y')
                     break
+                # if bbox_name==name:
+                #     x, y = bbox.get('x'), bbox.get('y')
+                #     break
         if x is None or y is None:
             raise Exception(f'Role: {role}, Name: {name} is invalid. Make alternate action.')
         return x,y
@@ -208,9 +207,9 @@ class WebSearchAgent(BaseAgent):
             last_message=state['messages'][-1]
             if isinstance(last_message,HumanMessage):
                 state['messages'][-1]=HumanMessage(f'<Observation>{state.get('previous_observation')}</Observation>')
-            snapshot=await page.accessibility.snapshot(interesting_only=True)
+            # snapshot=await page.accessibility.snapshot(interesting_only=True)
             # print(snapshot)
-            ally_tree, bboxes =await build_a11y_tree(snapshot, page)
+            ally_tree, bboxes =await ally_tree_with_cordinates(page)
             # print(ally_tree)
             ai_prompt=f'<Thought>{thought}</Thought>\n<Action-Name>{action_name}</Action-Name>\n<Action-Input>{json.dumps(action_input,indent=2)}</Action-Input>\n<Route>{route}</Route>'
             user_prompt=f'<Observation>{observation}\nAlly tree:\n{ally_tree}\nNow analyze and evaluate the new ally tree got from the previous action, think whether to act or answer.</Observation>'
@@ -230,9 +229,9 @@ class WebSearchAgent(BaseAgent):
             last_message=state['messages'][-1]
             if isinstance(last_message,ImageMessage):
                 state['messages'][-1]=HumanMessage(f'<Observation>{state.get('previous_observation')}</Observation>')
-            snapshot=await page.accessibility.snapshot(interesting_only=True)
+            # snapshot=await page.accessibility.snapshot(interesting_only=True)
             # print(json.dumps(snapshot,indent=2))
-            ally_tree, bboxes =await build_a11y_tree(snapshot, page)
+            ally_tree, bboxes =await ally_tree_with_cordinates(page)
             # print(ally_tree)
             ai_prompt=f'<Thought>{thought}</Thought>\n<Action-Name>{action_name}</Action-Name>\n<Action-Input>{json.dumps(action_input,indent=2)}</Action-Input>\n<Route>{route}</Route>'
             user_prompt=f'<Observation>{observation}\nAlly tree:\n{ally_tree}\nNow analyze and evaluate the new ally tree and screenshot got from the previous action, think whether to act or answer.</Observation>'

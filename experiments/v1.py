@@ -1,4 +1,4 @@
-from playwright.sync_api import Page
+from playwright.sync_api import sync_playwright,Page
 from time import sleep
 
 # JavaScript code with var instead of let, wrapped in an IIFE
@@ -85,9 +85,9 @@ js_code = """
 """
 
 
-async def extract_accessibility_tree(page:Page):
+def extract_accessibility_tree(page:Page):
     # Inject and execute the JavaScript code to build the custom A11y tree
-    a11y_tree = await page.evaluate(js_code)
+    a11y_tree = page.evaluate(js_code)
     return a11y_tree
 
 def remove_redundant_elements(a11y_tree):
@@ -114,7 +114,7 @@ def generate_tree_string(a11y_tree, indent_level=0):
                 element['role']='link'
             if element['role']=='li':
                 element['role']='presentation'
-
+                
             tree_string += f"{indent}Role: {element['role']}, Name: {element['name'].replace('\n','')}\n"
             # tree_string += f"{indent}Role: {element['role']}, Name: {element['name']}, Visible: {element['visible']}, BoundingBox: {element['boundingBox']}\n"
 
@@ -155,17 +155,32 @@ def generate_coordinate_mapping(a11y_tree):
     return coord_mapping
 
 # Main script to run Playwright and execute the DFS-based DOM traversal
-async def ally_tree_with_cordinates(page:Page):
+def main():
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=False)
+        page = browser.new_page()
+
+        # Navigate to your webpage
+        page.goto('https://youtube.com')
+        page.get_by_role('combobox').type('Hello World')
+        page.keyboard.press('Enter')
+        sleep(4)
+
         # Extract the custom accessibility tree
-        a11y_tree = await extract_accessibility_tree(page)
+        a11y_tree = extract_accessibility_tree(page)
 
         # Remove redundant elements based on their names
         unique_a11y_tree = remove_redundant_elements(a11y_tree)
 
         # Generate and print the hierarchical tree string
         tree_string = generate_tree_string(unique_a11y_tree)
+        print("Accessibility Tree String:\n", tree_string)
 
         # Generate and print the coordinate mapping
         coord_mapping = generate_coordinate_mapping(unique_a11y_tree)
+        print("\nCoordinate Mapping:\n", coord_mapping)
 
-        return tree_string,coord_mapping
+        browser.close()
+
+if __name__ == "__main__":
+    main()
