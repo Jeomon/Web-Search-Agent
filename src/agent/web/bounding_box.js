@@ -33,10 +33,11 @@ function getRandomColor() {
 function isInteractiveElement(el) {
     const tagName = el.tagName.toLowerCase();
     const interactiveTags = ['button', 'a', 'input', 'textarea', 'select', 'iframe', 'video','li'];
+    const interactiveRoles = ['button', 'link', 'textbox', 'checkbox', 'combobox', 'menu', 'slider', 'option', 'searchbox'];
     const role = el.getAttribute('role');
     const hasClickEvent = el.hasAttribute('onclick') || typeof el.onclick === 'function';
     const cursorStyle = window.getComputedStyle(el).cursor;
-    const isInteractive = interactiveTags.includes(tagName) || role === 'button' || hasClickEvent || cursorStyle === 'pointer';
+    const isInteractive = interactiveTags.includes(tagName) ||interactiveRoles.includes(role) || hasClickEvent || cursorStyle === 'pointer';
     return isInteractive;
 }
 
