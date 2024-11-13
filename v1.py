@@ -161,10 +161,7 @@ def main():
         page = browser.new_page()
 
         # Navigate to your webpage
-        page.goto('https://youtube.com')
-        page.get_by_role('combobox').type('Hello World')
-        page.keyboard.press('Enter')
-        sleep(4)
+        page.goto('https://uber.com',wait_until='domcontentloaded')
 
         # Extract the custom accessibility tree
         a11y_tree = extract_accessibility_tree(page)

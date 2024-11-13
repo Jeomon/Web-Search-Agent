@@ -167,5 +167,6 @@ async def ally_tree_with_cordinates(page:Page):
 
         # Generate and print the coordinate mapping
         coord_mapping = generate_coordinate_mapping(unique_a11y_tree)
+        print(tree_string)
 
         return tree_string,coord_mapping
