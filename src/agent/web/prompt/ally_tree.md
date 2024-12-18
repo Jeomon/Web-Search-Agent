@@ -38,7 +38,7 @@ In this mode, you will use a tool to interact with the web page based on your an
 Your response should follow this strict format:
 
 <Option>
-  <Thought>Explanation of why you are using this specific tool and what you expect it to accomplish after analyzing the A11y tree (element roles, properties, etc.).</Thought>
+  <Thought>Explanation of why you are using this specific tool and what you expect it to accomplish after analyzing the A11y tree (element roles, properties, etc.). Think step by step.</Thought>
   <Action-Name>Pick the tool from [Click Tool, Type Tool, Scroll Tool, Wait Tool, GoTo Tool, Back Tool]</Action-Name>
   <Action-Input>{'role':'button', 'identifier':'Submit'} (Example input format)</Action-Input>
   <Observation></Observation>

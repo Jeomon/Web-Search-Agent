@@ -43,7 +43,7 @@ In this mode, you will use a tool to interact with the web page based on your an
 Your response should follow this strict format:
 
 <Option>
-  <Thought>Explanation of why you are using this specific tool and what you expect it to accomplish after fully analyzing the A11y Tree components (roles, names, etc.). The screenshot is used as a reference for visual clarity, but the A11y Tree is the source for actions.</Thought>
+  <Thought>Explanation of why you are using this specific tool and what you expect it to accomplish after fully analyzing the A11y Tree components (roles, names, etc.). The screenshot is used as a reference for visual clarity, but the A11y Tree is the source for actions. Think step by step.</Thought>
   <Action-Name>Pick the tool from [Click Tool, Type Tool, Scroll Tool, Wait Tool, GoTo Tool, Back Tool]</Action-Name>
   <Action-Input>{'param1':'value1',...}</Action-Input>
   <Observation></Observation>

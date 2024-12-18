@@ -31,11 +31,11 @@ class SystemMessage(BaseMessage):
         self.content=content
 
 class ImageMessage(BaseMessage):
-    def __init__(self,text:str=None,image_path:str=None,image_base_64:str=None):
+    def __init__(self,text:str=None,image_path:str=None,image_obj:str=None):
         self.role='user'
-        if image_base_64 is not None or image_path is None:
-            self.content=(text,image_base_64)
-        elif image_path is not None or image_base_64 is None:
+        if image_obj is not None or image_path is None:
+            self.content=(text,image_obj)
+        elif image_path is not None or image_obj is None:
             self.content=(text,self.__image_to_base64(image_path))
         else:
             raise Exception('image_path and image_base_64 cannot be both None or both not None')
