@@ -16,26 +16,26 @@ class BaseMessage(ABC):
         return f"{class_name}({attributes})"
 
 class HumanMessage(BaseMessage):
-    def __init__(self,content:str):
+    def __init__(self,content):
         self.role='user'
         self.content=content
 
 class AIMessage(BaseMessage):
-    def __init__(self,content:str):
+    def __init__(self,content):
         self.role='assistant'
         self.content=content
         
 class SystemMessage(BaseMessage):
-    def __init__(self,content:str):
+    def __init__(self,content):
         self.role='system'
         self.content=content
 
 class ImageMessage(BaseMessage):
-    def __init__(self,text:str=None,image_path:str=None,image_bytes:str=None):
+    def __init__(self,text:str=None,image_path:str=None,image_base_64:str=None):
         self.role='user'
-        if image_bytes is not None or image_path is None:
-            self.content=(text,image_bytes)
-        elif image_path is not None or image_bytes is None:
+        if image_base_64 is not None or image_path is None:
+            self.content=(text,image_base_64)
+        elif image_path is not None or image_base_64 is None:
             self.content=(text,self.__image_to_base64(image_path))
         else:
             raise Exception('image_path and image_base_64 cannot be both None or both not None')
@@ -61,8 +61,8 @@ class ImageMessage(BaseMessage):
         return base64.b64encode(image_bytes).decode('utf-8')
 
 class ToolMessage(BaseMessage):
-    def __init__(self,content:str,tool_call:str,tool_args:dict):
-        self.role='assistant'
-        self.content=content
-        self.tool_call=tool_call
-        self.tool_args=tool_args
+    def __init__(self,id:str,name:str,args:dict):
+        self.id=id
+        self.role='tool'
+        self.name=name
+        self.args=args

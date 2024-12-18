@@ -16,6 +16,7 @@ from base64 import b64encode
 from typing import Literal
 from pathlib import Path
 from os import getcwd
+import nest_asyncio
 import asyncio
 import json
 
@@ -100,79 +101,75 @@ class WebSearchAgent(BaseAgent):
         if self.strategy=='screenshot':
             try:
                 if action_name=='GoTo Tool':
-                    observation=await tool(page,**action_input)
-                    await page.wait_for_timeout(self.wait_time)
+                    url=action_input.get('url')
+                    parameters={'page':page,'url':url}
                 elif action_name=='Click Tool':
                     label=action_input.get('label_number')
-                    observation=await tool(page,*self.find_element_by_label(state,label))
-                    await page.wait_for_timeout(self.wait_time)
+                    x,y=self.find_element_by_label(state,label)
+                    parameters={'page':page,'x':x,'y':y}
                 elif action_name=='Right Click Tool':
-                    observation=await tool(page,*self.find_element_by_label(state,label))
-                    await page.wait_for_timeout(self.wait_time)
+                    x,y=self.find_element_by_label(state,label)
+                    parameters={'page':page,'x':x,'y':y}
                 elif action_name=='Type Tool':
                     label=action_input.get('label_number')
                     text=action_input.get('content')
-                    observation=await tool(page,*self.find_element_by_label(state,label),text=text)
-                    await page.wait_for_timeout(self.wait_time)
+                    x,y=self.find_element_by_label(state,label)
+                    parameters={'page':page,'x':x,'y':y,'text':text}
                 elif action_name=='Scroll Tool':
                     direction=action_input.get('direction')
                     amount=int(action_input.get('amount'))
-                    observation=await tool(page,direction,amount)
-                    await page.wait_for_timeout(self.wait_time)
+                    parameters={'page':page,'direction':direction,'amount':amount}
                 elif action_name=='Wait Tool':
                     duration=int(action_input.get('duration'))
-                    observation=await tool(page,duration)
-                    await page.wait_for_timeout(self.wait_time)
+                    parameters={'page':page,'duration':duration}
                 elif action_name=='Back Tool':
-                    observation=await tool(page)
-                    await page.wait_for_timeout(self.wait_time)
+                    parameters={'page':page}
                 elif action_name=='Key Tool':
                     key=action_input.get('key')
-                    observation=await tool(page,key)
-                    await page.wait_for_timeout(self.wait_time)
+                    parameters={'page':page,'key':key}
                 else:
                     raise Exception('Tool not found')
+                observation=await tool.async_invoke(**parameters)
+                await page.wait_for_timeout(self.wait_time)
             except Exception as e:
                 observation=str(e)
         else:
             try:
                 if action_name=='GoTo Tool':
-                    observation=await tool(page,**action_input)
-                    await page.wait_for_timeout(self.wait_time)
+                    url=action_input.get('url')
+                    parameters={'page':page,'url':url}
                 elif action_name=='Click Tool':
                     role=action_input.get('role')
                     name=action_input.get('name')
-                    observation=await tool(page,*self.find_element_by_role_and_name(state,role,name))
-                    await page.wait_for_timeout(self.wait_time)
+                    x,y=self.find_element_by_role_and_name(state,role,name)
+                    parameters={'page':page,'x':x,'y':y}
                 elif action_name=='Right Click Tool':
                     role=action_input.get('role')
                     name=action_input.get('name')
-                    observation=await tool(page,*self.find_element_by_role_and_name(state,role,name))
-                    await page.wait_for_timeout(self.wait_time)
+                    x,y=self.find_element_by_role_and_name(state,role,name)
+                    parameters={'page':page,'x':x,'y':y}
                 elif action_name=='Type Tool':
                     role=action_input.get('role')
                     name=action_input.get('name')
                     text=action_input.get('content')
-                    observation=await tool(page,*self.find_element_by_role_and_name(state,role,name),text=text)
-                    await page.wait_for_timeout(self.wait_time)
+                    x,y=self.find_element_by_role_and_name(state,role,name)
+                    parameters={'page':page,'x':x,'y':y,'text':text}
                 elif action_name=='Scroll Tool':
                     direction=action_input.get('direction')
                     amount=int(action_input.get('amount'))
-                    observation=await tool(page,direction,amount)
-                    await page.wait_for_timeout(self.wait_time)
+                    parameters={'page':page,'direction':direction,'amount':amount}
                 elif action_name=='Wait Tool':
                     duration=int(action_input.get('duration'))
-                    observation=await tool(page,duration)
-                    await page.wait_for_timeout(self.wait_time)
+                    parameters={'page':page,'duration':duration}
                 elif action_name=='Back Tool':
-                    observation=await tool(page)
-                    await page.wait_for_timeout(self.wait_time)
+                    parameters={'page':page}
                 elif action_name=='Key Tool':
                     key=action_input.get('key')
-                    observation=await tool(page,key)
-                    await page.wait_for_timeout(self.wait_time)
+                    parameters={'page':page,'key':key}
                 else:
                     raise Exception('Tool not found')
+                observation=await tool.async_invoke(**parameters)
+                await page.wait_for_timeout(self.wait_time)
             except Exception as e:
                 observation=str(e)
         if self.verbose:
@@ -201,7 +198,7 @@ class WebSearchAgent(BaseAgent):
             bboxes=[{'element_type':bbox.get('elementType'),'label_number':bbox.get('label'),'x':bbox.get('x'),'y':bbox.get('y')} for bbox in cordinates]
             ai_prompt=f'<Thought>{thought}</Thought>\n<Action-Name>{action_name}</Action-Name>\n<Action-Input>{json.dumps(action_input,indent=2)}</Action-Input>\n<Route>{route}</Route>'
             user_prompt=f'<Observation>{observation}\nNow analyze and evaluate the new labelled screenshot got from the previous action, think whether to act or answer.</Observation>'
-            messages=[AIMessage(ai_prompt),ImageMessage(text=user_prompt,image_bytes=image_obj)]
+            messages=[AIMessage(ai_prompt),ImageMessage(text=user_prompt,image_base_64=image_obj)]
         elif self.strategy=='ally_tree':
             state['messages'].pop() # Remove the last message for modification
             last_message=state['messages'][-1]
@@ -235,7 +232,7 @@ class WebSearchAgent(BaseAgent):
             # print(ally_tree)
             ai_prompt=f'<Thought>{thought}</Thought>\n<Action-Name>{action_name}</Action-Name>\n<Action-Input>{json.dumps(action_input,indent=2)}</Action-Input>\n<Route>{route}</Route>'
             user_prompt=f'<Observation>{observation}\nAlly tree:\n{ally_tree}\nNow analyze and evaluate the new ally tree and screenshot got from the previous action, think whether to act or answer.</Observation>'
-            messages=[AIMessage(ai_prompt),ImageMessage(user_prompt,image_bytes=image_obj)]
+            messages=[AIMessage(ai_prompt),ImageMessage(user_prompt,image_base_64=image_obj)]
         return {**state,'agent_data':agent_data,'messages':messages,'bboxes':bboxes,'page':page,'previous_observation':observation}
 
     def final(self,state:AgentState):
@@ -320,7 +317,13 @@ class WebSearchAgent(BaseAgent):
         return response['output']
         
     def invoke(self, input: str)->str:
-        return asyncio.run(self.async_invoke(input))
+        try:
+            # If there's no running event loop, use asyncio.run
+            return asyncio.run(self.async_invoke(input))
+        except RuntimeError:
+            nest_asyncio.apply()  # Allow nested event loops in notebooks
+            loop = asyncio.get_event_loop()
+            return loop.run_until_complete(self.async_invoke(input))
 
     def stream(self, input:str):
         pass
