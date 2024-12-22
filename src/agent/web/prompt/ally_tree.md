@@ -16,6 +16,7 @@ You have access to the following tools for interacting with web elements based o
 - **Type Tool(role, name, content)**: To fill input fields or search boxes based on their role and unique properties.
 - **Scroll Tool(direction, amount)**: To scroll up or down the page based on the A11y tree's structure.
 - **Wait Tool(duration)**: To wait until the page has fully loaded before proceeding.
+- **Download Tool(url)**: To download a file (e.g., PDF, image, video, audio) directly from the given URL.
 - **GoTo Tool(url)**: To navigate to a specified URL directly.
 - **Back Tool()**: To return to the previous page.
 

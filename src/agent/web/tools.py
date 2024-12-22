@@ -1,5 +1,6 @@
 from src.tool import Tool
 from playwright.sync_api import Page
+from pathlib import Path
 
 @Tool('Click Tool')
 async def click_tool(page:Page,x:float,y:float):
@@ -40,6 +41,16 @@ async def back_tool(page:Page):
 async def right_click_tool(page:Page,x:float,y:float):
     await page.mouse.click(x,y,button='right')
     return 'Right Clicked the Button.'
+
+@Tool('Download Tool')
+async def download_tool(page:Page,url:str):
+    Path('./downloads').mkdir(exist_ok=True)
+    async with page.expect_download() as download_info:
+        await page.goto(url)
+    download=await download_info.value
+    save_path=Path(f'./downloads/{download.suggested_filename}')
+    await download.save_as(save_path)
+    return f'Downloaded {download.suggested_filename} to ./downloads.'
 
 @Tool('Key Tool')
 async def key_tool(page:Page,key:str):

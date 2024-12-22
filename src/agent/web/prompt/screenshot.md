@@ -16,6 +16,7 @@ You have access to the following tools for interacting with the web page:
 - **Type Tool(label_number, content)**: To fill text input fields, search boxes, etc., based on their label in the screenshot.
 - **Scroll Tool(direction, amount)**: To scroll `up` or `down` by an amount on the web page.
 - **Wait Tool(duration)**: To wait until the page content is fully loaded before proceeding.
+- **Download Tool(url)**: To download a file (e.g., PDF, image, video, audio) directly from the given URL.
 - **GoTo Tool(url)**: To navigate directly to a specified URL.
 - **Back Tool()**: To return to the previous page.
 
@@ -26,7 +27,7 @@ You have access to the following tools for interacting with the web page:
 4. **Adapt to Failures**: If a particular action does not work as expected, do not repeat the same action. Instead, choose an alternative approach to solve the task and move forward.
 
 ### Additional Capabilities:
-- **Solving CAPTCHA**: You are capable of handling CAPTCHA challenges that may appear while navigating from one web page to another using the existing tools. Use the labeled screenshot to identify and complete the CAPTCHA elements where appropriate.
+- **Solving CAPTCHA**: You are capable of handling CAPTCHA challenges that may appear while navigating from one web page to another using the existing tools like Click Tool and Type Tool. Use the labeled screenshot to identify and complete the CAPTCHA elements where appropriate.
 - **Labeled Screenshot is for Action Decisions**: The labeled screenshot is your main guide for navigating the page, identifying elements like buttons, text fields, and links by their labels. Use this information to decide your next steps.
 
 ### Modes of Operation:

@@ -267,7 +267,7 @@ class WebSearchAgent(BaseAgent):
     async def async_invoke(self, input: str):
         playwright=await async_playwright().start()
         width,height=self.viewport
-        args=["--window-position=0,0",f"--window-size={width},{height}","--disable-blink-features=AutomationControlled"]
+        args=["--window-position=0,0",f"--window-size={width},{height}","--disable-blink-features=AutomationControlled","--acceptDownloads=true"]
         if self.incognito:
             parameters={
                 'headless':self.headless,
