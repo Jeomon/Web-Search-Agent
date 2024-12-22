@@ -19,7 +19,12 @@ https://github.com/user-attachments/assets/b8079314-d4d6-4ec2-a1f3-da5c1269f810
 
 - **Accessibility Tree Integration:** With the newly added capability to utilize the accessibility tree, the agent can perform web searches without taking a screenshot. This allows for enhanced performance and reduced resource usage, making it suitable for a wider range of environments.
 
-- **LLM-Based Decision Making:** Powered by a **Large Language Model (LLM)**, the agent analyzes the context of the web page and makes intelligent decisions on which actions to take, whether using the screenshot or a11y tree method.
+- **LLM-Based Decision Making:** Powered by a **Large Language Model (LLM)**, the agent analyzes the context of the web page and makes intelligent decisions on which actions to take, whether using the screenshot or a11y tree method. The following LLMs are utilized:
+
+   - Groq: llama-3.3-70b-versatile
+   - Gemini: gemini-1.5-flash
+   
+These models provide the contextual reasoning and decision-making capabilities needed for the agent to function effectively.
 
 - **Error Handling and Recovery:** The agent is capable of recovering from incorrect actions, such as clicking on the wrong element or missing interactions. It ensures precise actions even on pages with frequent layout changes.
 
