@@ -7,3 +7,4 @@ python-dotenv
 python-Levenshtein
 httpx
 chromadb
+nest_asyncio
