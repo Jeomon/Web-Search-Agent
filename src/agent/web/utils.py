@@ -7,7 +7,7 @@ def read_markdown_file(file_path: str) -> str:
         markdown_content = f.read()
     return markdown_content
 
-def extract_llm_response(text):
+def extract_agent_data(text):
     # Dictionary to store extracted values
     result = {}
     # Check if it's Option 1 (Action-based)
@@ -49,12 +49,3 @@ def extract_llm_response(text):
         if route_match:
             result['Route'] = route_match.group(1).strip()
     return result
-
-def compute_levenshtein_similarity(text1, text2):
-    # Convert text to lowercase and strip spaces
-    text1, text2 = text1.lower().strip(), text2.lower().strip()
-    
-    # Calculate the Levenshtein ratio (similarity measure)
-    similarity = Levenshtein.ratio(text1, text2)
-    
-    return similarity

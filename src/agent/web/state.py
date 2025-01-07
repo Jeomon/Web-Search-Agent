@@ -1,13 +1,11 @@
 from typing import TypedDict,Annotated
-from playwright.async_api import Page
+from src.agent.web.context.views import BrowserSession
 from src.message import BaseMessage
 from operator import add
 
 class AgentState(TypedDict):
     input:str
-    page: Page|None
-    agent_data:dict
-    bboxes:list[dict]
     output:str
-    previous_observation:str
+    agent_data:dict
+    route:str
     messages: Annotated[list[BaseMessage],add]
