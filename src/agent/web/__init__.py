@@ -70,7 +70,7 @@ class WebSearchAgent(BaseAgent):
 
         ai_prompt=f'<Option>\n<Thought>{thought}</Thought>\n<Action-Name>{action_name}</Action-Name>\n<Action-Input>{json.dumps(action_input,indent=2)}</Action-Input>\n<Route>{route}</Route>\n</Option>'
         user_prompt=self.human_prompt.format(observation=action_result.content,current_url=browser_state.url,tabs=browser_state.tabs_to_string(),interactive_elements=browser_state.dom_state.elements_to_string())
-        messages=[AIMessage(ai_prompt),ImageMessage(text=user_prompt,image_obj=image_obj)]
+        messages=[AIMessage(ai_prompt),ImageMessage(text=user_prompt,image_obj=image_obj) if self.use_screenshot else HumanMessage(user_prompt)]
         return {**state,'agent_data':agent_data,'messages':messages}
 
     def final(self,state:AgentState):
