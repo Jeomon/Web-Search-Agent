@@ -25,7 +25,8 @@ class Key(BaseModel):
     keys:str = Field(...,description="the keys to type",examples=["Enter","Control+A","Backspace"])
 
 class Download(BaseModel):
-    url:str = Field(...,description="the url to download",examples=["https://www.example.com/file.txt"])
+    url:str = Field(...,description="url of the file to download",examples=["https://www.example.com/file.txt","https://abc.org/pdf/54655"])
+    filename:str=Field(...,description="the name of the file to download",examples=["file.txt","xy4rs.pdf"])
 
 class ExtractContent(BaseModel):
     value:Literal['markdown','html','text'] = Field(description="the type of content to be like",examples=['markdown'],default='text')

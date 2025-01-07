@@ -3,6 +3,7 @@ from main_content_extractor import MainContentExtractor
 from src.agent.web.context import Context
 from src.tool import Tool
 from pathlib import Path
+import httpx
 
 @Tool('Click Tool',params=Click)
 async def click_tool(index:int,context:Context):
@@ -75,15 +76,14 @@ async def key_tool(keys:str,context:Context):
     return f'Pressed {keys}'
 
 @Tool('Download Tool',params=Download)
-async def download_tool(url:str,context:Context):
-    '''To download a file (e.g., PDF, image, video, audio) directly from the given URL.'''
+async def download_tool(url:str,filename:str,context:Context):
+    '''To download a file (e.g., pdf, image, video, audio) to the system'''
     Path('./downloads').mkdir(parents=True,exist_ok=True)
-    page=await context.get_current_page()
-    async with page.expect_download() as d:
-        download=await d.value
-        file_dir=Path(f'./downloads/{download.suggested_filename}')
-        await download.save_as(file_dir)
-    return f'Downloaded {download.suggested_filename}'
+    async with httpx.AsyncClient() as client:
+        response=await client.get(url)
+        with open(f'./downloads/{filename}','wb') as f:
+            f.write(response.content)
+    return f'Downloaded {filename} from {url}'
 
 @Tool('ExtractContent Tool',params=ExtractContent)
 async def extract_content_tool(value:str,context:Context):
