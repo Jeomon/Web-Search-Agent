@@ -1,140 +1,111 @@
-# Web Search Agent
+# Web Agent: Automating Browser Tasks with AI
 
-**Web Search Agent** is an intelligent system built with **Playwright** to automate web browsing tasks. This agent interacts with web pages by identifying and acting on interactive elements, such as buttons, links, and input fields. It now supports two modes of operation: using annotated screenshots with bounding boxes and utilizing the accessibility (a11y) tree, allowing for a more efficient web search experience without the need for visual processing. 
+**Web Agent** is a cutting-edge AI-powered system designed to automate web browsing tasks. It leverages the **Playwright** framework to control browsers and an LLM (Large Language Model) for decision-making. The agent identifies interactive elements on a webpage and performs actions to complete user-defined tasks efficiently.
 
 ## Demo
 https://github.com/user-attachments/assets/b8079314-d4d6-4ec2-a1f3-da5c1269f810
 
+---
+
 ## Key Features
 
-- **Interactive Element Detection:** The agent automatically detects and highlights interactive components like buttons, input fields, and links on a webpage, regardless of the method used (screenshot or a11y tree).
+1. **Automated Task Execution**: 
+   - Capable of automating web searches and interactions.
+   - Executes actions like clicking buttons, filling forms, and navigating pages.
 
-- **Dynamic Action Execution:** The agent executes a wide range of actions, including:
-  - **Clicking** on buttons or links.
-  - **Typing** into input fields.
-  - **Scrolling** through web pages.
-  - **Waiting** for content to load.
-  - **Navigating** between web pages.
-  It adapts its actions based on instructions and can execute the right task on the corresponding interactive element.
+2. **Interactive Element Detection**: 
+   - Uses Playwright's **accessibility tree (a11y tree)** to locate interactive elements on web pages.
+   - Highlights elements and interacts with them based on LLM-generated decisions.
 
-- **Accessibility Tree Integration:** With the newly added capability to utilize the accessibility tree, the agent can perform web searches without taking a screenshot. This allows for enhanced performance and reduced resource usage, making it suitable for a wider range of environments.
+3. **Bounding Box Integration**: 
+   - Captures a screenshot of the webpage.
+   - Draws bounding boxes around interactive elements for LLM-based contextual analysis.
 
-- **LLM-Based Decision Making:** Powered by a **Large Language Model (LLM)**, the agent analyzes the context of the web page and makes intelligent decisions on which actions to take, whether using the screenshot or a11y tree method. The following LLMs are utilized:
+4. **LLM-Driven Workflow**: 
+   - Analyzes webpage structure and task objectives using advanced AI models.
+   - Determines and executes the next action in a step-by-step manner.
 
-   - Groq: llama-3.3-70b-versatile
-   - Gemini: gemini-1.5-flash
-   
-These models provide the contextual reasoning and decision-making capabilities needed for the agent to function effectively.
+5. **Browser Compatibility**: 
+   - Works across major browsers like **Chromium**, **Firefox**, and **WebKit** using Playwright.
 
-- **Error Handling and Recovery:** The agent is capable of recovering from incorrect actions, such as clicking on the wrong element or missing interactions. It ensures precise actions even on pages with frequent layout changes.
+6. **Dynamic Adaptability**: 
+   - Handles complex, dynamic web pages with asynchronous content loading.
+   - Adapts actions based on real-time feedback and page changes.
 
-- **Cross-Browser Compatibility:** The system works with multiple browser engines, including **Chromium**, **Firefox**, and **WebKit (Safari)**, thanks to Playwright’s cross-browser support. This ensures the agent can operate across a wide variety of platforms and environments.
+---
 
-- **Handling Dynamic Content:** The agent waits for all dynamic content to load before interacting, improving reliability on pages with delayed or asynchronous content loading.
+## Example Workflow
 
-## How It Works
-
-1. **Screenshot & Annotation or A11y Tree Analysis:** The agent can either take a screenshot of the web page and label interactive elements with **bounding boxes** or analyze the accessibility tree to identify interactive components.
-
-2. **Action Assignment:** The LLM processes the data (from either method) to identify which action (e.g., click, type, scroll) to perform based on the task.
-
-3. **Interaction Execution:** The agent performs the instructed action on the correct interactive element.
-
-4. **Result Evaluation:** After executing the action, the agent evaluates the result and adjusts its next steps, if necessary.
-
-### Example Queries
-
-#### Example: Find the distance between two places from Google Maps using screenshot
+### Task: Download a Research Paper
 
 ```plaintext
-Enter your query: Can you tell me the distance from Kochi to Singapore?
-Thought: I will navigate to Google Maps to find the distance between Kochi and Singapore.
-Observation: Typed Singapore.
-Thought: I will click on the "Directions" button to get the distance between Kochi and Singapore.
-Action Name: Click Tool
-Action Input: {'label_number': 17}
-Observation: Clicked the Button.
-Thought: I will type "Kochi" in the "Choose starting point, or click on the map" field to find the distance between Kochi and Singapore.
-Action Name: Type Tool
-Action Input: {'label_number': 9, 'content': 'Kochi'}
-Observation: Typed Kochi.
-Thought: The screenshot shows the distance between Kochi and Singapore is 4 hours and 40 minutes by flight.
-Final Answer: The distance from Kochi to Singapore is 4 hours and 40 minutes by flight.
-```
-
-#### Example: Weather of a place using a weather service by a11y tree
-
-```plaintext
-Enter your query: what is the weather in kochi from accuweather
-Thought: I need to navigate to AccuWeather and search for the weather in Kochi. I will use the GoTo Tool to navigate to the AccuWeather website.
+Enter your query: Download the attention paper from google search                             
+Thought: I need to search for the attention paper on google and then download it. I will start by going to google.com.
 Action Name: GoTo Tool
-Action Input: {'url': 'https://www.accuweather.com/'}
-Thought: The A11y Tree shows that the search box is now focused and the value is "Kochi". I see a few options for "Kochi" in the A11y Tree, but I need to click on the one that says "Kochi, KL IN" to get the weather for Kochi, India. I will use the Click Tool to select this option.
-Action Name: Click Tool
-Action Input: {'role': 'text', 'name': 'Kochi, KL IN'}
-Observation: Clicked the Button.
-Thought: I have successfully navigated to the weather page for Kochi, India. The A11y Tree shows the current temperature is 31°C. I can now provide the final answer.
-Final Answer: The current temperature in Kochi, India is 31°C.
-```
-
-#### Example: Price of a product from ecommerce website using combined (screenshoot + ally tree)
-```plaintext
-Enter your query: What is the price of iphone in amazon.in
-Thought: The user wants to know the price of an iPhone on Amazon.in. I will navigate to Amazon.in and search for "iPhone" to find the relevant product listings.
-Action Name: GoTo Tool
-Action Input: {'url': 'https://www.amazon.in'}
-Observation: Gone to https://www.amazon.in.
-Thought: The A11y Tree shows a search box with the name "Search Amazon.in". I will type "iPhone" into the search box and click the "Go" button to search for iPhone products.
+Action Input: {'url': 'https://www.google.com'}
+Observation: Navigated to https://www.google.com
+Thought: I need to type "attention paper" in the search box. The search box has index 6.
 Action Name: Type Tool
-Action Input: {'role': 'textbox', 'name': 'Search Amazon.in', 'content': 'iPhone'}
-Observation: Typed iPhone.
-Thought: The A11y Tree shows multiple iPhone models with their prices. I can provide the user with the prices of different iPhone models.
-Final Answer: The price of iPhones on Amazon.in varies depending on the model and storage capacity. Here are some examples:
+Action Input: {'index': 6, 'text': 'attention paper'}
+Observation: Clicked element 33
+Thought: I see a link with the text "Attention is All You Need" and a pdf icon next to it. This is likely the paper I need to download. The link has index 48.
+Action Name: Click Tool
+Action Input: {'index': 48}
+Observation: Clicked element 48
+Thought: I have navigated to the pdf of the attention paper. Now I need to download it. I will use the Download Tool and provide the current url and a filename.
+Action Name: Download Tool
+Action Input: {'url': 'https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf', 'filename': 'attention_paper.pdf'}
+Observation: Downloaded attention_paper.pdf from https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf
+Thought: I have downloaded the attention paper. I am done with the task.
+Final Answer: I have downloaded the attention paper successfully.
+I have downloaded the attention paper successfully.
 
-- **Apple iPhone 16 (128 GB) - White:** ₹xx,xxx
-- **Apple iPhone 15 (128 GB) - Yellow:** ₹xx,xxx
-- **Apple iPhone 13 (128GB) - Starlight:** ₹xx,xxx
-- **Apple iPhone 16 Pro (256 GB) - Natural Titanium:** ₹xx,xxx
-- **Apple iPhone 13 (128GB) - Midnight:** ₹xx,xxx
-- **Apple iPhone 13 (128GB) - Pink:** ₹xx,xxx
-- **Apple iPhone 16 Pro (512 GB) - White Titanium:** ₹xx,xxx
-- **Apple iPhone 13 (128GB) - (Product) RED:** ₹xx,xxx
-- **Apple iPhone 13 (128GB) - Blue:** ₹xx,xxx
-- **Apple iPhone 16 (128 GB) - Black:** ₹xx,xxx
-- **Apple iPhone 16 Pro (128 GB) - Desert Titanium:** ₹xx,xxx
-- **Apple iPhone 15 (128 GB) - Blue:** ₹xx,xxx
-- **Apple iPhone 13 (128GB) - Green:** ₹xx,xxx
-- **Apple iPhone 15 (128 GB) - Black:** ₹xx,xxx
-- **Apple iPhone 16 Pro (128 GB) - Black Titanium:** ₹xx,xxx
-- **Apple iPhone 16 (128 GB) - Ultramarine:** ₹xx,xxx
-- **Apple iPhone 13 (256GB) - Starlight:** ₹xx,xxx
-- **Apple iPhone 14 (128 GB) - Blue:** ₹xx,xxx
-```
+---
 
 ## Installation
 
-To set up the Web Search Agent, follow these steps:
+### Prerequisites
 
-1. Install Python 3.x and ensure it’s available in your environment.
-2. Install project dependencies by running:
+- Python 3.8+
+- Playwright installed on your system
 
+### Steps
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Jeomon/web-agent.git
+   cd web-agent
+   ```
+
+2. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. Set up **Playwright**:
-
+3. Set up Playwright:
    ```bash
    playwright install
    ```
 
+---
+
 ## Usage
 
-Once installed, you can choose between using the screenshot method or the accessibility tree method. The agent can be executed with the following command:
+Start the Web Agent with the following command:
 
 ```bash
-python app.py
+python main.py
 ```
+
+---
+
+## Contributing
+
+We welcome contributions to improve the Web Agent! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+---
+
+Feel free to customize further or share feedback!
 
 ## License
 
@@ -146,5 +117,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **WebVoyager:** [https://github.com/MinorJerry/WebVoyager](https://github.com/MinorJerry/WebVoyager)
 - **Langgraph Examples:** [https://github.com/langchain-ai/langgraph/blob/main/examples/web-navigation/web_voyager.ipynb](https://github.com/langchain-ai/langgraph/blob/main/examples/web-navigation/web_voyager.ipynb)
 - **vimGPT:** [https://github.com/ishan0102/vimGPT](https://github.com/ishan0102/vimGPT)
+- **browser-use:** [https://github.com/browser-use/browser-use](https://github.com/browser-use/browser-use)
 
 ---
