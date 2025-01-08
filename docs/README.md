@@ -7,10 +7,6 @@ https://github.com/user-attachments/assets/b8079314-d4d6-4ec2-a1f3-da5c1269f810
 
 ---
 
-Here’s the updated version of the project description, incorporating the changes you've mentioned:  
-
----
-
 ## Key Features  
 
 - **Interactive Element Detection:**  
