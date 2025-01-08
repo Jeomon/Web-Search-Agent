@@ -27,7 +27,7 @@ class Browser:
 
     async def setup_browser(self,browser:str)->PlaywrightBrowser:
         if self.config.wss_url is not None:
-            if browser=='chrome':
+            if browser=='chromium':
                 browser_instance=await self.playwright.chromium.connect(self.config.wss_url)
             elif browser=='firefox':
                 browser_instance=await self.playwright.firefox.connect(self.config.wss_url)
@@ -41,7 +41,7 @@ class Browser:
                 'slow_mo':self.config.slow_mo,
                 'args':BROWSER_ARGS + SECURITY_ARGS
             }
-            if browser=='chrome':
+            if browser=='chromium':
                 browser_instance=await self.playwright.chromium.launch(**parameters)
             elif browser=='firefox':
                 browser_instance=await self.playwright.firefox.launch(**parameters)

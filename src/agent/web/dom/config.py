@@ -1,12 +1,12 @@
 INTERACTIVE_TAGS = [
-    'a', 'button', 'details', 'embed', 'input', 'label',
+    'a', 'button', 'details', 'embed', 'input', 'label','option',
     'menu', 'menuitem', 'object', 'select', 'textarea', 'summary'
 ]
 
 INTERACTIVE_ROLES = [
     'button', 'menu', 'menuitem', 'link', 'checkbox', 'radio',
     'slider', 'tab', 'tabpanel', 'textbox', 'combobox', 'grid',
-    'listbox', 'option', 'progressbar', 'scrollbar', 'searchbox',
+    'listbox', 'option', 'progressbar', 'scrollbar', 'searchbox','presentation',
     'switch', 'tree', 'treeitem', 'spinbutton', 'tooltip', 'a-button-inner', 'a-dropdown-button', 'click',
     'menuitemcheckbox', 'menuitemradio', 'a-button-text', 'button-text', 'button-icon', 'button-icon-only', 'button-text-icon-only', 'dropdown', 'combobox'
 ]
@@ -17,6 +17,7 @@ SAFE_ATTRIBUTES = [
 	'type',
 	'value',
 	'placeholder',
+    'label'
 	# Accessibility attributes
 	'aria-label',
 	'aria-labelledby',
@@ -38,5 +39,8 @@ SAFE_ATTRIBUTES = [
 	'data-cy',
 	# Custom stable attributes (add any application-specific ones)
 	'href',
-	'target'
+	'target',
+    # Common Style attributes
+    'id',
+    'class'
 ]

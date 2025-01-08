@@ -11,23 +11,22 @@ from src.agent import BaseAgent
 from datetime import datetime
 from termcolor import colored
 from typing import Literal
-from pathlib import Path
 import nest_asyncio
 import asyncio
-import json
 
 tools=[click_tool,goto_tool,type_tool,scroll_tool,wait_tool,back_tool,key_tool,extract_content_tool,download_tool]
 
-class WebSearchAgent(BaseAgent):
-    def __init__(self,browser:Literal['chromium','firefox','edge']='edge',instructions:list=[],llm:BaseInference=None,max_iteration:int=10,use_screenshot:bool=False,headless:bool=True,verbose:bool=False) -> None:
-        self.name='Web Search Agent'
-        self.description='This agent is designed to automate the process of gathering information from the internet, such as to navigate websites, perform searches, and retrieve data.'
+class WebAgent(BaseAgent):
+    def __init__(self,browser:Literal['chromium','firefox','edge']='edge',instructions:list=[],llm:BaseInference=None,max_iteration:int=10,use_vision:bool=False,headless:bool=True,verbose:bool=False) -> None:
+        self.name='Web Agent'
+        self.description='The web agent is designed to automate the process of gathering information from the internet, such as to navigate websites, perform searches, and retrieve data.'
         self.system_prompt=read_markdown_file('./src/agent/web/prompt/system.md')
         self.human_prompt=read_markdown_file('./src/agent/web/prompt/human.md')
+        self.ai_prompt=read_markdown_file('./src/agent/web/prompt/ai.md')
         self.browser=Browser(BrowserConfig(browser=browser,headless=headless))
         self.instructions=self.get_instructions(instructions)
         self.context=Context(self.browser,ContextConfig())
-        self.use_screenshot=use_screenshot
+        self.use_vision=use_vision
         self.max_iteration=max_iteration
         self.registry=Registry(tools)
         self.verbose=verbose
@@ -61,17 +60,17 @@ class WebSearchAgent(BaseAgent):
         if self.verbose:
             print(colored(f'Observation: {action_result.content}',color='green',attrs=['bold']))
         state['messages'].pop() # Remove the last message for modification
-        last_message=state['messages'][-1]
+        last_message=state['messages'][-1] #ImageMessage/HumanMessage
         if isinstance(last_message,ImageMessage):
-            state['messages'][-1]=HumanMessage(f'<Observation>{last_message.content}</Observation>')
-
-        browser_state=await self.context.get_state(use_vision=self.use_screenshot)
+            state['messages'][-1]=HumanMessage(f'<Observation>{state.get('prev_observation')}</Observation>')
+        #Get the current browser state
+        browser_state=await self.context.get_state(use_vision=self.use_vision)
         image_obj=browser_state.screenshot
 
-        ai_prompt=f'<Option>\n<Thought>{thought}</Thought>\n<Action-Name>{action_name}</Action-Name>\n<Action-Input>{json.dumps(action_input,indent=2)}</Action-Input>\n<Route>{route}</Route>\n</Option>'
+        ai_prompt=self.ai_prompt.format(thought=thought,action_name=action_name,action_input=action_input)
         user_prompt=self.human_prompt.format(observation=action_result.content,current_url=browser_state.url,tabs=browser_state.tabs_to_string(),interactive_elements=browser_state.dom_state.elements_to_string())
-        messages=[AIMessage(ai_prompt),ImageMessage(text=user_prompt,image_obj=image_obj) if self.use_screenshot else HumanMessage(user_prompt)]
-        return {**state,'agent_data':agent_data,'messages':messages}
+        messages=[AIMessage(ai_prompt),ImageMessage(text=user_prompt,image_obj=image_obj) if self.use_vision else HumanMessage(user_prompt)]
+        return {**state,'agent_data':agent_data,'messages':messages,'prev_observation':action_result.content}
 
     def final(self,state:AgentState):
         agent_data=state.get('agent_data')
@@ -98,7 +97,9 @@ class WebSearchAgent(BaseAgent):
     async def async_invoke(self, input: str):
         actions_prompt=self.registry.actions_prompt()
         current_datetime=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        messages=[SystemMessage(self.system_prompt.format(instructions=self.instructions,current_datetime=current_datetime,actions_prompt=actions_prompt)),HumanMessage(f'Task: {input}')]
+        system_prompt=self.system_prompt.format(instructions=self.instructions,current_datetime=current_datetime,actions_prompt=actions_prompt)
+        human_prompt=f'Task: {input}'
+        messages=[SystemMessage(system_prompt),HumanMessage(human_prompt)]
         state={
             'input':input,
             'agent_data':{},
@@ -106,8 +107,7 @@ class WebSearchAgent(BaseAgent):
             'messages':messages
         }
         response=await self.graph.ainvoke(state)
-        await self.context.close_session()
-        await self.browser.close_browser()
+        await self.close()
         return response.get('output')
         
     def invoke(self, input: str)->str:
@@ -121,3 +121,14 @@ class WebSearchAgent(BaseAgent):
 
     def stream(self, input:str):
         pass
+
+    async def close(self):
+        try:
+            await self.context.close_session()
+            await self.browser.close_browser()
+        except Exception as e:
+            print('Failed to finish clean up')
+        finally:
+            self.context=None
+            self.browser=None
+

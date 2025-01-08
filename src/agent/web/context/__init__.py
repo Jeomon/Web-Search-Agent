@@ -8,6 +8,7 @@ from uuid import uuid4
 from base64 import b64encode
 from pathlib import Path
 from datetime import datetime
+import asyncio
 
 class Context:
     def __init__(self,browser:Browser,config:ContextConfig=ContextConfig()):
@@ -49,6 +50,7 @@ class Context:
         page=await self.get_current_page()
         dom=DOM(page)
         dom_state=await dom.get_state()
+        print(dom_state.elements_to_string())
         tabs=await self.get_tabs()
         if use_vision:
             with open('./src/agent/web/dom/script.js') as f:
@@ -103,6 +105,7 @@ class Context:
     async def get_element_by_index(self,index:int)->ElementHandle:
         selector_map=await self.get_selector_map()
         element=selector_map.get(index)
+        print(element)
         element_handle=await self.locate_element(element)
         return element_handle
 
@@ -154,11 +157,11 @@ class Context:
         if save_screenshot:
             date_time=datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
             path=Path('./screenshots')
-            if not path.exists():
-                path.mkdir(parents=True,exist_ok=True)
+            path.mkdir(parents=True,exist_ok=True)
             path=path.joinpath(f'screenshot_{date_time}.jpeg')
         else:
             path=None
+        await asyncio.sleep(2)
         screenshot=await page.screenshot(path=path,full_page=full_page,animations='disabled',type='jpeg')
         return b64encode(screenshot).decode('utf-8')
     

@@ -6,7 +6,7 @@ from pathlib import Path
 import httpx
 
 @Tool('Click Tool',params=Click)
-async def click_tool(index:int,context:Context):
+async def click_tool(index:int,context:Context=None):
     '''For interacting with elements such as buttons, links, checkboxes, and dropdowns'''
     page=await context.get_current_page()
     element=await context.get_element_by_index(index)
@@ -17,7 +17,7 @@ async def click_tool(index:int,context:Context):
 
 
 @Tool('Type Tool',params=Type)
-async def type_tool(index:int,text:str,context:Context):
+async def type_tool(index:int,text:str,context:Context=None):
     '''To fill input fields or search boxes'''
     page=await context.get_current_page()
     element=await context.get_element_by_index(index)
@@ -27,14 +27,14 @@ async def type_tool(index:int,text:str,context:Context):
     return f'Typed {text} in element {index}'
 
 @Tool('Wait Tool',params=Wait)
-async def wait_tool(time:int,context:Context):
+async def wait_tool(time:int,context:Context=None):
     '''To wait until the page has fully loaded before proceeding'''
     page=await context.get_current_page()
     await page.wait_for_timeout(time*1000)
     return f'Waited for {time}s'
 
 @Tool('Scroll Tool',params=Scroll)
-async def scroll_tool(direction:str,amount:int,context:Context):
+async def scroll_tool(direction:str,amount:int=None,context:Context=None):
     '''To scroll the page by a certain amount or by a page'''
     page=await context.get_current_page()
     if direction=='up':
@@ -53,7 +53,7 @@ async def scroll_tool(direction:str,amount:int,context:Context):
     return f'Scrolled {direction} by {amount}'
 
 @Tool('GoTo Tool',params=GoTo)
-async def goto_tool(url:str,context:Context):
+async def goto_tool(url:str,context:Context=None):
     '''To navigate directly to a specified URL.'''
     page=await context.get_current_page()
     await page.goto(url)
@@ -61,7 +61,7 @@ async def goto_tool(url:str,context:Context):
     return f'Navigated to {url}'
 
 @Tool('Back Tool',params=Back)
-async def back_tool(context:Context):
+async def back_tool(context:Context=None):
     '''To return to the previous page'''
     page=await context.get_current_page()
     await page.go_back()
@@ -69,14 +69,14 @@ async def back_tool(context:Context):
     return 'Navigated to previous page'
 
 @Tool('Key Tool',params=Key)
-async def key_tool(keys:str,context:Context):
+async def key_tool(keys:str,context:Context=None):
     '''To perform keyboard shorcuts'''
     page=await context.get_current_page()
     await page.keyboard.press(keys)
     return f'Pressed {keys}'
 
 @Tool('Download Tool',params=Download)
-async def download_tool(url:str,filename:str,context:Context):
+async def download_tool(url:str,filename:str,context:Context=None):
     '''To download a file (e.g., pdf, image, video, audio) to the system'''
     Path('./downloads').mkdir(parents=True,exist_ok=True)
     async with httpx.AsyncClient() as client:
@@ -86,7 +86,7 @@ async def download_tool(url:str,filename:str,context:Context):
     return f'Downloaded {filename} from {url}'
 
 @Tool('ExtractContent Tool',params=ExtractContent)
-async def extract_content_tool(value:str,context:Context):
+async def extract_content_tool(value:str,context:Context=None):
     '''Extract the information present in a webpage such as text, images, etc'''
     page=await context.get_current_page()
     html=await page.content()

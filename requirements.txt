@@ -1,11 +1,9 @@
 langgraph
 tenacity
 requests
-playwright==1.49.1
+playwright
 termcolor
 python-dotenv
-python-Levenshtein
 httpx
-chromadb
 nest_asyncio
 MainContentExtractor

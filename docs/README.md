@@ -34,12 +34,12 @@ https://github.com/user-attachments/assets/b8079314-d4d6-4ec2-a1f3-da5c1269f810
 
 ---
 
-## Example Workflow
+## Example
 
 ### Task: Download a Research Paper
 
 ```plaintext
-Enter your query: Download the attention paper from google search                             
+python main.py "Download the attention paper from google search"                          
 Thought: I need to search for the attention paper on google and then download it. I will start by going to google.com.
 Action Name: GoTo Tool
 Action Input: {'url': 'https://www.google.com'}
@@ -59,7 +59,7 @@ Observation: Downloaded attention_paper.pdf from https://proceedings.neurips.cc/
 Thought: I have downloaded the attention paper. I am done with the task.
 Final Answer: I have downloaded the attention paper successfully.
 I have downloaded the attention paper successfully.
-
+```
 ---
 
 ## Installation
@@ -94,7 +94,7 @@ I have downloaded the attention paper successfully.
 Start the Web Agent with the following command:
 
 ```bash
-python main.py
+python main.py <query>
 ```
 
 ---
