@@ -161,7 +161,7 @@ class Context:
             path=path.joinpath(f'screenshot_{date_time}.jpeg')
         else:
             path=None
-        await asyncio.sleep(2)
+        await page.wait_for_timeout(2*1000)
         screenshot=await page.screenshot(path=path,full_page=full_page,animations='disabled',type='jpeg')
         return b64encode(screenshot).decode('utf-8')
     

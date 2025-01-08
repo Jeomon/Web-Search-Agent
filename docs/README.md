@@ -7,30 +7,46 @@ https://github.com/user-attachments/assets/b8079314-d4d6-4ec2-a1f3-da5c1269f810
 
 ---
 
-## Key Features
+Here’s the updated version of the project description, incorporating the changes you've mentioned:  
 
-1. **Automated Task Execution**: 
-   - Capable of automating web searches and interactions.
-   - Executes actions like clicking buttons, filling forms, and navigating pages.
+---
 
-2. **Interactive Element Detection**: 
-   - Uses Playwright's **accessibility tree (a11y tree)** to locate interactive elements on web pages.
-   - Highlights elements and interacts with them based on LLM-generated decisions.
+## Key Features  
 
-3. **Bounding Box Integration**: 
-   - Captures a screenshot of the webpage.
-   - Draws bounding boxes around interactive elements for LLM-based contextual analysis.
+- **Interactive Element Detection:**  
+  The agent automatically detects and highlights interactive components like buttons, input fields, and links on a webpage. It does this by analyzing **screenshots** to identify these elements and overlaying **bounding boxes** for precise targeting. Additionally, it captures the **current state of the browser**, enhancing the accuracy of context-aware actions.
 
-4. **LLM-Driven Workflow**: 
-   - Analyzes webpage structure and task objectives using advanced AI models.
-   - Determines and executes the next action in a step-by-step manner.
+- **Accessibility Tree Integration:**  
+  While primarily leveraging screenshots and browser state for interaction, the agent retains its ability to utilize the **accessibility tree**. This allows for efficient performance in resource-constrained environments and enables seamless interaction without relying on visual data alone.  
 
-5. **Browser Compatibility**: 
-   - Works across major browsers like **Chromium**, **Firefox**, and **WebKit** using Playwright.
+- **LLM-Based Decision Making:**  
+  Powered by advanced **Large Language Models (LLMs)**, the agent uses contextual reasoning to determine the appropriate actions to take. It leverages the following state-of-the-art LLMs:  
+  - **Groq:** llama-3.3-70b-versatile  
+  - **Gemini:** gemini-1.5-flash/gemini-2.0-flash-exp 
 
-6. **Dynamic Adaptability**: 
-   - Handles complex, dynamic web pages with asynchronous content loading.
-   - Adapts actions based on real-time feedback and page changes.
+  These models enable intelligent decision-making by processing screenshots, browser states, or accessibility trees to understand the task and webpage context.  
+
+- **Error Handling and Recovery:**  
+  The agent intelligently recovers from incorrect actions, such as misclicks or missed interactions. It adapts to frequent layout changes, ensuring reliable performance in dynamic environments.  
+
+- **Cross-Browser Compatibility:**  
+  The system supports multiple browser engines, including **Chromium**, **Firefox**, and **WebKit (Safari)**, by utilizing **Playwright’s cross-browser capabilities**. This ensures compatibility across diverse platforms and environments. 
+
+---
+
+## How It Works  
+
+1. **Screenshot, Annotation, and State Capture:**  
+   The agent takes a **screenshot** of the web page, highlights interactive elements using **bounding boxes**, and captures the **current state of the browser** (including DOM structure, scroll position, and other key data).  
+
+2. **Data Processing and Action Assignment:**  
+   The LLM processes the visual data (screenshots), browser state, and other context to assign the correct action (e.g., click, type, scroll) to the corresponding interactive element.  
+
+3. **Interaction Execution:**  
+   The agent performs the instructed action on the identified element.  
+
+4. **Result Evaluation and Adaptation:**  
+   After executing an action, the agent evaluates the result and adjusts its strategy if the desired outcome isn't achieved.  
 
 ---
 
@@ -73,8 +89,8 @@ I have downloaded the attention paper successfully.
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/Jeomon/web-agent.git
-   cd web-agent
+   git clone https://github.com/Jeomon/Web-Agent.git
+   cd Web-Agent
    ```
 
 2. Install dependencies:
@@ -94,14 +110,8 @@ I have downloaded the attention paper successfully.
 Start the Web Agent with the following command:
 
 ```bash
-python main.py <query>
+python main.py "Your query goes here"
 ```
-
----
-
-## Contributing
-
-We welcome contributions to improve the Web Agent! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ---
 

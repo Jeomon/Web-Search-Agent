@@ -1,12 +1,13 @@
 from src.agent.web.dom.config import INTERACTIVE_ROLES,SAFE_ATTRIBUTES
 from src.agent.web.dom.views import DOMElementNode,DOMState
 from playwright.async_api import Page
-
 class DOM:
     def __init__(self, page: Page):
         self.page = page
 
     async def _fetch_accessibility_tree(self) -> dict:
+        # Wait for the dom to be ready
+        await self.page.wait_for_timeout(2*1000)
         return await self.page.accessibility.snapshot(interesting_only=False)
     
     def deduplicate(self,nodes: list[dict]) -> list[DOMElementNode]:
@@ -25,9 +26,9 @@ class DOM:
                 deduplicated.append(DOMElementNode(**node))
         return deduplicated
 
-
     async def _extract_interactive_elements_from_tree(self) -> list[dict]:
         accessibility_tree = await self._fetch_accessibility_tree()
+        # print(accessibility_tree)
         interactive_elements = []
 
         def traverse_node(node: dict[str, str]):

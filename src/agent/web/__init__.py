@@ -13,6 +13,7 @@ from termcolor import colored
 from typing import Literal
 import nest_asyncio
 import asyncio
+import json
 
 tools=[click_tool,goto_tool,type_tool,scroll_tool,wait_tool,back_tool,key_tool,extract_content_tool,download_tool]
 
@@ -63,11 +64,11 @@ class WebAgent(BaseAgent):
         last_message=state['messages'][-1] #ImageMessage/HumanMessage
         if isinstance(last_message,ImageMessage):
             state['messages'][-1]=HumanMessage(f'<Observation>{state.get('prev_observation')}</Observation>')
-        #Get the current browser state
+        # Get the current browser state
         browser_state=await self.context.get_state(use_vision=self.use_vision)
         image_obj=browser_state.screenshot
-
-        ai_prompt=self.ai_prompt.format(thought=thought,action_name=action_name,action_input=action_input)
+        # Redefining the AIMessage and adding the new observation
+        ai_prompt=self.ai_prompt.format(thought=thought,action_name=action_name,action_input=json.dumps(action_input,indent=2),route=route)
         user_prompt=self.human_prompt.format(observation=action_result.content,current_url=browser_state.url,tabs=browser_state.tabs_to_string(),interactive_elements=browser_state.dom_state.elements_to_string())
         messages=[AIMessage(ai_prompt),ImageMessage(text=user_prompt,image_obj=image_obj) if self.use_vision else HumanMessage(user_prompt)]
         return {**state,'agent_data':agent_data,'messages':messages,'prev_observation':action_result.content}
