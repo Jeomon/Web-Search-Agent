@@ -45,8 +45,12 @@ class DOM:
         traverse_node(accessibility_tree)
         return interactive_elements
 
-    async def is_element_in_viewport(self, box: dict, scroll_offsets: dict, viewport_size: dict) -> bool:
+    async def is_element_in_viewport(self, box: dict) -> bool:
         """Check if the element is in the viewport."""
+        viewport_size = self.page.viewport_size
+        scroll_offsets = await self.page.evaluate(
+            "({ x: window.scrollX, y: window.scrollY })"
+        )
         scroll_x = scroll_offsets["x"]
         scroll_y = scroll_offsets["y"]
         viewport_width = viewport_size["width"]
@@ -91,12 +95,6 @@ class DOM:
         nodes = []
         interactive_elements = await self._extract_interactive_elements_from_tree()
 
-        # Get viewport dimensions and scroll offsets
-        viewport_size = self.page.viewport_size
-        scroll_offsets = await self.page.evaluate(
-            "({ x: window.scrollX, y: window.scrollY })"
-        )
-
         # Check each interactive element for visibility and obstruction
         for element in interactive_elements:
             matching_nodes = self.page.get_by_role(role=element["role"], name=element["name"])
@@ -112,7 +110,7 @@ class DOM:
                     continue
 
                 # Skip if element is out of the viewport
-                if not await self.is_element_in_viewport(box, scroll_offsets,viewport_size):
+                if not await self.is_element_in_viewport(box):
                     continue  # Discard elements outside the scrolled viewport
 
                 if await self.is_element_covered(element_handle):
