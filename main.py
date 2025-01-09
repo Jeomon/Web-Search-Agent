@@ -1,7 +1,7 @@
-import argparse
 from src.inference.gemini import ChatGemini
 from src.agent.web import WebAgent
 from dotenv import load_dotenv
+import argparse
 import os
 
 def main():
