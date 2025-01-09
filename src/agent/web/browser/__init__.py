@@ -35,6 +35,8 @@ class Browser:
                 browser_instance=await self.playwright.chromium.connect(self.config.wss_url)
             else:
                 raise Exception('Invalid Browser Type')
+        if self.config.user_data_dir is not None:
+            browser_instance=None
         else:
             parameters={
                 'headless':self.config.headless,

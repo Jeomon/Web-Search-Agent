@@ -162,5 +162,5 @@ cython_debug/
 #.idea/
 
 screenshots
-userdata
+user_data
 db

@@ -1,13 +1,14 @@
-from src.agent.web.browser import Browser
-from src.agent.web.context.config import ContextConfig
-from playwright.async_api import Page,Browser as PlaywrightBrowser,ElementHandle
+from playwright.async_api import Page,Browser as PlaywrightBrowser,ElementHandle,BrowserContext as PlaywrightBrowserContext
 from src.agent.web.context.views import BrowserSession,BrowserState,Tab
-from src.agent.web.dom import DOM
+from src.agent.web.browser.config import BROWSER_ARGS,SECURITY_ARGS
+from src.agent.web.context.config import ContextConfig
 from src.agent.web.dom.views import DOMElementNode
-from uuid import uuid4
+from src.agent.web.browser import Browser
+from src.agent.web.dom import DOM
+from datetime import datetime
 from base64 import b64encode
 from pathlib import Path
-from datetime import datetime
+from uuid import uuid4
 
 class Context:
     def __init__(self,browser:Browser,config:ContextConfig=ContextConfig()):
@@ -83,7 +84,7 @@ class Context:
         session=await self.get_session()
         return session.current_page
         
-    async def setup_context(self,browser:PlaywrightBrowser):
+    async def setup_context(self,browser:PlaywrightBrowser|None=None)->PlaywrightBrowserContext:
         parameters={
             'no_viewport':False,
             'ignore_https_errors':self.config.disable_security,
@@ -91,7 +92,29 @@ class Context:
             'java_script_enabled':True,
             'bypass_csp':self.config.disable_security,
         }
-        context=await browser.new_context(**parameters)
+
+        if browser is not None:
+           context=await browser.new_context(**parameters)
+        else:
+            parameters.update({
+                'headless':self.browser.config.headless,
+                'slow_mo':self.browser.config.slow_mo,
+                'timezone_id':'Asia/Kolkata',
+                'locale':'en-IN',
+                'user_data_dir':self.browser.config.user_data_dir,
+                'args': ['--disable-blink-features=AutomationControlled','--no-infobars','--no-sandbox']
+            })
+            # browser is None if the user_data_dir is not None in the Browser class
+            browser=self.browser.config.browser
+            if browser=='chromium':
+                context=await self.browser.playwright.chromium.launch_persistent_context(**parameters)
+            elif browser=='firefox':
+                context=await self.browser.playwright.firefox.launch_persistent_context(**parameters)
+            elif browser=='edge':
+                context=await self.browser.playwright.chromium.launch_persistent_context(channel='msedge',**parameters)
+            else:
+                raise Exception('Invalid Browser Type')
+            
         with open('./src/agent/web/context/script.js') as f:
             script=f.read()
         await context.add_init_script(script)

@@ -10,7 +10,10 @@ from src.inference import BaseInference
 from src.agent import BaseAgent
 from datetime import datetime
 from termcolor import colored
+from getpass import getuser
 from typing import Literal
+from pathlib import Path
+from os import getcwd
 import nest_asyncio
 import asyncio
 import json
@@ -23,13 +26,13 @@ class WebAgent(BaseAgent):
         self.description='The web agent is designed to automate the process of gathering information from the internet, such as to navigate websites, perform searches, and retrieve data.'
         self.system_prompt=read_markdown_file('./src/agent/web/prompt/system.md')
         self.human_prompt=read_markdown_file('./src/agent/web/prompt/human.md')
+        self.browser=Browser(BrowserConfig(browser=browser,headless=headless,user_data_dir=Path(getcwd()).joinpath(f'./user_data/{browser}/{getuser()}').as_posix()))
         self.ai_prompt=read_markdown_file('./src/agent/web/prompt/ai.md')
-        self.browser=Browser(BrowserConfig(browser=browser,headless=headless))
         self.instructions=self.get_instructions(instructions)
         self.context=Context(self.browser,ContextConfig())
-        self.use_vision=use_vision
         self.max_iteration=max_iteration
         self.registry=Registry(tools)
+        self.use_vision=use_vision
         self.verbose=verbose
         self.iteration=0
         self.llm=llm

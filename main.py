@@ -19,7 +19,7 @@ def main():
     
     # Initialize LLM and Web Agent
     llm = ChatGemini(model='gemini-2.0-flash-exp', api_key=api_key, temperature=0)
-    agent = WebAgent(instructions=[],llm=llm, browser='chromium', verbose=True, headless=False, use_vision=True)
+    agent = WebAgent(instructions=[],llm=llm, browser='edge', verbose=True, headless=False, use_vision=True)
     
     # Invoke the agent with the user's query
     user_query = args.query
