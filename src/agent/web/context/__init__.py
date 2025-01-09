@@ -43,7 +43,7 @@ class Context:
         dom_state=[]
         tabs=[]
         screenshot=None
-        state=BrowserState(url=page.url,title=page.title,tabs=tabs,screenshot=screenshot,dom_state=dom_state)
+        state=BrowserState(url=page.url,title=await page.title(),tabs=tabs,screenshot=screenshot,dom_state=dom_state)
         return state
     
     async def update_state(self,use_vision:bool=False):
@@ -66,7 +66,7 @@ class Context:
             await self.execute_script('unmark_page()')
         else:
             screenshot=None
-        state=BrowserState(url=page.url,title=page.title,tabs=tabs,screenshot=screenshot,dom_state=dom_state)
+        state=BrowserState(url=page.url,title=await page.title(),tabs=tabs,screenshot=screenshot,dom_state=dom_state)
         return state
     
     async def get_state(self,use_vision=False)->BrowserState:
@@ -120,7 +120,7 @@ class Context:
     async def get_tabs(self)->list[Tab]:
         session=await self.get_session()
         pages=session.context.pages
-        return [Tab(index,page.url,page.title) for index,page in enumerate(pages)]
+        return [Tab(index,page.url,await page.title()) for index,page in enumerate(pages)]
 
     
     async def execute_script(self,script:str,args:list=None):

@@ -59,6 +59,10 @@ Label: <element_index> - Tag: <element_tag> Role: <element_role> Name: <element_
 - If stuck, try alternative approaches
 - Use scroll to find elements you are looking for
 
+### TAB MANAGEMENT:
+- If you recieve a task that involves seperate isolated tasks then solve them in seperate tabs (one at a time).
+- When launched the browser by default there will be one tab (so while opening a new tab keep this in mind).
+- After using the blank tabs then only open new tabs if needed.
 ---
 
 ### Modes of Operation:

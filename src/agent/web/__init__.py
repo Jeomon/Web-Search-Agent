@@ -68,6 +68,8 @@ class WebAgent(BaseAgent):
         # Get the current browser state
         browser_state=await self.context.get_state(use_vision=self.use_vision)
         image_obj=browser_state.screenshot
+        # print('Tabs',browser_state.tabs_to_string())
+        
         # Redefining the AIMessage and adding the new observation
         ai_prompt=self.ai_prompt.format(thought=thought,action_name=action_name,action_input=json.dumps(action_input,indent=2),route=route)
         user_prompt=self.human_prompt.format(observation=action_result.content,current_url=browser_state.url,tabs=browser_state.tabs_to_string(),interactive_elements=browser_state.dom_state.elements_to_string())
