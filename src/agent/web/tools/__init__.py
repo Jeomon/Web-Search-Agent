@@ -1,6 +1,7 @@
-from src.agent.web.tools.views import Click,Type,Wait,Scroll,GoTo,Back,Key,Download,ExtractContent
+from src.agent.web.tools.views import Click,Type,Wait,Scroll,GoTo,Back,Key,Download,ExtractContent,Tab
 from main_content_extractor import MainContentExtractor
 from src.agent.web.context import Context
+from typing import Literal
 from src.tool import Tool
 from pathlib import Path
 import httpx
@@ -92,3 +93,35 @@ async def extract_content_tool(value:str,context:Context=None):
     html=await page.content()
     content=MainContentExtractor.extract(html,output_format=value)
     return f'Extracted Page Content:\n{content}'
+
+@Tool('Tab Tool',params=Tab)
+async def tab_tool(mode:Literal['open','close','switch'],index:int=None,context:Context=None):
+    '''To open a new tab, close the current tab or switch to a specified tab'''
+    session=await context.get_session()
+    if mode=='open':
+        page=await session.context.new_page()
+        session.current_page=page
+        await page.wait_for_load_state('load')
+        return f'Opened new tab and switched to it'
+    elif mode=='close':
+        page=session.current_page
+        await page.close()
+        pages=session.context.pages
+        if index is not None and index>len(pages):
+            raise IndexError('Index out of range')
+        page=pages[0]
+        session.current_page=page
+        await page.bring_to_front()
+        await page.wait_for_load_state('load')
+        return f'Closed current tab and switched to tab 0'
+    elif mode=='switch':
+        pages=session.context.pages
+        if index>len(pages):
+            raise IndexError('Index out of range')
+        page=pages[index]
+        session.current_page=page
+        await page.bring_to_front()
+        await page.wait_for_load_state('load')
+        return f'Switched to tab {index}'
+    else:
+        raise ValueError('Invalid mode')

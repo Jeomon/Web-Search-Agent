@@ -80,8 +80,6 @@ class DOM:
 
         # Compare `current_element` and `top_element` by comparing a unique property like outerHTML
         is_inside = await self.page.evaluate("([current, top]) => {return current.contains(top);}", [current_element, top_element])
-        # print('Current: ',current_element.as_element())
-        # print('Top: ',top_element.as_element())
 
         # If top_element is inside current_element, it means it's covered by it
         if is_inside:

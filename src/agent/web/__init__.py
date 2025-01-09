@@ -1,4 +1,4 @@
-from src.agent.web.tools import click_tool,goto_tool,type_tool,scroll_tool,wait_tool,back_tool,key_tool,extract_content_tool,download_tool
+from src.agent.web.tools import click_tool,goto_tool,type_tool,scroll_tool,wait_tool,back_tool,key_tool,extract_content_tool,download_tool,tab_tool
 from src.agent.web.utils import read_markdown_file,extract_agent_data
 from src.message import SystemMessage,HumanMessage,ImageMessage,AIMessage
 from src.agent.web.browser import Browser,BrowserConfig
@@ -15,7 +15,7 @@ import nest_asyncio
 import asyncio
 import json
 
-tools=[click_tool,goto_tool,type_tool,scroll_tool,wait_tool,back_tool,key_tool,extract_content_tool,download_tool]
+tools=[click_tool,goto_tool,type_tool,scroll_tool,wait_tool,back_tool,key_tool,extract_content_tool,download_tool,tab_tool]
 
 class WebAgent(BaseAgent):
     def __init__(self,browser:Literal['chromium','firefox','edge']='edge',instructions:list=[],llm:BaseInference=None,max_iteration:int=10,use_vision:bool=False,headless:bool=True,verbose:bool=False) -> None:
@@ -40,6 +40,7 @@ class WebAgent(BaseAgent):
 
     async def reason(self,state:AgentState):
         ai_message=await self.llm.async_invoke(state.get('messages'))
+        # print(ai_message.content)
         agent_data=extract_agent_data(ai_message.content)
         thought=agent_data.get('Thought')
         route=agent_data.get('Route')

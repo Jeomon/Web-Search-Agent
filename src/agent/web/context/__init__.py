@@ -121,36 +121,11 @@ class Context:
         session=await self.get_session()
         pages=session.context.pages
         return [Tab(index,page.url,page.title) for index,page in enumerate(pages)]
-    
-    async def open_new_tab(self,url:str=None):
-        session=await self.get_session()
-        page=await session.context.new_page()
-        session.current_page=page
-        await page.wait_for_load_state('load')
-        if url:
-            await page.goto(url)
-            await page.wait_for_load_state('load')
 
-    async def close_current_tab(self):
-        session=await self.get_session()
-        page=session.current_page
-        await page.close()
-        if session.context.pages:
-            session.current_page=self.switch_tab(0)
     
     async def execute_script(self,script:str,args:list=None):
         page=await self.get_current_page()
         return await page.evaluate(script,args)
-    
-    async def switch_tab(self,index:int):
-        session=await self.get_session()
-        pages=session.context.pages
-        if index>len(pages):
-            raise IndexError('Index out of range')
-        page=pages[index]
-        session.current_page=page
-        await page.bring_to_front()
-        await page.wait_for_load_state('load')
     
     async def get_screenshot(self,save_screenshot:bool=False,full_page:bool=False):
         page=await self.get_current_page()

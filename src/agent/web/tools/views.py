@@ -30,3 +30,7 @@ class Download(BaseModel):
 
 class ExtractContent(BaseModel):
     value:Literal['markdown','html','text'] = Field(description="the type of content to be like",examples=['markdown'],default='text')
+
+class Tab(BaseModel):
+    mode:Literal['open','close','switch'] = Field(...,description="the mode of the tab",examples=['open'])
+    index:int = Field(description="switch to the specified index of the tab",examples=[0],default=None)
