@@ -4,6 +4,7 @@ from src.agent.web.context import Context
 from typing import Literal
 from src.tool import Tool
 from pathlib import Path
+from os import getcwd
 import httpx
 
 @Tool('Click Tool',params=Click)
@@ -96,7 +97,7 @@ async def extract_content_tool(value:str,context:Context=None):
 
 @Tool('Tab Tool',params=Tab)
 async def tab_tool(mode:Literal['open','close','switch'],index:int=None,context:Context=None):
-    '''To open a new tab, close the current tab or switch to a specified tab'''
+    '''To open a new tab, close the current tab and switch from current tab to the specified tab'''
     session=await context.get_session()
     if mode=='open':
         page=await session.context.new_page()
@@ -125,3 +126,4 @@ async def tab_tool(mode:Literal['open','close','switch'],index:int=None,context:
         return f'Switched to tab {index}'
     else:
         raise ValueError('Invalid mode')
+    

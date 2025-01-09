@@ -21,7 +21,7 @@ import json
 tools=[click_tool,goto_tool,type_tool,scroll_tool,wait_tool,back_tool,key_tool,extract_content_tool,download_tool,tab_tool]
 
 class WebAgent(BaseAgent):
-    def __init__(self,browser:Literal['chromium','firefox','edge']='edge',instructions:list=[],llm:BaseInference=None,max_iteration:int=10,use_vision:bool=False,headless:bool=True,verbose:bool=False) -> None:
+    def __init__(self,browser:Literal['chrome','firefox','edge']='edge',instructions:list=[],llm:BaseInference=None,max_iteration:int=10,use_vision:bool=False,headless:bool=True,verbose:bool=False) -> None:
         self.name='Web Agent'
         self.description='The web agent is designed to automate the process of gathering information from the internet, such as to navigate websites, perform searches, and retrieve data.'
         self.system_prompt=read_markdown_file('./src/agent/web/prompt/system.md')

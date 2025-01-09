@@ -35,7 +35,10 @@ class Context:
     async def init_session(self):
         playwright_browser=await self.browser.get_playwright_browser()
         context=await self.setup_context(playwright_browser)
-        page=await context.new_page()
+        if self.browser is not None: # The case whether is no user_data provided
+            page=await context.new_page()
+        else: # The case where the user_data is provided
+            page=context.pages[-1]
         state=await self.initial_state(page)
         self.session=BrowserSession(context,page,state)
         
@@ -91,6 +94,7 @@ class Context:
             'user_agent':self.config.user_agent,
             'java_script_enabled':True,
             'bypass_csp':self.config.disable_security,
+            'accept_downloads':True
         }
 
         if browser is not None:
@@ -107,7 +111,7 @@ class Context:
             # browser is None if the user_data_dir is not None in the Browser class
             browser=self.browser.config.browser
             if browser=='chromium':
-                context=await self.browser.playwright.chromium.launch_persistent_context(**parameters)
+                context=await self.browser.playwright.chromium.launch_persistent_context(channel='chrome',**parameters)
             elif browser=='firefox':
                 context=await self.browser.playwright.firefox.launch_persistent_context(**parameters)
             elif browser=='edge':

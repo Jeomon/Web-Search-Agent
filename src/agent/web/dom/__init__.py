@@ -110,9 +110,10 @@ class DOM:
                 # Skip if element is out of the viewport
                 if not await self.is_element_in_viewport(box):
                     continue  # Discard elements outside the scrolled viewport
-
+                
+                # Skip if element is covered
                 if await self.is_element_covered(element_handle):
-                    continue
+                    continue  # Discard elements covered by another element
 
                 # Proceed with the element as it is not in the viewport
                 tag_name = await element_handle.evaluate("el => el.tagName.toLowerCase()")
