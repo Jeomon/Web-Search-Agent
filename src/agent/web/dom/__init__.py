@@ -1,6 +1,6 @@
 from src.agent.web.dom.config import INTERACTIVE_ROLES, SAFE_ATTRIBUTES
 from src.agent.web.dom.views import DOMElementNode, DOMState
-from playwright.async_api import Page
+from playwright.async_api import Page,ElementHandle
 
 class DOM:
     def __init__(self, page: Page):
@@ -45,14 +45,46 @@ class DOM:
         traverse_node(accessibility_tree)
         return interactive_elements
 
-    async def is_element_in_viewport(self, box: dict, scroll_x: int, scroll_y: int, viewport_width: int, viewport_height: int) -> bool:
+    async def is_element_in_viewport(self, box: dict, scroll_offsets: dict, viewport_size: dict) -> bool:
         """Check if the element is in the viewport."""
+        scroll_x = scroll_offsets["x"]
+        scroll_y = scroll_offsets["y"]
+        viewport_width = viewport_size["width"]
+        viewport_height = viewport_size["height"]
+
         return not (
             box["x"] + box["width"] <= scroll_x or  # Entirely to the left
             box["y"] + box["height"] <= scroll_y or  # Entirely above
             box["x"] >= scroll_x + viewport_width or  # Entirely to the right
             box["y"] >= scroll_y + viewport_height  # Entirely below
         )
+    
+    async def is_element_covered(self, current_element: ElementHandle) -> bool:
+        # Get the element under the point (this is a JSHandle)
+        top_element = await self.page.evaluate_handle(
+            """
+            (el) => {
+                const rect = el.getBoundingClientRect();
+                const point = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+                return document.elementFromPoint(point.x, point.y);
+            }
+            """, current_element)
+
+        # Check if no element is returned (top_element is None)
+        if top_element is None:
+            return False
+
+        # Compare `current_element` and `top_element` by comparing a unique property like outerHTML
+        is_inside = await self.page.evaluate("([current, top]) => {return current.contains(top);}", [current_element, top_element])
+        # print('Current: ',current_element.as_element())
+        # print('Top: ',top_element.as_element())
+
+        # If top_element is inside current_element, it means it's covered by it
+        if is_inside:
+            return False
+
+        return True
+
 
     async def get_state(self) -> DOMState:
         """Get the state of all interactive elements on the page."""
@@ -61,14 +93,9 @@ class DOM:
 
         # Get viewport dimensions and scroll offsets
         viewport_size = self.page.viewport_size
-        viewport_width = viewport_size["width"]
-        viewport_height = viewport_size["height"]
-
         scroll_offsets = await self.page.evaluate(
             "({ x: window.scrollX, y: window.scrollY })"
         )
-        scroll_x = scroll_offsets["x"]
-        scroll_y = scroll_offsets["y"]
 
         # Check each interactive element for visibility and obstruction
         for element in interactive_elements:
@@ -85,8 +112,11 @@ class DOM:
                     continue
 
                 # Skip if element is out of the viewport
-                if not await self.is_element_in_viewport(box, scroll_x, scroll_y, viewport_width, viewport_height):
+                if not await self.is_element_in_viewport(box, scroll_offsets,viewport_size):
                     continue  # Discard elements outside the scrolled viewport
+
+                if await self.is_element_covered(element_handle):
+                    continue
 
                 # Proceed with the element as it is not in the viewport
                 tag_name = await element_handle.evaluate("el => el.tagName.toLowerCase()")
