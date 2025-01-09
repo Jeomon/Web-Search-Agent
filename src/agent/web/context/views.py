@@ -18,7 +18,7 @@ class BrowserState:
 	dom_state:DOMState=field(default_factory=DOMState([],{}))
 	
 	def tabs_to_string(self)->str:
-		return '\n'.join([f'{tab.id}) {tab.title} - {tab.url}' for tab in self.tabs])
+		return '\n'.join([f'{tab.id} - Title: {tab.title} - URL: {tab.url}' for tab in self.tabs])
 
 @dataclass
 class BrowserSession:

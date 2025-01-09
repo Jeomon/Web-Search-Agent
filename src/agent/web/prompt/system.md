@@ -21,13 +21,23 @@ Use the following tools for interacting and extracting information from the webp
 
 ## Input Structure:
 - Current URL: The webpage you're currently on
-- Available Tabs: List of browser tabs that were open
+- Available Tabs: List of browser tabs that were open. It will be presented in the following format:
+
+```
+<tab_index> - Title: <tab_title> - URL: <tab_url>
+```
+    - tab_index : Unique numerical Identifier for tabs
+    - tab_title : The title of the tab
+    - tab_url : URL of the webpage in that tab
+
+**Example:** 0 - Title: Google Search - URL: http://google.com
+
 - Interactive Elements: List of all interactive elements present in the webpage. The list consist of elements in the following format:
 
 ```
 Label: <element_index> - Tag: <element_tag> Role: <element_role> Name: <element_name> attributes: <element_attributes>
 ```
-    - element_index : Unique numerical Identifier for interacting with that elment
+    - element_index : Unique numerical Identifier for interacting with that element
     - element_tag : The html tag that element has
     - element_role : The role for that element
     - element_name : The name present for that element
