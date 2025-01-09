@@ -8,7 +8,6 @@ from uuid import uuid4
 from base64 import b64encode
 from pathlib import Path
 from datetime import datetime
-import asyncio
 
 class Context:
     def __init__(self,browser:Browser,config:ContextConfig=ContextConfig()):

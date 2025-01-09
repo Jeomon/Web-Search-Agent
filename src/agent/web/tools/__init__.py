@@ -23,7 +23,7 @@ async def type_tool(index:int,text:str,context:Context=None):
     page=await context.get_current_page()
     element=await context.get_element_by_index(index)
     await element.scroll_into_view_if_needed()
-    await element.fill(text)
+    await element.type(text,delay=50)
     await page.wait_for_load_state('load')
     return f'Typed {text} in element {index}'
 
