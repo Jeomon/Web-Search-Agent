@@ -30,6 +30,7 @@ class DOM:
     async def _extract_interactive_elements_from_tree(self) -> list[dict]:
         """Extract interactive elements from the accessibility tree."""
         accessibility_tree = await self._fetch_accessibility_tree()
+        # print(accessibility_tree)
         interactive_elements = []
 
         def traverse_node(node: dict[str, str]):
@@ -41,7 +42,6 @@ class DOM:
                 interactive_elements.append({"role": role, "name": name})
             for child in children:
                 traverse_node(child)
-
         traverse_node(accessibility_tree)
         return interactive_elements
 
@@ -92,13 +92,14 @@ class DOM:
         """Get the state of all interactive elements on the page."""
         nodes = []
         interactive_elements = await self._extract_interactive_elements_from_tree()
-
+        print(interactive_elements)
         # Check each interactive element for visibility and obstruction
         for element in interactive_elements:
             matching_nodes = self.page.get_by_role(role=element["role"], name=element["name"])
             count = await matching_nodes.count()
             for index in range(count):
                 element_handle = await matching_nodes.nth(index).element_handle()
+                # Skip if element is not visible
                 if not await element_handle.is_visible() or await element_handle.get_attribute('aria-hidden') == 'true':
                     continue
 
@@ -111,7 +112,7 @@ class DOM:
                 if not await self.is_element_in_viewport(box):
                     continue  # Discard elements outside the scrolled viewport
                 
-                # Skip if element is covered
+                # # Skip if element is covered
                 if await self.is_element_covered(element_handle):
                     continue  # Discard elements covered by another element
 

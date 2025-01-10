@@ -9,7 +9,6 @@ function getRandomColor() {
 }
 
 let labels = [];
-const minArea = 10;
 
 // Function to highlight visible interactive elements with numbered labels
 function mark_page(elements) {
@@ -20,10 +19,6 @@ function mark_page(elements) {
 
         const { left, top, width, height } = bounding_box;
         const borderColor = getRandomColor();
-
-        // Calculate area and skip if too small
-        const area = width * height;
-        if (area < minArea) return;
 
         // Create bounding box
         const boundingBox = document.createElement('div');
