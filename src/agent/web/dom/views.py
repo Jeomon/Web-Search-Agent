@@ -1,4 +1,5 @@
 from dataclasses import dataclass,field
+from playwright.async_api import ElementHandle
 
 @dataclass
 class DOMElementNode:
@@ -16,8 +17,8 @@ class DOMElementNode:
     
 @dataclass
 class DOMState:
-    nodes: list[DOMElementNode]=field(default_factory=list)
-    selector_map:dict[int,DOMElementNode]=field(default_factory=dict)
+    nodes: list[tuple[DOMElementNode,ElementHandle]]=field(default_factory=list)
+    selector_map:dict[int,tuple[DOMElementNode,ElementHandle]]=field(default_factory=dict)
 
     def elements_to_string(self)->str:
-        return '\n'.join([f'{index} - Tag: {node.tag} Role: {node.role} Name: {node.name} attributes: {node.attributes}' for index,node in enumerate(self.nodes)])
+        return '\n'.join([f'{index} - Tag: {node.tag} Role: {node.role} Name: {node.name} attributes: {node.attributes}' for index,(node,_) in enumerate(self.nodes)])

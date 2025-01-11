@@ -60,7 +60,7 @@ class Context:
                 script=f.read()
             # Loading the script
             await self.execute_script(script)
-            nodes=[node.to_dict() for node in dom_state.nodes]
+            nodes=[node.to_dict() for node,_ in dom_state.nodes]
             # Add bounding boxes to the interactive elements
             await self.execute_script('nodes=>{mark_page(nodes)}',nodes)
             # Take screenshot
@@ -106,6 +106,7 @@ class Context:
                 'timezone_id':'Asia/Kolkata',
                 'locale':'en-IN',
                 'user_data_dir':self.browser.config.user_data_dir,
+                'downloads_path':self.browser.config.downloads_path,
                 'args': ['--disable-blink-features=AutomationControlled','--no-infobars','--no-sandbox']
             })
             # browser is None if the user_data_dir is not None in the Browser class
@@ -128,15 +129,21 @@ class Context:
         session=await self.get_session()
         return session.state.dom_state.selector_map
     
-    async def get_dom_element_by_index(self,index:int)->DOMElementNode:
-        selector_map=await self.get_selector_map()
-        return selector_map.get(index)
+    # async def get_dom_element_by_index(self,index:int)->DOMElementNode:
+    #     selector_map=await self.get_selector_map()
+    #     dom_element=selector_map.get(index)
+    #     return dom_element
 
-    async def get_element_by_index(self,index:int)->ElementHandle:
-        element=await self.get_dom_element_by_index(index)
-        element_handle=await self.locate_element(element)
-        print(element)
-        return element_handle
+    # async def get_element_by_index(self,index:int)->ElementHandle:
+    #     element=await self.get_dom_element_by_index(index)
+    #     element_handle=await self.locate_element(element)
+    #     print(element)
+    #     return element_handle
+        
+    async def get_element_by_index(self,index:int)->tuple[DOMElementNode,ElementHandle]:
+        selector_map=await self.get_selector_map()
+        element,handle=selector_map.get(index)
+        return element,handle
 
     async def locate_element(self,element:DOMElementNode)->ElementHandle:
         page=await self.get_current_page()

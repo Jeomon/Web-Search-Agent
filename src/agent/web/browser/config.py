@@ -1,11 +1,14 @@
 from dataclasses import dataclass
 from typing import List, Literal
+from pathlib import Path
+from os import getcwd
 
 @dataclass
 class BrowserConfig:
     headless:bool=False
     user_data_dir:str=None
     wss_url:str=None
+    downloads_path:str=Path(getcwd()).joinpath('./downloads').as_posix()
     browser:Literal['chrome','firefox','edge']='edge'
     slow_mo:int=300
 

@@ -25,6 +25,7 @@ class Key(BaseModel):
     keys:str = Field(...,description="the keys to type",examples=["Enter","Control+A","Backspace"])
 
 class Download(BaseModel):
+    index:int = Field(...,description="the index of the element to download file",examples=[0])
     url:str = Field(...,description="url of the file to download",examples=["https://www.example.com/file.txt","https://abc.org/pdf/54655"])
     filename:str=Field(...,description="the name of the file to download",examples=["file.txt","xy4rs.pdf"])
 
@@ -37,4 +38,4 @@ class Tab(BaseModel):
 
 class File(BaseModel):
     index:int = Field(...,description="the index of the element to upload file",examples=[0])
-    filename:str = Field(...,description="the name of the file to upload",examples=["file.txt"])
+    filenames:list[str] = Field(...,description="list of filenames of the files to upload",examples=[["file.txt"]])

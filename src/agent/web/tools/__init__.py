@@ -11,15 +11,14 @@ import httpx
 async def click_tool(index:int,context:Context=None):
     '''For interacting with elements such as buttons, links, checkboxes, and radios'''
     page=await context.get_current_page()
-    element=await context.get_element_by_index(index)
-    dom_element=await context.get_dom_element_by_index(index)
-    if dom_element.role in ['button','link']:
-        await element.scroll_into_view_if_needed()
-        await element.click()
+    element,handle=await context.get_element_by_index(index)
+    if element.role in ['button','link']:
+        await handle.scroll_into_view_if_needed()
+        await handle.click()
         await page.wait_for_load_state('load')
         return f'Clicked element {index}'
-    elif dom_element.role in ['checkbox','radio']:
-        await element.check(force=True)
+    elif element.role in ['checkbox','radio']:
+        await handle.check(force=True)
         await page.wait_for_load_state('load')
         return f'Checked element {index}'
     else:
@@ -30,9 +29,9 @@ async def click_tool(index:int,context:Context=None):
 async def type_tool(index:int,text:str,context:Context=None):
     '''To fill input fields or search boxes'''
     page=await context.get_current_page()
-    element=await context.get_element_by_index(index)
-    await element.scroll_into_view_if_needed()
-    await element.type(text,delay=50)
+    _,handle=await context.get_element_by_index(index)
+    await handle.scroll_into_view_if_needed()
+    await handle.type(text,delay=50)
     await page.wait_for_load_state('load')
     return f'Typed {text} in element {index}'
 
@@ -86,14 +85,27 @@ async def key_tool(keys:str,context:Context=None):
     return f'Pressed {keys}'
 
 @Tool('Download Tool',params=Download)
-async def download_tool(url:str,filename:str,context:Context=None):
+async def download_tool(index:int,url:str=None,filename:str=None,context:Context=None):
     '''To download a file (e.g., pdf, image, video, audio) to the system'''
-    Path('./downloads').mkdir(parents=True,exist_ok=True)
-    async with httpx.AsyncClient() as client:
-        response=await client.get(url)
-        with open(f'./downloads/{filename}','wb') as f:
-            f.write(response.content)
-    return f'Downloaded {filename} from {url}'
+    folder_path=Path(getcwd()).joinpath('./downloads')
+    folder_path.mkdir(parents=True,exist_ok=True)
+    page=await context.get_current_page()
+    _,handle=await context.get_element_by_index(index)
+    try:
+        async with page.expect_download(timeout=5*1000) as download_info:
+            await handle.scroll_into_view_if_needed()
+            await handle.click()
+        download=await download_info.value
+        if filename is None:
+            filename=download.suggested_filename
+        path=folder_path.joinpath(filename)
+        await download.save_as(path=path)
+    except:
+        async with httpx.AsyncClient() as client:
+            response=await client.get(url)
+            with open(path,'wb') as f:
+                f.write(response.content)
+    return f'Downloaded {filename} from {url} and saved it to {path}'
 
 @Tool('ExtractContent Tool',params=ExtractContent)
 async def extract_content_tool(value:str,context:Context=None):
@@ -136,6 +148,19 @@ async def tab_tool(mode:Literal['open','close','switch'],index:int=None,context:
         raise ValueError('Invalid mode')
     
 @Tool('File Tool',params=File)   
-async def file_tool(index:int,filename:str,context:Context=None):
+async def file_tool(index:int,filenames:list[str],context:Context=None):
     '''To upload a file to the webpage'''
-    #TODO: Add file uploader
+    files=[Path(getcwd()).joinpath('./uploads',filename) for filename in filenames]
+    page=await context.get_current_page()
+    _,handle=await context.get_element_by_index(index)
+    async with page.expect_file_chooser() as file_chooser_info:
+        await handle.scroll_into_view_if_needed()
+        await handle.click()
+    file_chooser=await file_chooser_info.value
+    if file_chooser.is_multiple():
+        await handle.set_input_files(files=files)
+    else:
+        await handle.set_input_files(files=files[0])
+    await page.wait_for_load_state('load')
+    return f'Uploaded {filenames} to element {index}'
+    

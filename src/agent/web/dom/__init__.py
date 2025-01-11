@@ -11,11 +11,11 @@ class DOM:
         await self.page.wait_for_timeout(2 * 1000)
         return await self.page.accessibility.snapshot(interesting_only=False)
 
-    def deduplicate(self, nodes: list[dict]) -> list[DOMElementNode]:
+    def deduplicate(self, nodes: list[dict]) -> list[tuple[DOMElementNode,ElementHandle]]:
         """Deduplicate nodes based on unique attributes."""
         seen = set()
         deduplicated = []
-        for node in nodes:
+        for node,handle in nodes:
             identifier = (
                 node['role'],
                 node['name'],
@@ -24,7 +24,7 @@ class DOM:
             )
             if identifier not in seen:
                 seen.add(identifier)
-                deduplicated.append(DOMElementNode(**node))
+                deduplicated.append((DOMElementNode(**node),handle))
         return deduplicated
 
     async def _extract_interactive_elements_from_tree(self) -> list[dict]:
@@ -90,19 +90,18 @@ class DOM:
             return False
         return True
     
-    async def get_file_uploaders(self) -> list[DOMElementNode]:
-        file_elements=[]
+    async def get_file_uploaders(self) -> list[tuple[DOMElementNode,ElementHandle]]:
+        file_nodes=[]
         elements = await self.page.query_selector_all('input[type="file"]')
         for element in elements:
-            tag_name = await element.evaluate("el => el.tagName.toLowerCase()")
             attributes:dict = await element.evaluate(
                 f"el => Object.fromEntries([...el.attributes].filter(attr => {SAFE_ATTRIBUTES}.includes(attr.name)).map(attr => [attr.name, attr.value]))"
             )
             box = await element.bounding_box()
             bounding_box = {"left": box["x"], "top": box["y"], "width": box["width"], "height": box["height"]}
-            node = DOMElementNode(tag=tag_name,role='input',name='file',bounding_box=bounding_box,attributes=attributes)
-            file_elements.append(node)
-        return file_elements
+            node = DOMElementNode(tag='input',role='file',name='Select File',bounding_box=bounding_box,attributes=attributes)
+            file_nodes.append((node,element))
+        return file_nodes
             
     async def get_state(self) -> DOMState:
         """Get the state of all interactive elements on the page."""
@@ -149,7 +148,7 @@ class DOM:
                     },
                     "attributes": attributes,
                 }
-                nodes.append(node)
+                nodes.append((node,element_handle))
 
         nodes = self.deduplicate(nodes)
         # Include file uploaders elements from DOM
@@ -159,6 +158,6 @@ class DOM:
         selector_map = await self.build_selector_map(nodes)
         return DOMState(nodes, selector_map)
 
-    async def build_selector_map(self, nodes: list[DOMElementNode]) -> dict[int, DOMElementNode]:
+    async def build_selector_map(self, nodes: list[tuple[DOMElementNode,ElementHandle]]) -> dict[int, DOMElementNode]:
         """Build a map from element index to node."""
-        return {index: node for index, node in enumerate(nodes)}
+        return {index: (node, handle) for index, (node, handle) in enumerate(nodes)}
