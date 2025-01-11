@@ -63,7 +63,7 @@ class DOM:
             box["y"] >= scroll_y + viewport_height  # Entirely below
         )
     
-    async def is_element_covered(self, current_element: ElementHandle) -> bool:
+    async def is_element_covered(self, current_element: ElementHandle,exclude_types=[]) -> bool:
         # Get the element under the point (this is a JSHandle)
         top_element = await self.page.evaluate_handle(
             """
@@ -85,30 +85,22 @@ class DOM:
         if is_inside:
             return False
 
+        type=current_element.get_attribute('type')
+        if type in exclude_types:
+            return False
         return True
     
-    async def get_file_uploaders(self) -> list[dict]:
+    async def get_file_uploaders(self) -> list[DOMElementNode]:
         file_elements=[]
         elements = await self.page.query_selector_all('input[type="file"]')
         for element in elements:
             tag_name = await element.evaluate("el => el.tagName.toLowerCase()")
-            attributes = await element.evaluate(
-                "el => Object.fromEntries([...el.attributes].map(attr => [attr.name, attr.value]))"
+            attributes:dict = await element.evaluate(
+                f"el => Object.fromEntries([...el.attributes].filter(attr => {SAFE_ATTRIBUTES}.includes(attr.name)).map(attr => [attr.name, attr.value]))"
             )
             box = await element.bounding_box()
-            safe_attributes = {key: value for key, value in attributes.items() if key in SAFE_ATTRIBUTES}
-            node = {
-                "tag": tag_name,
-                "role": 'file',
-                "name": 'Choose File',
-                "bounding_box": {
-                    "left": box.get('x'),
-                    "top": box.get('y'),
-                    "width": box.get('width'),
-                    "height": box.get('height'),
-                },
-                "attributes": safe_attributes,
-            }
+            bounding_box = {"left": box["x"], "top": box["y"], "width": box["width"], "height": box["height"]}
+            node = DOMElementNode(tag=tag_name,role='input',name='file',bounding_box=bounding_box,attributes=attributes)
             file_elements.append(node)
         return file_elements
             
@@ -137,16 +129,14 @@ class DOM:
                     continue  # Discard elements outside the scrolled viewport
                 
                 # # # Skip if element is covered
-                if await self.is_element_covered(element_handle) and element["role"] not in['checkbox','radio']:
+                if await self.is_element_covered(element_handle,exclude_types=['checkbox','radio']):
                     continue  # Discard elements covered by another element
 
                 # Proceed with the element as it is not in the viewport
                 tag_name = await element_handle.evaluate("el => el.tagName.toLowerCase()")
-                attributes = await element_handle.evaluate(
-                    "el => Object.fromEntries([...el.attributes].map(attr => [attr.name, attr.value]))"
+                attributes:dict = await element_handle.evaluate(
+                    f"el => Object.fromEntries([...el.attributes].filter(attr => {SAFE_ATTRIBUTES}.includes(attr.name)).map(attr => [attr.name, attr.value]))"
                 )
-                safe_attributes = {key: value for key, value in attributes.items() if key in SAFE_ATTRIBUTES}
-
                 node = {
                     "tag": tag_name,
                     "role": element.get("role"),
@@ -157,14 +147,15 @@ class DOM:
                         "width": box.get('width'),
                         "height": box.get('height'),
                     },
-                    "attributes": safe_attributes,
+                    "attributes": attributes,
                 }
                 nodes.append(node)
 
-        file_uploads = await self.get_file_uploaders()
-        if file_uploads:
-            nodes.extend(file_uploads)
         nodes = self.deduplicate(nodes)
+        # Include file uploaders elements from DOM
+        file_nodes = await self.get_file_uploaders()
+        if file_nodes:
+            nodes.extend(file_nodes)
         selector_map = await self.build_selector_map(nodes)
         return DOMState(nodes, selector_map)
 
