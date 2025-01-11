@@ -9,6 +9,7 @@ from datetime import datetime
 from base64 import b64encode
 from pathlib import Path
 from uuid import uuid4
+from os import getcwd
 
 class Context:
     def __init__(self,browser:Browser,config:ContextConfig=ContextConfig()):
@@ -166,9 +167,9 @@ class Context:
         page=await self.get_current_page()
         if save_screenshot:
             date_time=datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
-            path=Path('./screenshots')
-            path.mkdir(parents=True,exist_ok=True)
-            path=path.joinpath(f'screenshot_{date_time}.jpeg')
+            folder_path=Path(getcwd()).joinpath('./screenshots')
+            folder_path.mkdir(parents=True,exist_ok=True)
+            path=folder_path.joinpath(f'screenshot_{date_time}.jpeg')
         else:
             path=None
         await page.wait_for_timeout(2*1000)

@@ -85,7 +85,7 @@ class DOM:
         if is_inside:
             return False
 
-        type=current_element.get_attribute('type')
+        type=await current_element.get_attribute('type')
         if type in exclude_types:
             return False
         return True
