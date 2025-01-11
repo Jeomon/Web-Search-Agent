@@ -176,6 +176,8 @@ class Context:
         screenshot=await page.screenshot(path=path,full_page=full_page,animations='disabled',type='jpeg')
         return b64encode(screenshot).decode('utf-8')
     
+    
+    
 
 
 

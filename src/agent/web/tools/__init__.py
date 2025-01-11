@@ -1,4 +1,4 @@
-from src.agent.web.tools.views import Click,Type,Wait,Scroll,GoTo,Back,Key,Download,ExtractContent,Tab,File
+from src.agent.web.tools.views import Click,Type,Wait,Scroll,GoTo,Back,Key,Download,ExtractContent,Tab,Upload,Menu
 from main_content_extractor import MainContentExtractor
 from src.agent.web.context import Context
 from typing import Literal
@@ -8,10 +8,14 @@ from os import getcwd
 import httpx
 
 @Tool('Click Tool',params=Click)
-async def click_tool(index:int,context:Context=None):
-    '''For interacting with elements such as buttons, links, checkboxes, and radios'''
+async def click_tool(index:int,hover:bool=False,context:Context=None):
+    '''For clicking buttons, links, checkboxes, and radio buttons'''
     page=await context.get_current_page()
     element,handle=await context.get_element_by_index(index)
+    if hover:
+        await handle.scroll_into_view_if_needed()
+        await handle.hover()
+        return f'Hovered over element {index}'
     if element.role in ['button','link']:
         await handle.scroll_into_view_if_needed()
         await handle.click()
@@ -147,8 +151,8 @@ async def tab_tool(mode:Literal['open','close','switch'],index:int=None,context:
     else:
         raise ValueError('Invalid mode')
     
-@Tool('File Tool',params=File)   
-async def file_tool(index:int,filenames:list[str],context:Context=None):
+@Tool('Upload Tool',params=Upload)   
+async def upload_tool(index:int,filenames:list[str],context:Context=None):
     '''To upload a file to the webpage'''
     files=[Path(getcwd()).joinpath('./uploads',filename) for filename in filenames]
     page=await context.get_current_page()
@@ -163,4 +167,13 @@ async def file_tool(index:int,filenames:list[str],context:Context=None):
         await handle.set_input_files(files=files[0])
     await page.wait_for_load_state('load')
     return f'Uploaded {filenames} to element {index}'
-    
+
+
+@Tool('Menu Tool',params=Menu)
+async def menu_tool(index:int,labels:list[str],context:Context=None):
+    '''To open an element having context menu or dropdown menu and select an option from it'''
+    _,handle=await context.get_element_by_index(index)
+    await handle.scroll_into_view_if_needed()
+    label=labels if len(labels)>1 else labels[0]
+    await handle.select_option(label=label)
+    return f'Opened context menu of element {index} and selected {label}'

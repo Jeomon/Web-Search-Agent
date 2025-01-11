@@ -38,7 +38,7 @@ class DOM:
             role = node.get("role")
             name = node.get("name")
             children = node.get("children", [])
-            if role in INTERACTIVE_ROLES and name.strip():
+            if role in INTERACTIVE_ROLES:
                 interactive_elements.append({"role": role, "name": name})
             for child in children:
                 traverse_node(child)
@@ -63,7 +63,7 @@ class DOM:
             box["y"] >= scroll_y + viewport_height  # Entirely below
         )
     
-    async def is_element_covered(self, current_element: ElementHandle,exclude_types=[]) -> bool:
+    async def is_element_covered(self,role:str, current_element: ElementHandle,exclude_roles=[]) -> bool:
         # Get the element under the point (this is a JSHandle)
         top_element = await self.page.evaluate_handle(
             """
@@ -84,13 +84,11 @@ class DOM:
         # If top_element is inside current_element, it means it's covered by it
         if is_inside:
             return False
-
-        type=await current_element.get_attribute('type')
-        if type in exclude_types:
+        if role in exclude_roles:
             return False
         return True
     
-    async def get_file_uploaders(self) -> list[tuple[DOMElementNode,ElementHandle]]:
+    async def get_uploaders(self) -> list[tuple[DOMElementNode,ElementHandle]]:
         file_nodes=[]
         elements = await self.page.query_selector_all('input[type="file"]')
         for element in elements:
@@ -99,7 +97,7 @@ class DOM:
             )
             box = await element.bounding_box()
             bounding_box = {"left": box["x"], "top": box["y"], "width": box["width"], "height": box["height"]}
-            node = DOMElementNode(tag='input',role='file',name='Select File',bounding_box=bounding_box,attributes=attributes)
+            node = DOMElementNode(tag='input',role='file',name=await element.get_attribute('name') or '',bounding_box=bounding_box,attributes=attributes)
             file_nodes.append((node,element))
         return file_nodes
             
@@ -116,22 +114,23 @@ class DOM:
                 element_handle = await matching_nodes.nth(index).element_handle()
                 # Skip if element is not visible
                 if not await element_handle.is_visible() or await element_handle.get_attribute('aria-hidden') == 'true':
-                    continue
+                    if element['role'] not in ['option']:
+                        continue
 
                 # # Get the coordinates for the interactive element
                 box = await element_handle.bounding_box()
                 if not box:
-                    continue
+                    box={}
 
-                # # Skip if element is out of the viewport
-                if not await self.is_element_in_viewport(box):
-                    continue  # Discard elements outside the scrolled viewport
+                # Skip if element is out of the viewport
+                # if not await self.is_element_in_viewport(box):
+                #     continue  # Discard elements outside the scrolled viewport
                 
-                # # # Skip if element is covered
-                if await self.is_element_covered(element_handle,exclude_types=['checkbox','radio']):
+                # Skip if element is covered but skip checkbox,radio,(select)option because they are already covered
+                if await self.is_element_covered(element['role'],element_handle,exclude_roles=['checkbox','radio','option']):
                     continue  # Discard elements covered by another element
 
-                # Proceed with the element as it is not in the viewport
+                # Proceed with the element as it is in the viewport
                 tag_name = await element_handle.evaluate("el => el.tagName.toLowerCase()")
                 attributes:dict = await element_handle.evaluate(
                     f"el => Object.fromEntries([...el.attributes].filter(attr => {SAFE_ATTRIBUTES}.includes(attr.name)).map(attr => [attr.name, attr.value]))"
@@ -139,22 +138,21 @@ class DOM:
                 node = {
                     "tag": tag_name,
                     "role": element.get("role"),
-                    "name": element.get("name"),
+                    "name": element.get("name") or attributes.get("name") or attributes.get("id",''),
                     "bounding_box": {
-                        "left": box.get('x'),
-                        "top": box.get('y'),
-                        "width": box.get('width'),
-                        "height": box.get('height'),
+                        "left": box.get('x',None),
+                        "top": box.get('y',None),
+                        "width": box.get('width',None),
+                        "height": box.get('height',None),
                     },
                     "attributes": attributes,
                 }
                 nodes.append((node,element_handle))
-
-        nodes = self.deduplicate(nodes)
         # Include file uploaders elements from DOM
-        file_nodes = await self.get_file_uploaders()
-        if file_nodes:
-            nodes.extend(file_nodes)
+        upload_nodes = await self.get_uploaders()
+        if upload_nodes:
+            nodes.extend(upload_nodes)
+        nodes = self.deduplicate(nodes)
         selector_map = await self.build_selector_map(nodes)
         return DOMState(nodes, selector_map)
 

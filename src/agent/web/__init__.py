@@ -1,4 +1,4 @@
-from src.agent.web.tools import click_tool,goto_tool,type_tool,scroll_tool,wait_tool,back_tool,key_tool,extract_content_tool,download_tool,tab_tool,file_tool
+from src.agent.web.tools import click_tool,goto_tool,type_tool,scroll_tool,wait_tool,back_tool,key_tool,extract_content_tool,download_tool,tab_tool,upload_tool,menu_tool
 from src.agent.web.utils import read_markdown_file,extract_agent_data
 from src.message import SystemMessage,HumanMessage,ImageMessage,AIMessage
 from src.agent.web.browser import Browser,BrowserConfig
@@ -18,7 +18,7 @@ import nest_asyncio
 import asyncio
 import json
 
-tools=[click_tool,goto_tool,type_tool,scroll_tool,wait_tool,back_tool,key_tool,extract_content_tool,download_tool,tab_tool,file_tool]
+tools=[menu_tool,click_tool,goto_tool,type_tool,scroll_tool,wait_tool,back_tool,key_tool,download_tool,tab_tool,upload_tool]
 
 class WebAgent(BaseAgent):
     def __init__(self,browser:Literal['chrome','firefox','edge']='edge',instructions:list=[],llm:BaseInference=None,max_iteration:int=10,use_vision:bool=False,headless:bool=True,verbose:bool=False) -> None:

@@ -3,6 +3,7 @@ from typing import Literal
 
 class Click(BaseModel):
     index:int = Field(...,description="the index of the element to click",examples=[0])
+    hover:bool = Field(description="whether to hover over the element before clicking",examples=[True],default=False)
 
 class Type(BaseModel):
     index:int = Field(...,description="the index of the element to type",examples=[0])
@@ -36,6 +37,10 @@ class Tab(BaseModel):
     mode:Literal['open','close','switch'] = Field(...,description="the mode of the tab",examples=['open'])
     index:int = Field(description="switch to the specified index of the tab",examples=[0],default=None)
 
-class File(BaseModel):
+class Upload(BaseModel):
     index:int = Field(...,description="the index of the element to upload file",examples=[0])
     filenames:list[str] = Field(...,description="list of filenames of the files to upload",examples=[["file.txt"]])
+
+class Menu(BaseModel):
+    index:int = Field(...,description="the index of the element having open the context menu or dropdown menu",examples=[0])
+    labels:list[str] = Field(...,description="list of labels to select from the dropdown menu",examples=["BMW"])

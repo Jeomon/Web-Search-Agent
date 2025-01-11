@@ -6,7 +6,7 @@ INTERACTIVE_TAGS = [
 INTERACTIVE_ROLES = [
     'button', 'menu', 'menuitem', 'link', 'checkbox', 'radio',
     'slider', 'tab', 'tabpanel', 'textbox', 'combobox', 'grid',
-    'listbox', 'option', 'progressbar', 'scrollbar', 'searchbox','presentation',
+    'option', 'progressbar', 'scrollbar', 'searchbox','presentation','listbox',
     'switch', 'tree', 'treeitem', 'spinbutton', 'tooltip', 'a-button-inner', 'a-dropdown-button', 'click',
     'menuitemcheckbox', 'menuitemradio', 'a-button-text', 'button-text', 'button-icon', 'button-icon-only', 'button-text-icon-only', 'dropdown', 'combobox'
 ]
