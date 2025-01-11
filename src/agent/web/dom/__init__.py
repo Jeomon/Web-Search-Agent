@@ -86,8 +86,32 @@ class DOM:
             return False
 
         return True
-
-
+    
+    async def get_file_uploaders(self) -> list[dict]:
+        file_elements=[]
+        elements = await self.page.query_selector_all('input[type="file"]')
+        for element in elements:
+            tag_name = await element.evaluate("el => el.tagName.toLowerCase()")
+            attributes = await element.evaluate(
+                "el => Object.fromEntries([...el.attributes].map(attr => [attr.name, attr.value]))"
+            )
+            box = await element.bounding_box()
+            safe_attributes = {key: value for key, value in attributes.items() if key in SAFE_ATTRIBUTES}
+            node = {
+                "tag": tag_name,
+                "role": 'file',
+                "name": 'Choose File',
+                "bounding_box": {
+                    "left": box.get('x'),
+                    "top": box.get('y'),
+                    "width": box.get('width'),
+                    "height": box.get('height'),
+                },
+                "attributes": safe_attributes,
+            }
+            file_elements.append(node)
+        return file_elements
+            
     async def get_state(self) -> DOMState:
         """Get the state of all interactive elements on the page."""
         nodes = []
@@ -103,17 +127,17 @@ class DOM:
                 if not await element_handle.is_visible() or await element_handle.get_attribute('aria-hidden') == 'true':
                     continue
 
-                # Get the coordinates for the interactive element
+                # # Get the coordinates for the interactive element
                 box = await element_handle.bounding_box()
                 if not box:
                     continue
 
-                # Skip if element is out of the viewport
+                # # Skip if element is out of the viewport
                 if not await self.is_element_in_viewport(box):
                     continue  # Discard elements outside the scrolled viewport
                 
-                # # Skip if element is covered
-                if await self.is_element_covered(element_handle):
+                # # # Skip if element is covered
+                if await self.is_element_covered(element_handle) and element["role"] not in['checkbox','radio']:
                     continue  # Discard elements covered by another element
 
                 # Proceed with the element as it is not in the viewport
@@ -137,6 +161,9 @@ class DOM:
                 }
                 nodes.append(node)
 
+        file_uploads = await self.get_file_uploaders()
+        if file_uploads:
+            nodes.extend(file_uploads)
         nodes = self.deduplicate(nodes)
         selector_map = await self.build_selector_map(nodes)
         return DOMState(nodes, selector_map)

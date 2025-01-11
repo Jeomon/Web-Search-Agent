@@ -1,4 +1,4 @@
-from src.agent.web.tools.views import Click,Type,Wait,Scroll,GoTo,Back,Key,Download,ExtractContent,Tab
+from src.agent.web.tools.views import Click,Type,Wait,Scroll,GoTo,Back,Key,Download,ExtractContent,Tab,File
 from main_content_extractor import MainContentExtractor
 from src.agent.web.context import Context
 from typing import Literal
@@ -9,13 +9,21 @@ import httpx
 
 @Tool('Click Tool',params=Click)
 async def click_tool(index:int,context:Context=None):
-    '''For interacting with elements such as buttons, links, checkboxes, and dropdowns'''
+    '''For interacting with elements such as buttons, links, checkboxes, and radios'''
     page=await context.get_current_page()
     element=await context.get_element_by_index(index)
-    await element.scroll_into_view_if_needed()
-    await element.click()
-    await page.wait_for_load_state('load')
-    return f'Clicked element {index}'
+    dom_element=await context.get_dom_element_by_index(index)
+    if dom_element.role in ['button','link']:
+        await element.scroll_into_view_if_needed()
+        await element.click()
+        await page.wait_for_load_state('load')
+        return f'Clicked element {index}'
+    elif dom_element.role in ['checkbox','radio']:
+        await element.check(force=True)
+        await page.wait_for_load_state('load')
+        return f'Checked element {index}'
+    else:
+        return f'Element {index} is not clickable'
 
 
 @Tool('Type Tool',params=Type)
@@ -127,3 +135,7 @@ async def tab_tool(mode:Literal['open','close','switch'],index:int=None,context:
     else:
         raise ValueError('Invalid mode')
     
+@Tool('File Tool',params=File)   
+async def file_tool(index:int,filename:str,context:Context=None):
+    '''To upload a file to the webpage'''
+    #TODO: Add file uploader

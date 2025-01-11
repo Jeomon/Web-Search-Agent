@@ -34,3 +34,7 @@ class ExtractContent(BaseModel):
 class Tab(BaseModel):
     mode:Literal['open','close','switch'] = Field(...,description="the mode of the tab",examples=['open'])
     index:int = Field(description="switch to the specified index of the tab",examples=[0],default=None)
+
+class File(BaseModel):
+    index:int = Field(...,description="the index of the element to upload file",examples=[0])
+    filename:str = Field(...,description="the name of the file to upload",examples=["file.txt"])

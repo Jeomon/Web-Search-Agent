@@ -127,12 +127,15 @@ class Context:
     async def get_selector_map(self)->dict[int,DOMElementNode]:
         session=await self.get_session()
         return session.state.dom_state.selector_map
+    
+    async def get_dom_element_by_index(self,index:int)->DOMElementNode:
+        selector_map=await self.get_selector_map()
+        return selector_map.get(index)
 
     async def get_element_by_index(self,index:int)->ElementHandle:
-        selector_map=await self.get_selector_map()
-        element=selector_map.get(index)
-        print(element)
+        element=await self.get_dom_element_by_index(index)
         element_handle=await self.locate_element(element)
+        print(element)
         return element_handle
 
     async def locate_element(self,element:DOMElementNode)->ElementHandle:
@@ -140,7 +143,6 @@ class Context:
         element_handle=await page.get_by_role(role=element.role,name=element.name).first.element_handle()
         if element_handle is None:
             raise Exception('Element not found')
-        await element_handle.scroll_into_view_if_needed()
         return element_handle
     
     async def get_tabs(self)->list[Tab]:
