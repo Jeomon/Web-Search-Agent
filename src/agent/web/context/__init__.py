@@ -143,6 +143,8 @@ class Context:
         
     async def get_element_by_index(self,index:int)->tuple[DOMElementNode,ElementHandle]:
         selector_map=await self.get_selector_map()
+        if index not in selector_map.keys():
+            raise Exception('Index not found')
         element,handle=selector_map.get(index)
         return element,handle
 

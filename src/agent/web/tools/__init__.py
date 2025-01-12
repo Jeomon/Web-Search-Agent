@@ -16,17 +16,15 @@ async def click_tool(index:int,hover:bool=False,context:Context=None):
         await handle.scroll_into_view_if_needed()
         await handle.hover()
         return f'Hovered over element {index}'
-    if element.role in ['button','link']:
-        await handle.scroll_into_view_if_needed()
-        await handle.click()
-        await page.wait_for_load_state('load')
-        return f'Clicked element {index}'
-    elif element.role in ['checkbox','radio']:
+    if element.role in ['checkbox','radio']:
         await handle.check(force=True)
         await page.wait_for_load_state('load')
         return f'Checked element {index}'
     else:
-        return f'Element {index} is not clickable'
+        await handle.scroll_into_view_if_needed()
+        await handle.click()
+        await page.wait_for_load_state('load')
+        return f'Clicked element {index}'
 
 
 @Tool('Type Tool',params=Type)

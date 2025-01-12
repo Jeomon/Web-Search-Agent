@@ -63,14 +63,6 @@ class DOM:
             box["y"] >= scroll_y + viewport_height  # Entirely below
         )
     
-    async def is_element_visible(self,role:str, element_handle: ElementHandle,exclude_roles=[]) -> bool:
-        if not await element_handle.is_visible() or await element_handle.get_attribute('aria-hidden') == 'true':
-            return False
-        if role in exclude_roles:
-            return False
-        return True
-
-
     async def is_element_covered(self,role:str, current_element: ElementHandle,exclude_roles=[]) -> bool:
         # Get the element under the point (this is a JSHandle)
         top_element = await self.page.evaluate_handle(
@@ -120,9 +112,10 @@ class DOM:
             count = await matching_nodes.count()
             for index in range(count):
                 element_handle = await matching_nodes.nth(index).element_handle()
-                # Skip if element is not visible but skip option(select) for single select
-                if self.is_element_visible(element['role'],element_handle,exclude_roles=['option']):
-                    continue
+                # Skip if element is not visible
+                if not await element_handle.is_visible() or await element_handle.get_attribute('aria-hidden') == 'true':
+                    if element['role'] not in ['option']:
+                        continue
 
                 # # Get the coordinates for the interactive element
                 box = await element_handle.bounding_box()
@@ -133,7 +126,7 @@ class DOM:
                 # if not await self.is_element_in_viewport(box):
                 #     continue  # Discard elements outside the scrolled viewport
                 
-                # Skip if element is covered but skip checkbox,radio,(select)option for multiple select because they are already covered
+                # Skip if element is covered but skip checkbox,radio,(select)option because they are already covered
                 if await self.is_element_covered(element['role'],element_handle,exclude_roles=['checkbox','radio','option']):
                     continue  # Discard elements covered by another element
 
