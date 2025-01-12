@@ -31,5 +31,5 @@ BROWSER_ARGS=[
 	'--no-first-run',
 	'--no-default-browser-check',
 	'--no-startup-window',
-	'--window-position=0,0'
+	'--window-position=0,0',
 ]

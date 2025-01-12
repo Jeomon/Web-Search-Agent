@@ -90,7 +90,7 @@ class Context:
         
     async def setup_context(self,browser:PlaywrightBrowser|None=None)->PlaywrightBrowserContext:
         parameters={
-            'no_viewport':False,
+            'no_viewport':True,
             'ignore_https_errors':self.config.disable_security,
             'user_agent':self.config.user_agent,
             'java_script_enabled':True,

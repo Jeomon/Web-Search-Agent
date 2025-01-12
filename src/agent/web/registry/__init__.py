@@ -16,11 +16,14 @@ class Registry:
     
     async def execute(self,name:str,input:dict,context:Context)->ActionResult:
         action=self.registry.get(name)
-        if action is None:
-            raise ValueError('Tool not found')
-        params=input|{'context':context}
-        content=await action.function(**params)
-        return ActionResult(name=name,content=content)
+        try:
+            if action is None:
+                raise ValueError('Tool not found')
+            params=input|{'context':context}
+            content=await action.function(**params)
+            return ActionResult(name=name,content=content)
+        except Exception as e:
+            return ActionResult(name=name,content=str(e))
 
         
     
