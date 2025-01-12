@@ -105,7 +105,7 @@ class DOM:
         """Get the state of all interactive elements on the page."""
         nodes = []
         interactive_elements = await self._extract_interactive_elements_from_tree()
-        print(interactive_elements)
+        # print(interactive_elements)
         # Check each interactive element for visibility and obstruction
         for element in interactive_elements:
             matching_nodes = self.page.get_by_role(role=element["role"], name=element["name"])
@@ -123,8 +123,8 @@ class DOM:
                     box={}
 
                 # Skip if element is out of the viewport
-                # if not await self.is_element_in_viewport(box):
-                #     continue  # Discard elements outside the scrolled viewport
+                if not await self.is_element_in_viewport(box):
+                    continue  # Discard elements outside the scrolled viewport
                 
                 # Skip if element is covered but skip checkbox,radio,(select)option because they are already covered
                 if await self.is_element_covered(element['role'],element_handle,exclude_roles=['checkbox','radio','option']):

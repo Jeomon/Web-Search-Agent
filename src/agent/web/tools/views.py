@@ -23,7 +23,7 @@ class Back(BaseModel):
     pass
 
 class Key(BaseModel):
-    keys:str = Field(...,description="the keys to type",examples=["Enter","Control+A","Backspace"])
+    keys:str = Field(...,description="the key or combination of keys to press",examples=["Enter","Control+A","Backspace"])
 
 class Download(BaseModel):
     index:int = Field(...,description="the index of the element to download file",examples=[0])
@@ -35,7 +35,7 @@ class ExtractContent(BaseModel):
 
 class Tab(BaseModel):
     mode:Literal['open','close','switch'] = Field(...,description="the mode of the tab",examples=['open'])
-    index:int = Field(description="switch to the specified index of the tab",examples=[0],default=None)
+    tab_index:int = Field(description="mention the index of the exisiting tab to switch, if mode is switch",examples=[0],default=None)
 
 class Upload(BaseModel):
     index:int = Field(...,description="the index of the element to upload file",examples=[0])

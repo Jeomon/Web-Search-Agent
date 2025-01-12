@@ -33,7 +33,7 @@ async def type_tool(index:int,text:str,context:Context=None):
     page=await context.get_current_page()
     _,handle=await context.get_element_by_index(index)
     await handle.scroll_into_view_if_needed()
-    await handle.type(text,delay=50)
+    await handle.fill(text)
     await page.wait_for_load_state('load')
     return f'Typed {text} in element {index}'
 
@@ -87,13 +87,13 @@ async def key_tool(keys:str,context:Context=None):
     return f'Pressed {keys}'
 
 @Tool('Download Tool',params=Download)
-async def download_tool(index:int,url:str=None,filename:str=None,context:Context=None):
+async def download_tool(index:int=None,url:str=None,filename:str=None,context:Context=None):
     '''To download a file (e.g., pdf, image, video, audio) to the system'''
     folder_path=Path(getcwd()).joinpath('./downloads')
     folder_path.mkdir(parents=True,exist_ok=True)
-    page=await context.get_current_page()
-    _,handle=await context.get_element_by_index(index)
     try:
+        page=await context.get_current_page()
+        _,handle=await context.get_element_by_index(index)
         async with page.expect_download(timeout=5*1000) as download_info:
             await handle.scroll_into_view_if_needed()
             await handle.click()
@@ -105,8 +105,9 @@ async def download_tool(index:int,url:str=None,filename:str=None,context:Context
     except:
         async with httpx.AsyncClient() as client:
             response=await client.get(url)
-            with open(path,'wb') as f:
-                f.write(response.content)
+        path=folder_path.joinpath(filename)
+        with open(path,'wb') as f:
+            f.write(response.content)
     return f'Downloaded {filename} from {url} and saved it to {path}'
 
 @Tool('ExtractContent Tool',params=ExtractContent)
@@ -118,7 +119,7 @@ async def extract_content_tool(value:str,context:Context=None):
     return f'Extracted Page Content:\n{content}'
 
 @Tool('Tab Tool',params=Tab)
-async def tab_tool(mode:Literal['open','close','switch'],index:int=None,context:Context=None):
+async def tab_tool(mode:Literal['open','close','switch'],tab_index:int=None,context:Context=None):
     '''To open a new tab, close the current tab and switch from current tab to the specified tab'''
     session=await context.get_session()
     if mode=='open':
@@ -130,7 +131,7 @@ async def tab_tool(mode:Literal['open','close','switch'],index:int=None,context:
         page=session.current_page
         await page.close()
         pages=session.context.pages
-        if index is not None and index>len(pages):
+        if tab_index is not None and tab_index>len(pages):
             raise IndexError('Index out of range')
         page=pages[0]
         session.current_page=page
@@ -139,13 +140,13 @@ async def tab_tool(mode:Literal['open','close','switch'],index:int=None,context:
         return f'Closed current tab and switched to tab 0'
     elif mode=='switch':
         pages=session.context.pages
-        if index>len(pages):
+        if tab_index>len(pages):
             raise IndexError('Index out of range')
-        page=pages[index]
+        page=pages[tab_index]
         session.current_page=page
         await page.bring_to_front()
         await page.wait_for_load_state('load')
-        return f'Switched to tab {index}'
+        return f'Switched to tab {tab_index}'
     else:
         raise ValueError('Invalid mode')
     
