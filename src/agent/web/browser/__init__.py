@@ -44,7 +44,7 @@ class Browser:
                 'slow_mo':self.config.slow_mo,
                 'args':BROWSER_ARGS + SECURITY_ARGS
             }
-            if browser=='chromium':
+            if browser=='chrome':
                 browser_instance=await self.playwright.chromium.launch(channel='chrome',**parameters)
             elif browser=='firefox':
                 browser_instance=await self.playwright.firefox.launch(**parameters)

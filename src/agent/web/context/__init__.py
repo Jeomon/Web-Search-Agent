@@ -34,12 +34,12 @@ class Context:
             self.browser_context=None
 
     async def init_session(self):
-        playwright_browser=await self.browser.get_playwright_browser()
-        context=await self.setup_context(playwright_browser)
-        if self.browser is not None: # The case whether is no user_data provided
+        browser=await self.browser.get_playwright_browser()
+        context=await self.setup_context(browser)
+        if browser is not None: # The case whether is no user_data provided
             page=await context.new_page()
         else: # The case where the user_data is provided
-            page=context.pages[-1]
+            page=context.pages[0]
         state=await self.initial_state(page)
         self.session=BrowserSession(context,page,state)
         
@@ -54,7 +54,7 @@ class Context:
         page=await self.get_current_page()
         dom=DOM(page)
         dom_state=await dom.get_state()
-        print(dom_state.elements_to_string())
+        # print(dom_state.elements_to_string())
         tabs=await self.get_tabs()
         if use_vision:
             with open('./src/agent/web/dom/script.js') as f:
@@ -90,7 +90,7 @@ class Context:
         
     async def setup_context(self,browser:PlaywrightBrowser|None=None)->PlaywrightBrowserContext:
         parameters={
-            'no_viewport':True,
+            'no_viewport':False,
             'ignore_https_errors':self.config.disable_security,
             'user_agent':self.config.user_agent,
             'java_script_enabled':True,
@@ -112,7 +112,7 @@ class Context:
             })
             # browser is None if the user_data_dir is not None in the Browser class
             browser=self.browser.config.browser
-            if browser=='chromium':
+            if browser=='chrome':
                 context=await self.browser.playwright.chromium.launch_persistent_context(channel='chrome',**parameters)
             elif browser=='firefox':
                 context=await self.browser.playwright.firefox.launch_persistent_context(**parameters)
