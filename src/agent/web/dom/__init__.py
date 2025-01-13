@@ -120,7 +120,7 @@ class DOM:
                 # # Get the coordinates for the interactive element
                 box = await element_handle.bounding_box()
                 if not box:
-                    box={}
+                    continue
 
                 # Skip if element is out of the viewport
                 if not await self.is_element_in_viewport(box):

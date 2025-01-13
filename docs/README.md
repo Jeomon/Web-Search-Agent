@@ -57,28 +57,25 @@ python main.py "Can you download the attention is all you need paper in ARXIV fr
 #### Example Output:
 
 ```plaintext
-Enter your query: Can you download the attention is all you need paper in ARXIV from google search
-Thought: I need to search for the "attention is all you need" paper on Google and then navigate to the arXiv link to download the PDF. I will start by going to google.com.
+Enter your query: Can you download the attention is all you need research paper by google from arxiv using google                                                                                     
+Thought: I need to find the research paper "Attention is All You Need" on arXiv, which is hosted by Google. I will start by searching on Google for the paper and then navigate to the arXiv page to download the PDF.
 Action Name: GoTo Tool
 Action Input: {'url': 'https://www.google.com'}
 Observation: Navigated to https://www.google.com
-Thought: I need to type "attention is all you need paper arxiv" in the search box. The search box has index 6.
+Thought: I'm on the Google homepage. I need to type the name of the research paper into the search bar. The search bar is element 6.
 Action Name: Type Tool
-Action Input: {'index': 6, 'text': 'attention is all you need paper arxiv'}
-Observation: Typed attention is all you need paper arxiv in element 6
-Thought: Now I need to click the Google Search button to search for the paper. The Google Search button has index 13.
+Action Input: {'index': 6, 'text': 'Attention is All You Need research paper arxiv'}
+Observation: Pressed Enter
+Thought: I have the search results. The third result, element 25, is a link to the PDF of the paper on arXiv. I will click on this link to download the PDF.
 Action Name: Click Tool
-Action Input: {'index': 13}
-Observation: Clicked element 13
-Thought: I see a link to the PDF of the paper on arxiv with index 25. I will click on that to download the paper.
-Action Name: Click Tool
-the url directly. I will use the download tool with the current url and a filename.
+Action Input: {'index': 25}
+Observation: Clicked element 25
+Thought: I have navigated to the arXiv page for the paper. The PDF is already displayed in the browser. I need to download the PDF. I will use the download tool to download the file. The url of the file is the current url.
 Action Name: Download Tool
-Action Input: {'url': 'http://arxiv.org/pdf/1706.03762', 'filename': 'attention_is_all_you_need.pdf', 'index': 0}
-Observation: Downloaded attention_is_all_you_need.pdf from http://arxiv.org/pdf/1706.03762 and saved it to .\downloads\attention_is_all_you_need.pdf
-Thought: I have successfully downloaded the paper. I can now provide the final answer.
-Final Answer: I have downloaded the "attention is all you need" paper from arXiv. The file is saved as attention_is_all_you_need.pdf.
-I have downloaded the "attention is all you need" paper from arXiv. The file is saved as attention_is_all_you_need.pdf.
+Action Input: {'index': 0, 'url': 'https://arxiv.org/pdf/1706.03762', 'filename': 'Attention_is_All_You_Need.pdf'}
+Observation: Downloaded Attention_is_All_You_Need.pdf from https://arxiv.org/pdf/1706.03762 and saved it to D:\Personal Projects\Web-Search-Agent\downloads\Attention_is_All_You_Need.pdf
+Thought: I have successfully downloaded the PDF of the "Attention is All You Need" research paper. I can now provide the final answer to the user.
+Final Answer: I have downloaded the "Attention is All You Need" research paper from arXiv. The file is saved as `Attention_is_All_You_Need.pdf`.
 ```
 
 ---
@@ -123,7 +120,7 @@ python main.py "Describe your task here"
 
 Example:  
 ```bash
-python main.py "Find and download the latest AI white paper."
+python main.py "Can you download the attention is all you need research paper by google from arxiv using google"
 ```
 
 ---
@@ -138,15 +135,6 @@ python main.py "Find and download the latest AI white paper."
 ## **Development & Contributions**
 
 We welcome contributions to improve Web Agent! Please feel free to fork the repository, submit issues, or create pull requests.
-
-### **Project Structure**
-
-- **src/agent:** Core logic and automation tools.
-- **src/inference:** LLM integration and reasoning functions.
-- **src/browser:** Browser configuration and session handling.
-- **examples:** Sample tasks and demonstrations.
-
----
 
 ## **License**
 
@@ -167,6 +155,4 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 For queries or support, please reach out via GitHub Issues.
 
----
-
-This updated `README.md` incorporates key details about the system while providing clearer instructions and an enhanced user experience. Would you like additional customization or features added?
+E-mail: jeogeoalukka@gmail.com
