@@ -1,9 +1,12 @@
 from src.agent.web.dom.views import DOMElementNode, DOMState
 from playwright.async_api import ElementHandle
-# from src.agent.web.context import Context
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.agent.web.context import Context
 
 class DOM:
-    def __init__(self, context):
+    def __init__(self, context:'Context'):
         self.context=context
     
     async def get_state(self,use_vision:bool=False)->DOMState:
@@ -16,8 +19,6 @@ class DOM:
         nodes=await self.context.execute_script('getInteractiveElements()')
         # Add bounding boxes to the interactive elements
         await self.context.execute_script('nodes=>{mark_page(nodes)}',nodes)
-        
-             
         if use_vision:
             screenshot=await self.context.get_screenshot(save_screenshot=False)
         else:
