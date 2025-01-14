@@ -52,24 +52,10 @@ class Context:
     
     async def update_state(self,use_vision:bool=False):
         page=await self.get_current_page()
-        dom=DOM(page)
-        dom_state=await dom.get_state()
+        dom=DOM(self)
+        screenshot,dom_state=await dom.get_state(use_vision=use_vision)
         # print(dom_state.elements_to_string())
         tabs=await self.get_tabs()
-        if use_vision:
-            with open('./src/agent/web/dom/script.js') as f:
-                script=f.read()
-            # Loading the script
-            await self.execute_script(script)
-            nodes=[node.to_dict() for node,_ in dom_state.nodes]
-            # Add bounding boxes to the interactive elements
-            await self.execute_script('nodes=>{mark_page(nodes)}',nodes)
-            # Take screenshot
-            screenshot=await self.get_screenshot(save_screenshot=False)
-            # Remove bounding boxes
-            await self.execute_script('unmark_page()')
-        else:
-            screenshot=None
         state=BrowserState(url=page.url,title=await page.title(),tabs=tabs,screenshot=screenshot,dom_state=dom_state)
         return state
     
@@ -161,8 +147,10 @@ class Context:
         return [Tab(index,page.url,await page.title()) for index,page in enumerate(pages)]
 
     
-    async def execute_script(self,script:str,args:list=None):
+    async def execute_script(self,script:str,args:list=None,enable_handle:bool=False):
         page=await self.get_current_page()
+        if enable_handle:
+            return await page.evaluate_handle(script,args)
         return await page.evaluate(script,args)
     
     async def get_screenshot(self,save_screenshot:bool=False,full_page:bool=False):
