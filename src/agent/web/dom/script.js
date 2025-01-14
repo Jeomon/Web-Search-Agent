@@ -110,7 +110,7 @@ const SAFE_ATTRIBUTES = [
                 const isCovered = isElementCovered(currentNode);
                 if (!isCovered) {
                     interactiveElements.push({
-                        tag_name: currentNode.tagName.toLowerCase(),
+                        tag: currentNode.tagName.toLowerCase(),
                         role: currentNode.getAttribute('role'),
                         name: currentNode.getAttribute('name')||currentNode.getAttribute('aria-label')||currentNode.getAttribute('aria-labelledby')||currentNode.getAttribute('aria-describedby'),
                         attributes: Array.from(currentNode.attributes).filter(attr => SAFE_ATTRIBUTES.includes(attr.name)).map(attr => ({ name: attr.name, value: attr.value })),
