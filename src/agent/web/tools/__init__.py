@@ -16,14 +16,14 @@ async def click_tool(index:int,hover:bool=False,context:Context=None):
         await handle.scroll_into_view_if_needed()
         await handle.hover()
         return f'Hovered over element {index}'
-    if element.role in ['checkbox','radio']:
-        await handle.check(force=True)
+    elif element.attributes.get('type','') in ['checkbox','radio']:
         await page.wait_for_load_state('load')
+        await handle.check(force=True)
         return f'Checked element {index}'
     else:
+        await page.wait_for_load_state('load')
         await handle.scroll_into_view_if_needed()
         await handle.click()
-        await page.wait_for_load_state('load')
         return f'Clicked element {index}'
 
 
@@ -32,9 +32,9 @@ async def type_tool(index:int,text:str,context:Context=None):
     '''To fill input fields or search boxes'''
     page=await context.get_current_page()
     _,handle=await context.get_element_by_index(index)
-    await handle.scroll_into_view_if_needed()
-    await handle.fill(text)
     await page.wait_for_load_state('load')
+    await handle.scroll_into_view_if_needed()
+    await handle.type(text,delay=80)
     return f'Typed {text} in element {index}'
 
 @Tool('Wait Tool',params=Wait)
@@ -68,7 +68,7 @@ async def goto_tool(url:str,context:Context=None):
     '''To navigate directly to a specified URL.'''
     page=await context.get_current_page()
     await page.goto(url)
-    await page.wait_for_load_state('load')
+    await page.wait_for_timeout(5*1000)
     return f'Navigated to {url}'
 
 @Tool('Back Tool',params=Back)

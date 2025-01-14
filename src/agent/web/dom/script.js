@@ -113,7 +113,9 @@ const SAFE_ATTRIBUTES = [
                         tag: currentNode.tagName.toLowerCase(),
                         role: currentNode.getAttribute('role'),
                         name: currentNode.getAttribute('name')||currentNode.getAttribute('aria-label')||currentNode.getAttribute('aria-labelledby')||currentNode.getAttribute('aria-describedby'),
-                        attributes: Array.from(currentNode.attributes).filter(attr => SAFE_ATTRIBUTES.includes(attr.name)).map(attr => ({ name: attr.name, value: attr.value })),
+                        attributes: Object.fromEntries(
+                            Array.from(currentNode.attributes).filter(attr => SAFE_ATTRIBUTES.includes(attr.name)).map(attr => [attr.name, attr.value])
+                        ),
                         box: currentNode.getBoundingClientRect(),
                         handle: currentNode
                     });
