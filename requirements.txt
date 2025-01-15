@@ -7,3 +7,4 @@ python-dotenv
 httpx
 nest_asyncio
 MainContentExtractor
+ratelimit

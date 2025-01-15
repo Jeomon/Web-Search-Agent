@@ -1,8 +1,9 @@
 from src.message import AIMessage,BaseMessage,SystemMessage,ImageMessage,HumanMessage,ToolMessage
 from tenacity import retry,stop_after_attempt,retry_if_exception_type
 from requests import RequestException,HTTPError,ConnectionError
+from ratelimit import limits,sleep_and_retry
 from httpx import Client,AsyncClient
-from src.inference import BaseInference
+from src.inference import BaseInference,Token
 from pydantic import BaseModel
 from typing import Generator
 from typing import Literal
@@ -12,8 +13,10 @@ import requests
 import base64
 
 class ChatGroq(BaseInference):
+    @sleep_and_retry
+    @limits(calls=15,period=60)
     @retry(stop=stop_after_attempt(3),retry=retry_if_exception_type(RequestException))
-    def invoke(self, messages: list[BaseMessage],json:bool=False,model:BaseModel=None)->AIMessage:
+    def invoke(self, messages: list[BaseMessage],json:bool=False,model:BaseModel=None)->AIMessage|ToolMessage|BaseModel:
         self.headers.update({'Authorization': f'Bearer {self.api_key}'})
         headers=self.headers
         temperature=self.temperature
@@ -71,17 +74,19 @@ class ChatGroq(BaseInference):
             # print(json_object)
             if json_object.get('error'):
                 raise HTTPError(json_object['error']['message'])
+            message=json_object['choices'][0]['message']
+            usage_metadata=json_object['usage']
+            input,output,total=usage_metadata['prompt_tokens'],usage_metadata['completion_tokens'],usage_metadata['total_tokens']
+            self.tokens=Token(input=input,output=output,total=total)
+            if model:
+                return model.model_validate_json(message.get('content'))
+            if json:
+                return AIMessage(loads(message.get('content')))
+            if message.get('content'):
+                return AIMessage(message.get('content'))
             else:
-                message=json_object['choices'][0]['message']
-                if model:
-                    return model.model_validate_json(message.get('content'))
-                if json:
-                    return AIMessage(loads(message.get('content')))
-                if message.get('content'):
-                    return AIMessage(message.get('content'))
-                else:
-                    tool_call=message.get('tool_calls')[0]['function']
-                    return ToolMessage(id=str(uuid4()),name=tool_call['name'],args=tool_call['arguments']) 
+                tool_call=message.get('tool_calls')[0]['function']
+                return ToolMessage(id=str(uuid4()),name=tool_call['name'],args=tool_call['arguments']) 
         except HTTPError as err:
             err_object=loads(err.response.text)
             print(f'\nError: {err_object["error"]["message"]}\nStatus Code: {err.response.status_code}')
@@ -89,77 +94,89 @@ class ChatGroq(BaseInference):
             print(err)
         exit()
 
+    @sleep_and_retry
+    @limits(calls=15,period=60)
     @retry(stop=stop_after_attempt(3),retry=retry_if_exception_type(RequestException))
-    async def async_invoke(self, messages: list[BaseMessage],json=False) -> AIMessage:
+    async def async_invoke(self, messages: list[BaseMessage],json=False,model:BaseModel=None) -> AIMessage|ToolMessage|BaseModel:
+        self.headers.update({'Authorization': f'Bearer {self.api_key}'})
         headers=self.headers
         temperature=self.temperature
-        url=self.base_url or f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
-        params={'key':self.api_key}
+        url=self.base_url or "https://api.groq.com/openai/v1/chat/completions"
         contents=[]
-        system_instruction=None
         for message in messages:
-            if isinstance(message,HumanMessage):
-                contents.append({
-                    'role':'user',
-                    'parts':[{
-                        'text':message.content
-                    }]
-                })
-            elif isinstance(message,AIMessage):
-                contents.append({
-                    'role':'model',
-                    'parts':[{
-                        'text':message.content
-                    }]
-                })
-            elif isinstance(message,ImageMessage):
+            if isinstance(message,SystemMessage):
+                if model:
+                    message.content=self.structured(message,model) 
+                contents.append(message.to_dict())
+            if isinstance(message,(HumanMessage,AIMessage)):
+                contents.append(message.to_dict())
+            if isinstance(message,ImageMessage):
                 text,image=message.content
-                contents.append({
-                        'role':'user',
-                        'parts':[{
-                            'text':text
-                    },
+                contents.append([
                     {
-                        'inline_data':{
-                            'mime_type':'image/jpeg',
-                            'data': image
-                        }
-                    }]
-                })
-            else:
-                system_instruction={
-                    'parts':{
-                        'text': message.content
+                        'role':'user',
+                        'content':[
+                            {
+                                'type':'text',
+                                'text':text
+                            },
+                            {
+                                'type':'image_url',
+                                'image_url':{
+                                    'url':image
+                                }
+                            }
+                        ]
                     }
-                }
+                ])
 
         payload={
-            'contents': contents,
-            'generationConfig':{
-                'temperature': temperature,
-                'responseMimeType':'application/json' if json else 'text/plain'
-            }
+            "model": self.model,
+            "messages": contents,
+            "temperature": temperature,
+            "response_format": {
+                "type": "json_object" if json or model else "text"
+            },
+            "stream":False,
         }
-        if system_instruction:
-            payload['system_instruction']=system_instruction
+        if self.tools:
+            payload["tools"]=[{
+                'type':'function',
+                'function':{
+                    'name':tool.name,
+                    'description':tool.description,
+                    'parameters':tool.schema
+                }
+            } for tool in self.tools]
         try:
             async with AsyncClient() as client:
-                response=await client.post(url=url,headers=headers,json=payload,params=params,timeout=None)
-            json_obj=response.json()
-            # print(json_obj)
-            if json_obj.get('error'):
-                raise Exception(json_obj['error']['message'])
+                response=await client.post(url=url,json=payload,headers=headers)
+            json_object=response.json()
+            # print(json_object)
+            if json_object.get('error'):
+                raise HTTPError(json_object['error']['message'])
+            message=json_object['choices'][0]['message']
+            usage_metadata=json_object['usage']
+            input,output,total=usage_metadata['prompt_tokens'],usage_metadata['completion_tokens'],usage_metadata['total_tokens']
+            self.tokens=Token(input=input,output=output,total=total)
+            if model:
+                return model.model_validate_json(message.get('content'))
             if json:
-                content=loads(json_obj['candidates'][0]['content']['parts'][0]['text'])
+                return AIMessage(loads(message.get('content')))
+            if message.get('content'):
+                return AIMessage(message.get('content'))
             else:
-                content=json_obj['candidates'][0]['content']['parts'][0]['text']
-            return AIMessage(content)
+                tool_call=message.get('tool_calls')[0]['function']
+                return ToolMessage(id=str(uuid4()),name=tool_call['name'],args=tool_call['arguments']) 
         except HTTPError as err:
-            print(f'Error: {err.response.text}, Status Code: {err.response.status_code}')
+            err_object=loads(err.response.text)
+            print(f'\nError: {err_object["error"]["message"]}\nStatus Code: {err.response.status_code}')
         except ConnectionError as err:
             print(err)
         exit()
     
+    @sleep_and_retry
+    @limits(calls=15,period=60)
     @retry(stop=stop_after_attempt(3),retry=retry_if_exception_type(RequestException))
     def stream(self, messages: list[BaseMessage],json=False)->Generator[str,None,None]:
         self.headers.update({'Authorization': f'Bearer {self.api_key}'})

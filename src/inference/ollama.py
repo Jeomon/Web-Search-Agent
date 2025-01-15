@@ -1,13 +1,16 @@
 from tenacity import retry,stop_after_attempt,retry_if_exception_type
 from requests import post,get,RequestException,HTTPError
 from src.message import AIMessage,BaseMessage,ToolMessage
-from src.inference import BaseInference
+from ratelimit import limits,sleep_and_retry
+from src.inference import BaseInference,Token
 from pydantic import BaseModel
 from typing import Generator
 from json import loads
 from uuid import uuid4
 
 class ChatOllama(BaseInference):
+    @sleep_and_retry
+    @limits(calls=15,period=60)
     @retry(stop=stop_after_attempt(3),retry=retry_if_exception_type(RequestException))
     def invoke(self,messages: list[BaseMessage],json=False,model:BaseModel=None)->AIMessage:
         headers=self.headers
@@ -38,7 +41,9 @@ class ChatOllama(BaseInference):
             response=post(url=url,json=payload,headers=headers)
             response.raise_for_status()
             json_object=response.json()
-            message=json_object['choices'][0]['message']
+            message=json_object['message']
+            input,output,total=json_object['prompt_eval_count'],json_object['eval_count'],json_object['prompt_eval_count']+json_object['eval_count']
+            self.tokens=Token(input=input,output=output,total=total)
             if model:
                 return model.model_validate_json(message.get('content'))
             if json:
@@ -51,6 +56,9 @@ class ChatOllama(BaseInference):
         except HTTPError as err:
             print(f'Error: {err.response.text}, Status Code: {err.response.status_code}')
     
+    @sleep_and_retry
+    @limits(calls=15,period=60)
+    @retry(stop=stop_after_attempt(3),retry=retry_if_exception_type(RequestException))
     def stream(self,messages: list[BaseMessage],json=False)->Generator[str,None,None]:
         headers=self.headers
         temperature=self.temperature
@@ -61,9 +69,10 @@ class ChatOllama(BaseInference):
             "options":{
                 "temperature": temperature,
             },
-            "format":'json' if json else '',
             "stream":True
         }
+        if json:
+            payload['format']='json'
         try:
             response=post(url=url,json=payload,headers=headers,stream=True)
             response.raise_for_status()
@@ -84,7 +93,10 @@ class ChatOllama(BaseInference):
         return [model['name'] for model in models['models']]
         
 class Ollama(BaseInference):
-    def invoke(self, query:str,json=False)->AIMessage:
+    @sleep_and_retry
+    @limits(calls=15,period=60)
+    @retry(stop=stop_after_attempt(3),retry=retry_if_exception_type(RequestException))
+    def invoke(self, query:str,json=False,model:BaseModel=None)->AIMessage:
         headers=self.headers
         temperature=self.temperature
         url=self.base_url or "http://localhost:11434/api/generate"
@@ -97,14 +109,27 @@ class Ollama(BaseInference):
             "format":'json' if json else '',
             "stream":False
         }
+        if json:
+            payload['format']='json'
+        if model:
+            payload['format']=model.model_json_schema()
         try:
             response=post(url=url,json=payload,headers=headers)
             response.raise_for_status()
-            json_obj=response.json()
-            return AIMessage(json_obj['response'])
+            json_object=response.json()
+            input,output,total=json_object['prompt_eval_count'],json_object['eval_count'],json_object['prompt_eval_count']+json_object['eval_count']
+            self.tokens=Token(input=input,output=output,total=total)
+            if model:
+                return model.model_validate_json(json_object.get('response'))
+            if json:
+                return AIMessage(loads(json_object.get('response')))
+            return AIMessage(json_object.get('response'))
         except HTTPError as err:
             print(f'Error: {err.response.text}, Status Code: {err.response.status_code}')
 
+    @sleep_and_retry
+    @limits(calls=15,period=60)
+    @retry(stop=stop_after_attempt(3),retry=retry_if_exception_type(RequestException))
     def stream(self,query:str,json=False)->Generator[str,None,None]:
         headers=self.headers
         temperature=self.temperature

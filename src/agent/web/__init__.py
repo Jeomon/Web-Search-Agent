@@ -12,16 +12,35 @@ from datetime import datetime
 from termcolor import colored
 from getpass import getuser
 from typing import Literal
+from src.tool import Tool
 from pathlib import Path
 from os import getcwd
 import nest_asyncio
 import asyncio
 import json
 
-tools=[menu_tool,click_tool,goto_tool,type_tool,scroll_tool,wait_tool,back_tool,key_tool,download_tool,tab_tool,upload_tool]
+main_tools=[
+    menu_tool,click_tool,
+    goto_tool,type_tool,scroll_tool,
+    wait_tool,back_tool,key_tool,
+    download_tool,tab_tool,upload_tool
+]
 
 class WebAgent(BaseAgent):
-    def __init__(self,browser:Literal['chrome','firefox','edge']='edge',instructions:list=[],llm:BaseInference=None,max_iteration:int=10,use_vision:bool=False,headless:bool=True,verbose:bool=False) -> None:
+    def __init__(self,browser:Literal['chrome','firefox','edge']='edge',additional_tools:list[Tool]=[],instructions:list=[],llm:BaseInference=None,max_iteration:int=10,use_vision:bool=False,headless:bool=True,verbose:bool=False,token_usage:bool=False) -> None:
+        """
+        Initialize a WebAgent instance.
+        Args:
+            browser (Literal['chrome', 'firefox', 'edge']): The browser to use for web automation. Defaults to 'edge'.
+            additional_tools (list[Tool]): A list of additional tools to be used by the agent. Defaults to an empty list.
+            instructions (list): A list of instructions for the agent to follow. Defaults to an empty list.
+            llm (BaseInference): The language model inference engine used by the agent. Defaults to None.
+            max_iteration (int): The maximum number of iterations the agent should perform. Defaults to 10.
+            use_vision (bool): Whether to use vision capabilities for web interaction. Defaults to False.
+            headless (bool): Whether to run the browser in headless mode. Defaults to True.
+            verbose (bool): Whether to enable verbose to show agent's flow. Defaults to False.
+            token_usage (bool): Whether to track token usage. Defaults to False.
+        """
         self.name='Web Agent'
         self.description='The web agent is designed to automate the process of gathering information from the internet, such as to navigate websites, perform searches, and retrieve data.'
         self.system_prompt=read_markdown_file('./src/agent/web/prompt/system.md')
@@ -31,8 +50,9 @@ class WebAgent(BaseAgent):
         self.instructions=self.get_instructions(instructions)
         self.context=Context(self.browser,ContextConfig())
         self.max_iteration=max_iteration
-        self.registry=Registry(tools)
+        self.registry=Registry(main_tools+additional_tools)
         self.use_vision=use_vision
+        self.token_usage=token_usage
         self.verbose=verbose
         self.iteration=0
         self.llm=llm
@@ -42,6 +62,7 @@ class WebAgent(BaseAgent):
         return '\n'.join([f'{i+1}. {instruction}' for (i,instruction) in enumerate(instructions)])
 
     async def reason(self,state:AgentState):
+        "Call LLM to make decision"
         ai_message=await self.llm.async_invoke(state.get('messages'))
         # print(ai_message.content)
         agent_data=extract_agent_data(ai_message.content)
@@ -52,6 +73,7 @@ class WebAgent(BaseAgent):
         return {**state,'agent_data': agent_data,'messages':[ai_message],'route':route}
 
     async def action(self,state:AgentState):
+        "Execute the provided action"
         agent_data=state.get('agent_data')
         thought=agent_data.get('Thought')
         action_name=agent_data.get('Action Name')
@@ -68,11 +90,12 @@ class WebAgent(BaseAgent):
         last_message=state['messages'][-1] #ImageMessage/HumanMessage
         if isinstance(last_message,ImageMessage):
             state['messages'][-1]=HumanMessage(f'<Observation>{state.get('prev_observation')}</Observation>')
+        if self.verbose and self.token_usage:
+            print(f'Input Tokens: {self.llm.tokens.input} Output Tokens: {self.llm.tokens.output} Total Tokens: {self.llm.tokens.total}')
         # Get the current browser state
         browser_state=await self.context.get_state(use_vision=self.use_vision)
         image_obj=browser_state.screenshot
         # print('Tabs',browser_state.tabs_to_string())
-        
         # Redefining the AIMessage and adding the new observation
         ai_prompt=self.ai_prompt.format(thought=thought,action_name=action_name,action_input=json.dumps(action_input,indent=2),route=route)
         user_prompt=self.human_prompt.format(observation=action_result.content,current_url=browser_state.url,tabs=browser_state.tabs_to_string(),interactive_elements=browser_state.dom_state.elements_to_string())
@@ -80,6 +103,7 @@ class WebAgent(BaseAgent):
         return {**state,'agent_data':agent_data,'messages':messages,'prev_observation':action_result.content}
 
     def final(self,state:AgentState):
+        "Give the final answer"
         agent_data=state.get('agent_data')
         final_answer=agent_data.get('Final Answer')
         if self.verbose:
@@ -89,6 +113,7 @@ class WebAgent(BaseAgent):
         return state.get('route').lower()
 
     def create_graph(self):
+        "Create the graph"
         graph=StateGraph(AgentState)
         graph.add_node('reason',self.reason)
         graph.add_node('action',self.action)
@@ -118,6 +143,13 @@ class WebAgent(BaseAgent):
         return response.get('output')
         
     def invoke(self, input: str)->str:
+        """
+        Invoke the agent to perform a task.
+        Args:
+            input (str): The input task
+        Returns:
+            str: The final answer
+        """
         try:
             # If there's no running event loop, use asyncio.run
             return asyncio.run(self.async_invoke(input))
