@@ -47,7 +47,7 @@ class WebAgent(BaseAgent):
         self.human_prompt=read_markdown_file('./src/agent/web/prompt/human.md')
         self.browser=Browser(BrowserConfig(browser=browser,headless=headless,user_data_dir=Path(getcwd()).joinpath(f'./user_data/{browser}/{getuser()}').as_posix()))
         self.ai_prompt=read_markdown_file('./src/agent/web/prompt/ai.md')
-        self.instructions=self.get_instructions(instructions)
+        self.instructions=self.format_instructions(instructions)
         self.context=Context(self.browser,ContextConfig())
         self.max_iteration=max_iteration
         self.registry=Registry(main_tools+additional_tools)
@@ -58,7 +58,7 @@ class WebAgent(BaseAgent):
         self.llm=llm
         self.graph=self.create_graph()
 
-    def get_instructions(self,instructions):
+    def format_instructions(self,instructions):
         return '\n'.join([f'{i+1}. {instruction}' for (i,instruction) in enumerate(instructions)])
 
     async def reason(self,state:AgentState):
@@ -162,6 +162,7 @@ class WebAgent(BaseAgent):
         pass
 
     async def close(self):
+        '''Close the browser and context followed by clean up'''
         try:
             await self.context.close_session()
             await self.browser.close_browser()

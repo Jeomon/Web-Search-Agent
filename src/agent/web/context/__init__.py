@@ -134,12 +134,12 @@ class Context:
         element,handle=selector_map.get(index)
         return element,handle
 
-    async def locate_element(self,element:DOMElementNode)->ElementHandle:
-        page=await self.get_current_page()
-        element_handle=await page.get_by_role(role=element.role,name=element.name).first.element_handle()
-        if element_handle is None:
-            raise Exception('Element not found')
-        return element_handle
+    # async def locate_element(self,element:DOMElementNode)->ElementHandle:
+    #     page=await self.get_current_page()
+    #     element_handle=await page.get_by_role(role=element.role,name=element.name).first.element_handle()
+    #     if element_handle is None:
+    #         raise Exception('Element not found')
+    #     return element_handle
     
     async def get_tabs(self)->list[Tab]:
         session=await self.get_session()

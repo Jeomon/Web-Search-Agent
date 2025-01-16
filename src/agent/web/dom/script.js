@@ -57,6 +57,7 @@ const SAFE_ATTRIBUTES = [
 
         function isVisible(element) {
             let type = element.getAttribute('type');
+            // The radio and checkbox elements are all ready invisible so we can skip them
             if(['radio', 'checkbox'].includes(type)) return true;
             const style = window.getComputedStyle(element);
             const hasBoundingBox = element.offsetWidth > 0 && element.offsetHeight > 0;
@@ -76,6 +77,7 @@ const SAFE_ATTRIBUTES = [
 
         function isElementCovered(element) {
             let type = element.getAttribute('type');
+            // The radio and checkbox elements are all ready covered so we can skip them
             if(['radio', 'checkbox'].includes(type)) return false;
             // Get the bounding box of the element to find its center point
             const boundingBox = element.getBoundingClientRect();

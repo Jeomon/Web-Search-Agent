@@ -8,7 +8,6 @@ def main():
     # Load environment variables
     load_dotenv()
     api_key = os.getenv('GOOGLE_API_KEY')
-    
     if not api_key:
         raise ValueError("GOOGLE_API_KEY is not set in the .env file.")
 
