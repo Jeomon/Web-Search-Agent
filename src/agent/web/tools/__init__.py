@@ -1,4 +1,4 @@
-from src.agent.web.tools.views import Click,Type,Wait,Scroll,GoTo,Back,Key,Download,ExtractContent,Tab,Upload,Menu
+from src.agent.web.tools.views import Click,Type,Wait,Scroll,GoTo,Back,Key,Download,ExtractContent,Tab,Upload,Menu,Form
 from main_content_extractor import MainContentExtractor
 from src.agent.web.context import Context
 from typing import Literal
@@ -175,3 +175,18 @@ async def menu_tool(index:int,labels:list[str],context:Context=None):
     label=labels if len(labels)>1 else labels[0]
     await handle.select_option(label=label)
     return f'Opened context menu of element {index} and selected {label}'
+
+@Tool('Form Tool',params=Form)
+async def form_tool(tool_names:list[Literal['Click Tool','Type Tool','Upload Tool','Menu Tool']],tool_inputs:list[dict],context:Context=None):
+    '''To fill input fields of application form'''
+    page=await context.get_current_page()
+    for tool_name,tool_input in zip(tool_names,tool_inputs):
+        if tool_name=='Click Tool':
+            await click_tool.async_invoke(index=tool_input['index'],context=context)
+        elif tool_name=='Type Tool':
+            await type_tool.async_invoke(index=tool_input['index'],text=tool_input.get('text'),context=context)
+        elif tool_name=='Upload Tool':
+            await upload_tool.async_invoke(index=tool_input['index'],filenames=tool_input.get('filenames'),context=context)
+        elif tool_name=='Menu Tool':
+            await menu_tool.async_invoke(index=tool_input['index'],labels=tool_input.get('labels'),context=context)
+    return f'Filled form with inputs {tool_inputs}'

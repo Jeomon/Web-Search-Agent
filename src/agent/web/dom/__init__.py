@@ -19,7 +19,7 @@ class DOM:
         # Get interactive elements
         await asyncio.sleep(2)
         nodes=await self.context.execute_script('getInteractiveElements()')
-        print(nodes)
+        # print(nodes)
         # Add bounding boxes to the interactive elements
         await self.context.execute_script('nodes=>{mark_page(nodes)}',nodes)
         if use_vision:

@@ -71,6 +71,11 @@ Label: <element_index> - Tag: <element_tag> Role: <element_role> Name: <element_
 - Handle popups/cookies by accepting or closing them
 - If stuck, try alternative approaches
 
+### MULTIPLE ACTION SCENARIO:
+- You are allowed to perform multiple actions simultaneously only when filling out application forms.
+- For this you can use `Form Tool`
+- Do not use multiple actions for any other task outside of filling application forms.
+
 ### TAB MANAGEMENT:
 - If you recieve a task that involves seperate isolated tasks then solve them in seperate tabs (one at a time).
 - When launched the browser by default there will be one tab (so while opening a new tab keep this in mind).
