@@ -123,7 +123,11 @@ const SAFE_ATTRIBUTES = [
                     });
                 }
             }
-            if (!isClickable(currentNode)) {
+            const shadowRoot=currentNode.shadowRoot
+            if(shadowRoot){
+                shadowRoot.childNodes.forEach(child => traverseDom(child));
+            }
+            else if(!isClickable(currentNode)) {
                 currentNode.childNodes.forEach(child => traverseDom(child)); // Go deeper if the current node is not interactive
             }
         }
