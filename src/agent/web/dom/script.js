@@ -51,10 +51,22 @@ const SAFE_ATTRIBUTES = [
         return color;
     }
 
-    // Extract visible interactive elements
-    function getInteractiveElements(node=document.body) {
-        const interactiveElements = [];  
+    // Function to wait for the page to be fully loaded
+    function waitForPageToLoad() {
+        return new Promise((resolve, reject) => {
+            if (document.readyState === 'complete') {
+                resolve();
+            } else {
+                window.addEventListener('load', resolve); // Resolves when the load event fires
+            }
+        });
+    }
 
+    // Extract visible interactive elements
+    async function getInteractiveElements(node=document.body) {
+
+        const interactiveElements = [];  
+        await waitForPageToLoad()
         function isVisible(element) {
             let type = element.getAttribute('type');
             // The radio and checkbox elements are all ready invisible so we can skip them
@@ -127,7 +139,16 @@ const SAFE_ATTRIBUTES = [
             if(shadowRoot){
                 shadowRoot.childNodes.forEach(child => traverseDom(child));
             }
-            else if(!isClickable(currentNode)) {
+            if(tagName === 'iframe') {
+                try{
+                    const iframeDocument = currentNode.contentDocument || currentNode.contentWindow.document;
+                    traverseDom(iframeDocument.body);
+                }
+                catch (e) {
+                    console.log('The iframe is not accessable');
+                }
+            }
+            if(!isClickable(currentNode)) {
                 currentNode.childNodes.forEach(child => traverseDom(child)); // Go deeper if the current node is not interactive
             }
         }

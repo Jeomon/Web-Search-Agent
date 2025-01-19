@@ -1,4 +1,4 @@
-from playwright.async_api import Page,Browser as PlaywrightBrowser,ElementHandle,BrowserContext as PlaywrightBrowserContext
+from playwright.async_api import Page,Browser as PlaywrightBrowser, Frame,ElementHandle,BrowserContext as PlaywrightBrowserContext
 from src.agent.web.context.views import BrowserSession,BrowserState,Tab
 from src.agent.web.browser.config import BROWSER_ARGS,SECURITY_ARGS
 from src.agent.web.context.config import ContextConfig
@@ -115,17 +115,6 @@ class Context:
     async def get_selector_map(self)->dict[int,DOMElementNode]:
         session=await self.get_session()
         return session.state.dom_state.selector_map
-    
-    # async def get_dom_element_by_index(self,index:int)->DOMElementNode:
-    #     selector_map=await self.get_selector_map()
-    #     dom_element=selector_map.get(index)
-    #     return dom_element
-
-    # async def get_element_by_index(self,index:int)->ElementHandle:
-    #     element=await self.get_dom_element_by_index(index)
-    #     element_handle=await self.locate_element(element)
-    #     print(element)
-    #     return element_handle
         
     async def get_element_by_index(self,index:int)->tuple[DOMElementNode,ElementHandle]:
         selector_map=await self.get_selector_map()
@@ -133,13 +122,6 @@ class Context:
             raise Exception('Index not found')
         element,handle=selector_map.get(index)
         return element,handle
-
-    # async def locate_element(self,element:DOMElementNode)->ElementHandle:
-    #     page=await self.get_current_page()
-    #     element_handle=await page.get_by_role(role=element.role,name=element.name).first.element_handle()
-    #     if element_handle is None:
-    #         raise Exception('Element not found')
-    #     return element_handle
     
     async def get_tabs(self)->list[Tab]:
         session=await self.get_session()
@@ -165,6 +147,14 @@ class Context:
         await page.wait_for_timeout(2*1000)
         screenshot=await page.screenshot(path=path,full_page=full_page,animations='disabled',type='jpeg')
         return b64encode(screenshot).decode('utf-8')
+    
+    async def get_parent_iframe(self,node:ElementHandle)->Frame|None:
+        parent_iframe=await self.execute_script("[node]=>node.closest('iframe')",[node],enable_handle=True)
+        if parent_iframe:
+            frame_handle=parent_iframe.as_element()
+            return await frame_handle.content_frame()
+        return None
+    
     
     
     

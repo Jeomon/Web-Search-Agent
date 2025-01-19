@@ -68,7 +68,6 @@ async def goto_tool(url:str,context:Context=None):
     '''To navigate directly to a specified URL.'''
     page=await context.get_current_page()
     await page.goto(url)
-    await page.wait_for_timeout(5*1000)
     return f'Navigated to {url}'
 
 @Tool('Back Tool',params=Back)

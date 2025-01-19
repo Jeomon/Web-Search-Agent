@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 class DOM:
     def __init__(self, context:'Context'):
         self.context=context
-    
+
     async def get_state(self,use_vision:bool=False)->tuple[str|None,DOMState]:
         '''Get the state of the webpage.'''
         with open('./src/agent/web/dom/script.js') as f:
@@ -19,6 +19,7 @@ class DOM:
         # Get interactive elements
         await asyncio.sleep(2)
         nodes=await self.context.execute_script('getInteractiveElements()')
+        print(nodes)
         # Add bounding boxes to the interactive elements
         await self.context.execute_script('nodes=>{mark_page(nodes)}',nodes)
         if use_vision:
@@ -33,7 +34,6 @@ class DOM:
 
     async def build_selector_map(self, nodes: list[dict]) -> dict[int, tuple[DOMElementNode, ElementHandle]]:
         """Build a map from element index to node."""
-        
         async def process_node(index: int, node: dict):
             handle = await self.context.execute_script(
                 'index => getElementByIndex(index)', 
