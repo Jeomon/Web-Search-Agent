@@ -69,7 +69,7 @@ class ChatGroq(BaseInference):
             } for tool in self.tools]
         try:
             with Client() as client:
-                response=client.post(url=url,json=payload,headers=headers)
+                response=client.post(url=url,json=payload,headers=headers,timeout=None)
             json_object=response.json()
             # print(json_object)
             if json_object.get('error'):
@@ -150,7 +150,7 @@ class ChatGroq(BaseInference):
             } for tool in self.tools]
         try:
             async with AsyncClient() as client:
-                response=await client.post(url=url,json=payload,headers=headers)
+                response=await client.post(url=url,json=payload,headers=headers,timeout=None)
             json_object=response.json()
             # print(json_object)
             if json_object.get('error'):

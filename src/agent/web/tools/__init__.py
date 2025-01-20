@@ -179,7 +179,6 @@ async def menu_tool(index:int,labels:list[str],context:Context=None):
 @Tool('Form Tool',params=Form)
 async def form_tool(tool_names:list[Literal['Click Tool','Type Tool','Upload Tool','Menu Tool']],tool_inputs:list[dict],context:Context=None):
     '''To fill input fields of application form'''
-    page=await context.get_current_page()
     for tool_name,tool_input in zip(tool_names,tool_inputs):
         if tool_name=='Click Tool':
             await click_tool.async_invoke(index=tool_input['index'],context=context)
