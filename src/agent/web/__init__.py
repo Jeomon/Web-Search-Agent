@@ -84,8 +84,9 @@ class WebAgent(BaseAgent):
             print(colored(f'Action Name: {action_name}',color='blue',attrs=['bold']))
             print(colored(f'Action Input: {action_input}',color='blue',attrs=['bold']))
         action_result=await self.registry.execute(action_name,action_input,self.context)
+        observation=action_result.content
         if self.verbose:
-            print(colored(f'Observation: {action_result.content}',color='green',attrs=['bold']))
+            print(colored(f'Observation: {observation}',color='green',attrs=['bold']))
         state['messages'].pop() # Remove the last message for modification
         last_message=state['messages'][-1] #ImageMessage/HumanMessage
         if isinstance(last_message,ImageMessage):
@@ -98,9 +99,9 @@ class WebAgent(BaseAgent):
         # print('Tabs',browser_state.tabs_to_string())
         # Redefining the AIMessage and adding the new observation
         ai_prompt=self.ai_prompt.format(thought=thought,action_name=action_name,action_input=json.dumps(action_input,indent=2),route=route)
-        user_prompt=self.human_prompt.format(observation=action_result.content,current_url=browser_state.url,tabs=browser_state.tabs_to_string(),interactive_elements=browser_state.dom_state.elements_to_string())
+        user_prompt=self.human_prompt.format(observation=observation,current_url=browser_state.url,tabs=browser_state.tabs_to_string(),interactive_elements=browser_state.dom_state.elements_to_string())
         messages=[AIMessage(ai_prompt),ImageMessage(text=user_prompt,image_obj=image_obj) if self.use_vision else HumanMessage(user_prompt)]
-        return {**state,'agent_data':agent_data,'messages':messages,'prev_observation':action_result.content}
+        return {**state,'agent_data':agent_data,'messages':messages,'prev_observation':observation}
 
     def final(self,state:AgentState):
         "Give the final answer"

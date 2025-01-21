@@ -146,7 +146,7 @@ class Context:
             path=None
         await page.wait_for_timeout(2*1000)
         screenshot=await page.screenshot(path=path,full_page=full_page,animations='disabled',type='jpeg')
-        return b64encode(screenshot).decode('utf-8')
+        return screenshot
     
     async def get_parent_iframe(self,node:ElementHandle)->Frame|None:
         parent_iframe=await self.execute_script("[node]=>node.closest('iframe')",[node],enable_handle=True)
