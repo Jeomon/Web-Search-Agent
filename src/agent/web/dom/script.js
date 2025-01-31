@@ -1,5 +1,5 @@
 const INTERACTIVE_TAGS = [
-    'a', 'button', 'details', 'embed', 'input','option',
+    'a', 'button', 'details', 'embed', 'input','option','canvas',
     'menu', 'menuitem', 'object', 'select', 'textarea', 'summary'
 ]
 

@@ -88,7 +88,7 @@ class WebAgent(BaseAgent):
         if self.verbose:
             print(colored(f'Observation: {observation}',color='green',attrs=['bold']))
         state['messages'].pop() # Remove the last message for modification
-        last_message=state['messages'][-1] #ImageMessage/HumanMessage
+        last_message=state['messages'][-1] # ImageMessage/HumanMessage
         if isinstance(last_message,ImageMessage):
             state['messages'][-1]=HumanMessage(f'<Observation>{state.get('prev_observation')}</Observation>')
         if self.verbose and self.token_usage:
@@ -111,6 +111,7 @@ class WebAgent(BaseAgent):
             print(colored(f'Final Answer: {final_answer}',color='cyan',attrs=['bold']))
         return {**state,'output':final_answer}
     def controller(self,state:AgentState):
+        "Route to the next node"
         return state.get('route').lower()
 
     def create_graph(self):
