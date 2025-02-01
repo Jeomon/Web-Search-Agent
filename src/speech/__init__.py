@@ -50,7 +50,6 @@ class Speech:
         temp_file = NamedTemporaryFile(delete=False, suffix='.wav')
         self.tempfile_path = temp_file.name
         temp_file.close()
-        
         try:
             with wave.open(self.tempfile_path, 'wb') as wf:
                 wf.setnchannels(self.channels)

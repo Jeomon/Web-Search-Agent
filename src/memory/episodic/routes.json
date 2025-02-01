@@ -1,0 +1,18 @@
+[
+    {
+      "name": "ADD",
+      "description": "Add the  converstion to the memory because relevant memories is empty."
+    },
+    {
+      "name": "UPDATE",
+      "description": "Update the relevant memories with information from the conversation if there is new information or approach that can be added to the existing relevant memories."
+    },
+    {
+      "name": "IDLE",
+      "description": "Do nothing as the conversation is redundant when compared to the relevant memories in the knowledge base."
+    },
+    {
+      "name": "REPLACE",
+      "description": "Replace the relevant memories because it is less valuable, and the conversation provides more significant insights or conversation is a combine of multiple relevant memories."
+    }
+]
