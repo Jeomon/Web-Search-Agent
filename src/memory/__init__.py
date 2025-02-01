@@ -25,7 +25,7 @@ class BaseMemory(ABC):
         pass
     
     def __initialize_memory(self):
-        if not os.path.exists(f'./memory/{self.knowledge_base}'):
+        if not os.path.exists(f'./memory_data/{self.knowledge_base}'):
             os.makedirs('./memory_data',exist_ok=True)
             with open(f'./memory_data/{self.knowledge_base}','w') as f:
                 f.write(json.dumps(self.memories,indent=2))

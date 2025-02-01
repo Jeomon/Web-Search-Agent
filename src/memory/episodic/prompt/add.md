@@ -13,8 +13,8 @@ Your output must strictly conform to the following JSON schema:
         string, ...
     ], // 2-4 keywords to help identify similar future conversations.
     "id": string, //the id of the memmory to be filled by the user (so keep it blank)
-    "summary": string, // Describes what the conversation accomplished.
-    "what worked": string, // Highlights the most effective strategy used.
-    "what to avoid": string // Describes the important pitfalls to avoid.
+    "summary": string, // Describes what the conversation accomplished in detail.
+    "what worked": string, // Highlights the most effective strategy used in detail.
+    "what to avoid": string // Describes the important pitfalls to avoid in detail.
 }
 ```

@@ -9,4 +9,11 @@ You are asked to retrieve revelant episodic memories to assist in the current us
 ### Memories
 {memories}
 
-Do not include any text outside of the JSON array in your response.
+## Example Response Format:
+```json
+[
+    // Revelant memories that is suiting to the task else empty.
+]
+```
+
+Responds should be the JSON array and nothing else is allowed.

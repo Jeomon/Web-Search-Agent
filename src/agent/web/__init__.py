@@ -50,9 +50,10 @@ class WebAgent(BaseAgent):
         self.name='Web Agent'
         self.description='The web agent is designed to automate the process of gathering information from the internet, such as to navigate websites, perform searches, and retrieve data.'
         self.browser=Browser(BrowserConfig(browser=browser,headless=headless,user_data_dir=Path(getcwd()).joinpath(f'./user_data/{browser}/{getuser()}').as_posix()))
+        self.observation_prompt=read_markdown_file('./src/agent/web/prompt/observation.md')
         self.system_prompt=read_markdown_file('./src/agent/web/prompt/system.md')
-        self.human_prompt=read_markdown_file('./src/agent/web/prompt/human.md')
-        self.ai_prompt=read_markdown_file('./src/agent/web/prompt/ai.md')
+        self.action_prompt=read_markdown_file('./src/agent/web/prompt/action.md')
+        self.answer_prompt=read_markdown_file('./src/agent/web/prompt/answer.md')
         self.instructions=self.format_instructions(instructions)
         self.context=Context(self.browser,ContextConfig())
         self.registry=Registry(main_tools+additional_tools)
@@ -105,18 +106,26 @@ class WebAgent(BaseAgent):
         image_obj=browser_state.screenshot
         # print('Tabs',browser_state.tabs_to_string())
         # Redefining the AIMessage and adding the new observation
-        ai_prompt=self.ai_prompt.format(thought=thought,action_name=action_name,action_input=json.dumps(action_input,indent=2),route=route)
-        user_prompt=self.human_prompt.format(observation=observation,current_url=browser_state.url,tabs=browser_state.tabs_to_string(),interactive_elements=browser_state.dom_state.elements_to_string())
-        messages=[AIMessage(ai_prompt),ImageMessage(text=user_prompt,image_obj=image_obj) if self.use_vision else HumanMessage(user_prompt)]
+        action_prompt=self.action_prompt.format(thought=thought,action_name=action_name,action_input=json.dumps(action_input,indent=2),route=route)
+        observation_prompt=self.observation_prompt.format(observation=observation,current_url=browser_state.url,tabs=browser_state.tabs_to_string(),interactive_elements=browser_state.dom_state.elements_to_string())
+        messages=[AIMessage(action_prompt),ImageMessage(text=observation_prompt,image_obj=image_obj) if self.use_vision else HumanMessage(observation_prompt)]
         return {**state,'agent_data':agent_data,'messages':messages,'prev_observation':observation}
 
     def final(self,state:AgentState):
         "Give the final answer"
+        state['messages'].pop() # Remove the last message for modification
+        last_message=state['messages'][-1] # ImageMessage/HumanMessage
+        if isinstance(last_message,(ImageMessage,HumanMessage)):
+            state['messages'][-1]=HumanMessage(f'<Observation>{state.get('prev_observation')}</Observation>')
         agent_data=state.get('agent_data')
+        thought=agent_data.get('Thought')
         final_answer=agent_data.get('Final Answer')
+        answer_prompt=self.answer_prompt.format(thought=thought,final_answer=final_answer)
+        messages=[AIMessage(answer_prompt)]
         if self.verbose:
             print(colored(f'Final Answer: {final_answer}',color='cyan',attrs=['bold']))
-        return {**state,'output':final_answer}
+        return {**state,'output':final_answer,'messages':messages}
+    
     def controller(self,state:AgentState):
         "Route to the next node"
         return state.get('route').lower()
