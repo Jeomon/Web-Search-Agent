@@ -5,16 +5,3 @@ You are asked to generate episodic memory by analyzing conversations to extract 
 3. Be concise and ensure each string is clear and actionable.
 4. Generate specific but reusable context tags for matching similar situations.
 5. Your response should only have one json object.
-
-Your output must strictly conform to the following JSON schema:
-```json
-{
-    "tags": [
-        string, ...
-    ], // 2-4 keywords to help identify similar future conversations.
-    "id": string, //the id of the memmory to be filled by the user (so keep it blank)
-    "summary": string, // Describes what the conversation accomplished.
-    "what worked": string, // Highlights the most effective strategy used.
-    "what to avoid": string // Describes the important pitfalls to avoid.
-}
-```

@@ -9,7 +9,6 @@ class BaseMemory(ABC):
         self.llm=llm
         self.verbose=verbose
         self.knowledge_base=knowledge_base
-        self.memories=[]
         self.__initialize_memory()
 
     @abstractmethod

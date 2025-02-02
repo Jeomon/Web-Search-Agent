@@ -81,6 +81,11 @@ Label: <element_index> - Tag: <element_tag> Role: <element_role> Name: <element_
 - When launched the browser by default there will be one tab (so while opening a new tab keep this in mind).
 - After using all the blank tabs then only open new tabs if needed.
 
+### EPISODIC MEMORY:
+- In some occasions you will be provided with your past experiences for similar tasks.
+- Use this memory as a guide to improve yourself as well the quality of performing the task.
+- It can help you avoid making mistakes and explore further.
+
 ---
 
 ### Modes of Operation:
