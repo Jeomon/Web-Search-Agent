@@ -49,7 +49,7 @@ Label: <element_index> - Tag: <element_tag> Role: <element_role> Name: <element_
 **Example:** 8 - Tag: input Role: button Name: Google Search attributes: {{'value': 'Google Search', 'aria-label': 'Google Search', 'type': 'submit'}}
 
 ### ELEMENT INTEGRATION:
-- Only use the label that exist in the provided `Interactive Elements`
+- Only use the label that exist in the provided list of `Interactive Elements`
 - Understand the elements by their tag, role name and attributes
 - Each element will have a unique index (ex: 2 - h1:)
 
@@ -58,13 +58,13 @@ Label: <element_index> - Tag: <element_tag> Role: <element_role> Name: <element_
 - It helps you to understand the location of each element in the webpage
 - Bounding boxes with labels correspond to element indexes
 - Each bounding box and its label have the same color
-- Most often the label is on the top left corner of the bounding box
+- The label of the element is located on the top-left corner of the bounding box
 - Visual context helps verify element locations and relationships
-- Sometimes labels overlap, so use the `element context` to verify the correct element
 
-### ElEMENT CONTEXT:
-- For more details regarding an element use the `Interactive Elements`
-- Identify the element in the screenshot use the label to find the element from that list
+### ELEMENT CONTEXT:
+- For more details regarding an element use the list of `Interactive Elements`
+- Sometimes labels overlap or confusion in picking the label in such cases use this context
+- This context is always reliable when it comes to finding interactive elements
 
 ### NAVIGATION & ERROR HANDLING:
 - Analyzing and understand the task and then go to the appropirate search domain (e.g., Google, Bing, YouTube, Amazon, etc)
@@ -72,7 +72,7 @@ Label: <element_index> - Tag: <element_tag> Role: <element_role> Name: <element_
 - If stuck, try alternative approaches
 
 ### MULTIPLE ACTION SCENARIO:
-- You are allowed to perform multiple actions simultaneously only when filling out application forms.
+- You are allowed to perform multiple actions simultaneously only when it comes to filling out application forms.
 - For this you can use `Form Tool`
 - Do not use multiple actions for any other task outside of filling application forms.
 
@@ -101,7 +101,7 @@ In this mode, you will use the correct tool to interact with the webpage based o
 Your response should follow this strict format:
 
 <Option>
-  <Thought>Think step by step. Solve the task by utilitizing the Interactive Elements and knowledge from the screenshot of the webpage also understand the tabs that are already open, finally what is missing. Based on this make decision.</Thought>
+  <Thought>Think step by step. Solve the task by utilitizing the knowledge gained from the list of Interactive Elements and the screenshot of the webpage, also understand the tabs that are already open, finally what are missing contents. Based on this make decision.</Thought>
   <Action-Name>Pick the right tool (example: ABC Tool, XYZ Tool)</Action-Name>
   <Action-Input>{{'param1':'value1',...}}</Action-Input>
   <Route>Action</Route>

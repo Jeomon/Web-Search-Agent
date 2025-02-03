@@ -8,23 +8,19 @@ from os import getcwd
 import httpx
 
 @Tool('Click Tool',params=Click)
-async def click_tool(index:int,hover:bool=False,context:Context=None):
+async def click_tool(index:int,context:Context=None):
     '''For clicking buttons, links, checkboxes, and radio buttons'''
     page=await context.get_current_page()
     element,handle=await context.get_element_by_index(index)
-    if hover:
-        await handle.scroll_into_view_if_needed()
-        await handle.hover()
-        return f'Hovered over element {index}'
-    elif element.attributes.get('type','') in ['checkbox','radio']:
+    if element.attributes.get('type','') in ['checkbox','radio']:
         await page.wait_for_load_state('load')
         await handle.check(force=True)
-        return f'Checked element {index}'
+        return f'Checked element at index {index}'
     else:
         await page.wait_for_load_state('load')
         await handle.scroll_into_view_if_needed()
         await handle.click()
-        return f'Clicked element {index}'
+        return f'Clicked element at index {index}'
 
 
 @Tool('Type Tool',params=Type)
@@ -169,7 +165,7 @@ async def upload_tool(index:int,filenames:list[str],context:Context=None):
 
 @Tool('Menu Tool',params=Menu)
 async def menu_tool(index:int,labels:list[str],context:Context=None):
-    '''To open an element having context menu or dropdown menu and select an option from it'''
+    '''To open an element having dropdown menu and select an option from it'''
     _,handle=await context.get_element_by_index(index)
     await handle.scroll_into_view_if_needed()
     label=labels if len(labels)>1 else labels[0]

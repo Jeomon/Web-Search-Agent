@@ -6,7 +6,6 @@ from src.agent.web.dom.views import DOMElementNode
 from src.agent.web.browser import Browser
 from src.agent.web.dom import DOM
 from datetime import datetime
-from base64 import b64encode
 from pathlib import Path
 from uuid import uuid4
 from os import getcwd

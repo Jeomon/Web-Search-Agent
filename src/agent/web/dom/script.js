@@ -126,7 +126,7 @@ const SAFE_ATTRIBUTES = [
                     interactiveElements.push({
                         tag: currentNode.tagName.toLowerCase(),
                         role: currentNode.getAttribute('role'),
-                        name: currentNode.getAttribute('name')||currentNode.getAttribute('aria-label')||currentNode.getAttribute('aria-labelledby')||currentNode.getAttribute('aria-describedby'),
+                        name: currentNode.getAttribute('name')||currentNode.getAttribute('aria-label')||currentNode.getAttribute('aria-labelledby')||currentNode.getAttribute('aria-describedby')||currentNode?.textContent,
                         attributes: Object.fromEntries(
                             Array.from(currentNode.attributes).filter(attr => SAFE_ATTRIBUTES.includes(attr.name)).map(attr => [attr.name, attr.value])
                         ),
@@ -167,7 +167,7 @@ const SAFE_ATTRIBUTES = [
             if (!box) return;
 
             const { left, top, width, height } = box;
-            const borderColor = getRandomColor();
+            const color = getRandomColor();
 
             // Create bounding box
             const boundingBox = document.createElement('div');
@@ -176,7 +176,7 @@ const SAFE_ATTRIBUTES = [
             boundingBox.style.top = `${top}px`;
             boundingBox.style.width = `${width}px`;
             boundingBox.style.height = `${height}px`;
-            boundingBox.style.outline = `2px dashed ${borderColor}`;
+            boundingBox.style.outline = `2px dashed ${color}`;
             boundingBox.style.pointerEvents = 'none';
             boundingBox.style.zIndex = '9999';
 
@@ -185,8 +185,8 @@ const SAFE_ATTRIBUTES = [
             label.textContent = index;
             label.style.position = 'absolute';
             label.style.top = '-19px';
-            label.style.left = '0px';
-            label.style.backgroundColor = borderColor;
+            label.style.right = '0px';
+            label.style.backgroundColor = color;
             label.style.color = 'white';
             label.style.padding = '2px 4px';
             label.style.fontSize = '12px';
