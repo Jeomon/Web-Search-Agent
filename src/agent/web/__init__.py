@@ -11,52 +11,30 @@ from src.inference import BaseInference
 from src.agent import BaseAgent
 from datetime import datetime
 from termcolor import colored
-from getpass import getuser
-from typing import Literal
 from src.tool import Tool
-from pathlib import Path
-from os import getcwd
 import nest_asyncio
 import asyncio
 import json
 
 main_tools=[
-    menu_tool,click_tool,form_tool,
+    menu_tool,click_tool,
     goto_tool,type_tool,scroll_tool,
     wait_tool,back_tool,key_tool,
     download_tool,tab_tool,upload_tool
 ]
 
 class WebAgent(BaseAgent):
-    def __init__(self,browser:Literal['chrome','firefox','edge']='edge',additional_tools:list[Tool]=[],instructions:list=[],episodic_memory:EpisodicMemory=None,llm:BaseInference=None,max_iteration:int=10,use_vision:bool=False,headless:bool=True,verbose:bool=False,token_usage:bool=False) -> None:
-        """
-        WebAgent.
-
-        Parameters:
-        browser (Literal['chrome','firefox','edge']): The browser to use for the agent. Defaults to 'edge'.
-        additional_tools (list[Tool]): A list of additional tools to use with the agent. Defaults to an empty list.
-        instructions (list): A list of instructions to execute with the agent. Defaults to an empty list.
-        memory (BaseMemory): The memory to use for the agent. Defaults to None.
-        llm (BaseInference): The language model to use for the agent. Defaults to None.
-        max_iteration (int): The maximum number of iterations to run the agent. Defaults to 10.
-        use_vision (bool): Whether to use vision based tools. Defaults to False.
-        headless (bool): Whether to run the agent in headless mode. Defaults to True.
-        verbose (bool): Whether to print verbose output. Defaults to False.
-        token_usage (bool): Whether to track token usage. Defaults to False.
-
-        Returns:
-        None
-        """
+    def __init__(self,config:BrowserConfig=None,additional_tools:list[Tool]=[],instructions:list=[],episodic_memory:EpisodicMemory=None,llm:BaseInference=None,max_iteration:int=10,use_vision:bool=False,verbose:bool=False,token_usage:bool=False) -> None:
         self.name='Web Agent'
         self.description='The web agent is designed to automate the process of gathering information from the internet, such as to navigate websites, perform searches, and retrieve data.'
-        self.browser=Browser(BrowserConfig(browser=browser,headless=headless,user_data_dir=Path(getcwd()).joinpath(f'./user_data/{browser}/{getuser()}').as_posix()))
         self.observation_prompt=read_markdown_file('./src/agent/web/prompt/observation.md')
         self.system_prompt=read_markdown_file('./src/agent/web/prompt/system.md')
         self.action_prompt=read_markdown_file('./src/agent/web/prompt/action.md')
         self.answer_prompt=read_markdown_file('./src/agent/web/prompt/answer.md')
         self.instructions=self.format_instructions(instructions)
-        self.context=Context(self.browser,ContextConfig())
         self.registry=Registry(main_tools+additional_tools)
+        self.browser=Browser(config=config)
+        self.context=Context(self.browser,ContextConfig())
         self.episodic_memory=episodic_memory
         self.max_iteration=max_iteration
         self.token_usage=token_usage

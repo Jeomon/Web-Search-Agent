@@ -86,6 +86,19 @@ class Context:
 
         if browser is not None:
            context=await browser.new_context(**parameters)
+        elif self.browser.config.browser_instance_path is not None:
+            parameters.update({
+                'headless':self.browser.config.headless,
+                'slow_mo':self.browser.config.slow_mo,
+                'timezone_id':'Asia/Kolkata',
+                'locale':'en-IN',
+                'user_data_dir':self.browser.config.user_data_dir,
+                'downloads_path':self.browser.config.downloads_path,
+                'args': ['--disable-blink-features=AutomationControlled','--no-infobars','--no-sandbox'],
+                'executable_path':self.browser.config.browser_instance_path,
+            })
+            #Only for chromium
+            context=await self.browser.playwright.chromium.launch_persistent_context(**parameters)
         else:
             parameters.update({
                 'headless':self.browser.config.headless,
@@ -94,7 +107,7 @@ class Context:
                 'locale':'en-IN',
                 'user_data_dir':self.browser.config.user_data_dir,
                 'downloads_path':self.browser.config.downloads_path,
-                'args': ['--disable-blink-features=AutomationControlled','--no-infobars','--no-sandbox']
+                'args': ['--disable-blink-features=AutomationControlled','--no-infobars','--no-sandbox'],
             })
             # browser is None if the user_data_dir is not None in the Browser class
             browser=self.browser.config.browser

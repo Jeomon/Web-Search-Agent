@@ -8,3 +8,4 @@ httpx
 nest_asyncio
 MainContentExtractor
 ratelimit
+pyaudio

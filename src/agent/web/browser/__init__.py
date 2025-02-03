@@ -3,9 +3,9 @@ from src.agent.web.browser.config import BrowserConfig,BROWSER_ARGS,SECURITY_ARG
 import asyncio
 
 class Browser:
-    def __init__(self,config:BrowserConfig=BrowserConfig()):
+    def __init__(self,config:BrowserConfig=None):
         self.playwright:Playwright = None
-        self.config = config
+        self.config = config if config else BrowserConfig()
         self.playwright_browser:PlaywrightBrowser = None
         self.loop = asyncio.get_event_loop()
 
@@ -26,6 +26,12 @@ class Browser:
         return self.playwright_browser
 
     async def setup_browser(self,browser:str)->PlaywrightBrowser:
+        parameters={
+            'headless':self.config.headless,
+            'downloads_path':self.config.downloads_path,
+            'slow_mo':self.config.slow_mo,
+            'args':BROWSER_ARGS + SECURITY_ARGS
+        }
         if self.config.wss_url is not None:
             if browser=='chrome':
                 browser_instance=await self.playwright.chromium.connect(self.config.wss_url)
@@ -35,15 +41,13 @@ class Browser:
                 browser_instance=await self.playwright.chromium.connect(self.config.wss_url)
             else:
                 raise Exception('Invalid Browser Type')
-        if self.config.user_data_dir is not None:
+        elif self.config.user_data_dir is not None:
             browser_instance=None
+        elif self.config.browser_instance_path is not None:
+            #Only for chromium
+            parameters.update({'executable_path':self.config.browser_instance_path})
+            browser_instance=await self.playwright.chromium.launch(**parameters)
         else:
-            parameters={
-                'headless':self.config.headless,
-                'downloads_path':self.config.downloads_path,
-                'slow_mo':self.config.slow_mo,
-                'args':BROWSER_ARGS + SECURITY_ARGS
-            }
             if browser=='chrome':
                 browser_instance=await self.playwright.chromium.launch(channel='chrome',**parameters)
             elif browser=='firefox':
