@@ -76,7 +76,7 @@ class Context:
         
     async def setup_context(self,browser:PlaywrightBrowser|None=None)->PlaywrightBrowserContext:
         parameters={
-            'no_viewport':False,
+            'no_viewport':True,
             'ignore_https_errors':self.config.disable_security,
             'user_agent':self.config.user_agent,
             'java_script_enabled':True,
@@ -95,7 +95,7 @@ class Context:
                 'user_data_dir':self.browser.config.user_data_dir,
                 'downloads_path':self.browser.config.downloads_path,
                 'args': ['--disable-blink-features=AutomationControlled','--no-infobars','--no-sandbox'],
-                'executable_path':self.browser.config.browser_instance_path,
+                'executable_path':self.browser.config.browser_instance_path
             })
             #Only for chromium
             context=await self.browser.playwright.chromium.launch_persistent_context(**parameters)
