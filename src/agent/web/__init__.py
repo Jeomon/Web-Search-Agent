@@ -94,9 +94,13 @@ class WebAgent(BaseAgent):
         last_message=state['messages'][-1] # ImageMessage/HumanMessage
         if isinstance(last_message,(ImageMessage,HumanMessage)):
             state['messages'][-1]=HumanMessage(f'<Observation>{state.get('prev_observation')}</Observation>')
-        agent_data=state.get('agent_data')
-        thought=agent_data.get('Thought')
-        final_answer=agent_data.get('Final Answer')
+        if self.iteration<self.max_iteration:
+            agent_data=state.get('agent_data')
+            thought=agent_data.get('Thought')
+            final_answer=agent_data.get('Final Answer')
+        else:
+            thought='Looks like I have reached the maximum iteration limit reached.',
+            final_answer='Maximum Iteration reached.'
         answer_prompt=self.answer_prompt.format(thought=thought,final_answer=final_answer)
         messages=[AIMessage(answer_prompt)]
         if self.verbose:
@@ -105,7 +109,11 @@ class WebAgent(BaseAgent):
     
     def controller(self,state:AgentState):
         "Route to the next node"
-        return state.get('route').lower()
+        if self.iteration<self.max_iteration:
+            self.iteration+=1
+            return state.get('route').lower()
+        else:
+            return 'final'
 
     def create_graph(self):
         "Create the graph"
@@ -124,7 +132,11 @@ class WebAgent(BaseAgent):
     async def async_invoke(self, input: str):
         actions_prompt=self.registry.actions_prompt()
         current_datetime=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        system_prompt=self.system_prompt.format(instructions=self.instructions,current_datetime=current_datetime,actions_prompt=actions_prompt)
+        system_prompt=self.system_prompt.format({
+            'instructions':self.instructions,
+            'current_datetime':current_datetime,
+            'actions_prompt':actions_prompt
+        })
         # Attach episodic memory to the system prompt 
         if self.episodic_memory and self.episodic_memory.retrieve(input):
             system_prompt=self.episodic_memory.attach_memory(system_prompt)
@@ -134,6 +146,7 @@ class WebAgent(BaseAgent):
             'input':input,
             'agent_data':{},
             'output':'',
+            'route':'',
             'messages':messages
         }
         response=await self.graph.ainvoke(state)
