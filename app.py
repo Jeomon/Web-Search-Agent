@@ -16,7 +16,7 @@ speech_llm=AudioGroq(model='whisper-large-v3',mode='translations',api_key=groq_a
 
 # Initialize Web Agent
 config=BrowserConfig(browser='edge',headless=False)
-agent=WebAgent(config=config,llm=llm,verbose=True, use_vision=True)
+agent=WebAgent(config=config,instructions=[],llm=llm,verbose=True, use_vision=True,max_iteration=15)
 
 mode=input('Enter the mode of input (text/voice): ')
 if mode=='text':

@@ -17,9 +17,8 @@ import asyncio
 import json
 
 main_tools=[
-    click_tool,goto_tool,type_tool,scroll_tool,
-    wait_tool,back_tool,key_tool,download_tool,tab_tool,
-    upload_tool
+    download_tool,click_tool,goto_tool,type_tool,scroll_tool,
+    wait_tool,back_tool,key_tool,tab_tool,upload_tool
 ]
 
 class WebAgent(BaseAgent):
@@ -132,7 +131,7 @@ class WebAgent(BaseAgent):
     async def async_invoke(self, input: str):
         actions_prompt=self.registry.actions_prompt()
         current_datetime=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        system_prompt=self.system_prompt.format({
+        system_prompt=self.system_prompt.format(**{
             'instructions':self.instructions,
             'current_datetime':current_datetime,
             'actions_prompt':actions_prompt

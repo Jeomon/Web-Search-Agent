@@ -1,5 +1,7 @@
 from playwright.async_api import async_playwright,Browser as PlaywrightBrowser,Playwright
 from src.agent.web.browser.config import BrowserConfig,BROWSER_ARGS,SECURITY_ARGS
+from httpx import AsyncClient
+from subprocess import Popen,DEVNULL
 import asyncio
 
 class Browser:
@@ -7,6 +9,7 @@ class Browser:
         self.playwright:Playwright = None
         self.config = config if config else BrowserConfig()
         self.playwright_browser:PlaywrightBrowser = None
+        self.process=None
         self.loop = asyncio.get_event_loop()
 
     async def __aenter__(self):
@@ -45,8 +48,13 @@ class Browser:
             browser_instance=None
         elif self.config.browser_instance_path is not None:
             #Only for chromium
-            parameters.update({'executable_path':self.config.browser_instance_path})
-            browser_instance=await self.playwright.chromium.launch(**parameters)
+            port=9222
+            self.process=Popen([self.config.browser_instance_path,f'--remote-debugging-port={port}','--headless'],stdout=DEVNULL,stderr=DEVNULL)
+            async with AsyncClient() as client:
+                response=await client.get(f'http://localhost:{port}/json')
+                if response.status_code!=200:
+                    raise Exception('Failed to connect to the browser instance')
+            browser_instance=await self.playwright.chromium.connect_over_cdp(f'http://localhost:{port}',slow_mo=self.config.slow_mo)
         else:
             if browser=='chrome':
                 browser_instance=await self.playwright.chromium.launch(channel='chrome',**parameters)
@@ -64,8 +72,11 @@ class Browser:
                 await self.playwright_browser.close()
             if self.playwright:
                 await self.playwright.stop()
+            if self.process:
+                self.process.terminate()
         except Exception as e:
             print('Browser failed to close')
         finally:
             self.playwright=None
             self.playwright_browser=None
+            self.process=None
