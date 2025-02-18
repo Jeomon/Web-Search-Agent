@@ -10,7 +10,6 @@ class Browser:
         self.config = config if config else BrowserConfig()
         self.playwright_browser:PlaywrightBrowser = None
         self.process=None
-        self.loop = asyncio.get_event_loop()
 
     async def __aenter__(self):
         await self.init_browser()
