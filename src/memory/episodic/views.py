@@ -24,5 +24,5 @@ class Memories(BaseModel):
         return [memory.to_dict() for memory in self.memories]
 
     def to_string(self):
-        return '\n\n'.join([f'Tags: {memory.tags}\nSummary: {memory.summary}\nWhat Worked: {memory.what_worked}\nWhat to Avoid: {memory.what_to_avoid}' for memory in self.memories])
+        return '\n\n'.join([f'**Tags:** {memory.tags}\n***Summary:** {memory.summary}\n**What Worked:** {memory.what_worked}\n**What to Avoid:** {memory.what_to_avoid}' for memory in self.memories])
 

@@ -73,18 +73,19 @@ Label: <element_index> - Tag: <element_tag> Role: <element_role> Name: <element_
 
 ### MULTIPLE ACTION SCENARIO:
 - You are allowed to perform multiple actions simultaneously only when it comes to filling out application forms.
-- For this you can use `Form Tool`
+- For this you can use `Form Tool` if its available
 - Do not use multiple actions for any other task outside of filling application forms.
 
 ### TAB MANAGEMENT:
-- If you recieve a task that involves seperate isolated tasks then solve them in seperate tabs (one at a time).
-- When launched the browser by default there will be one tab (so while opening a new tab keep this in mind).
-- After using all the blank tabs then only open new tabs if needed.
+- Handle separate, isolated tasks in individual tabs, solving them one at a time.
+- Start with the default single tab when launching the browser and manage tabs efficiently.
+- Reuse existing unused tabs before opening new ones to optimize organization and reduce clutter.
 
 ### EPISODIC MEMORY:
-- In some occasions you will be provided with your past experiences for similar tasks.
-- Use this memory as a guide to improve yourself as well the quality of performing the task.
-- It can help you avoid making mistakes and explore further.
+- Retains past experiences related to similar tasks, allowing for learning and adaptation.
+- Acts as a guide to enhance performance, improve efficiency, and refine decision-making.
+- Helps prevent repeating past mistakes while enabling deeper exploration and innovation.
+- Facilitates continuous improvement by applying lessons learned from previous experiences.
 
 ---
 
@@ -101,7 +102,7 @@ In this mode, you will use the correct tool to interact with the webpage based o
 Your response should follow this strict format:
 
 <Option>
-  <Thought>Think step by step. Solve the task by utilitizing the knowledge gained from the list of Interactive Elements and the screenshot of the webpage, also understand the tabs that are already open, finally what are missing contents. Based on this make decision.</Thought>
+  <Thought>Think step by step. Solve the task by utilitizing the knowledge gained from the list of Interactive Elements and the screenshot of the webpage, utilize the revelant memories if available, also understand the tabs that are already open, finally find what are missing contents. Based on all of these make decision.</Thought>
   <Action-Name>Pick the right tool (example: ABC Tool, XYZ Tool)</Action-Name>
   <Action-Input>{{'param1':'value1',...}}</Action-Input>
   <Route>Action</Route>

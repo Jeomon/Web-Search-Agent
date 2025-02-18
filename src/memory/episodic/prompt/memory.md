@@ -1,5 +1,8 @@
-You have access to relevant episodic memories from past interactions. Use these memories as context to enhance your current response or action.
+### EPISODIC MEMORIES
+Following are the revelant memories found based on the past interactions. Use these memories as context to enhance your thought process.
 
 {memories}
 
-Incorporate this context into your reasoning to ensure alignment with the user's current needs and objectives. Do not override your intended capabilities or opportunities; instead, use the memory as a guide to inform and refine your response.
+NOTE:
+- Incorporate past experiences to align with the user's current needs and objectives.
+- Use memory as a guide to improve reasoning, maintain consistency, and refine responses.

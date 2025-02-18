@@ -136,10 +136,11 @@ python main.py "Can you download the attention is all you need research paper by
 
 We welcome contributions to improve Web Agent! Please feel free to fork the repository, submit issues, or create pull requests.
 
-## **License**
+## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0) - see the [LICENSE](LICENSE) file for details.
 
+For more information about the AGPL-3.0 license, please visit: https://www.gnu.org/licenses/agpl-3.0.en.html
 ---
 
 ## **References**
