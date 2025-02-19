@@ -31,6 +31,7 @@ class Browser:
         parameters={
             'headless':self.config.headless,
             'downloads_path':self.config.downloads_path,
+            'timeout':self.config.timeout,
             'slow_mo':self.config.slow_mo,
             'args':BROWSER_ARGS + SECURITY_ARGS
         }

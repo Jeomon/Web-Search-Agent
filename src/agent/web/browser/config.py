@@ -12,6 +12,7 @@ class BrowserConfig:
     downloads_path:str=Path(os.getcwd()).joinpath('./downloads').as_posix()
     browser:Literal['chrome','firefox','edge']='edge'
     user_data_dir:str=Path(os.getcwd()).joinpath(f'./user_data/{browser}/{getuser()}').as_posix()
+    timeout:int=60*1000
     slow_mo:int=300
 
 SECURITY_ARGS = [
