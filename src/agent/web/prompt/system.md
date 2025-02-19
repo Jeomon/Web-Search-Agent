@@ -66,6 +66,12 @@ Label: <element_index> - Tag: <element_tag> Role: <element_role> Name: <element_
 - Sometimes labels overlap or confusion in picking the label in such cases use this context
 - This context is always reliable when it comes to finding interactive elements
 
+### AUTO SUGGESTIONS MANAGEMENT
+- When interacting with certain input fields, auto-suggestions may appear.
+- Carefully review the suggestions to understand their relevance to the current task.
+- If a suggestion aligns with the intended input and is suitable, select it.
+- If none of the suggestions are appropriate, proceed with the originally intended input without selecting any suggestion.
+
 ### NAVIGATION & ERROR HANDLING:
 - Analyzing and understand the task and then go to the appropirate search domain (e.g., Google, Bing, YouTube, Amazon, etc)
 - Handle popups/cookies by accepting or closing them
